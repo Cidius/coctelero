@@ -1,0 +1,33 @@
+<?php
+/**
+ * Copiar este archivo a config.php y completar con los datos reales.
+ * config.php NUNCA se sube al repo (esta en .gitignore).
+ *
+ * En Hostinger, config.php debe quedar FUERA de /public (por ejemplo en la
+ * raiz del proyecto o en un nivel superior). El document root del hosting
+ * apunta a /public, asi que config.php no es accesible por URL.
+ */
+
+return [
+    'db' => [
+        'host'    => 'localhost',
+        'port'    => 3306,
+        'name'    => 'coctelero',
+        'user'    => 'root',
+        'pass'    => '',
+        'charset' => 'utf8mb4',
+    ],
+
+    // URL base publica del sitio, sin barra final. Ej: https://cocteles.midominio.com
+    'base_url' => 'http://localhost:8000',
+
+    // Ruta absoluta a la carpeta de imagenes subidas.
+    'uploads_dir' => __DIR__ . '/uploads/recipes',
+
+    // Entorno: 'dev' muestra errores en pantalla, 'prod' los oculta y loguea.
+    'env' => 'dev',
+
+    // Login: intentos permitidos por IP antes del bloqueo temporal.
+    'login_max_attempts' => 5,
+    'login_lockout_minutes' => 15,
+];

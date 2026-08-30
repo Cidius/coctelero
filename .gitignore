@@ -22,3 +22,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Temporales de extraccion de .docx
+docx_x/
+~$*

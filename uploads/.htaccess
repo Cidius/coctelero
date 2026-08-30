@@ -1,0 +1,35 @@
+# --- /uploads: solo servir archivos estaticos, NUNCA ejecutar codigo ---
+# Evita que un .php disfrazado de imagen se ejecute si logra subirse.
+
+Options -Indexes -ExecCGI
+
+# Apache 2.4
+<IfModule mod_authz_core.c>
+    <FilesMatch "\.(php|php3|php4|php5|php7|php8|phtml|phar|pl|py|cgi|sh|asp|aspx|jsp)$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+# Apache 2.2 (fallback)
+<IfModule !mod_authz_core.c>
+    <FilesMatch "\.(php|php3|php4|php5|php7|php8|phtml|phar|pl|py|cgi|sh|asp|aspx|jsp)$">
+        Order Deny,Allow
+        Deny from all
+    </FilesMatch>
+</IfModule>
+
+# Desactivar el motor PHP en esta carpeta (si el hosting lo permite)
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# Forzar que las imagenes se sirvan como imagenes
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>

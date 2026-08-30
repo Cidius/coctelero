@@ -1,0 +1,25 @@
+# --- Recetario de Cocteles: reglas del front publico ---
+
+# UTF-8 por defecto
+AddDefaultCharset UTF-8
+
+# No listar directorios
+Options -Indexes
+
+# Headers de seguridad basicos
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Front controller simple: si el archivo/carpeta no existe, no reescribimos nada
+# todavia (Fase 2 define el ruteo real). Por ahora solo protegemos.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+</IfModule>
+
+# Bloquear acceso a archivos sensibles si alguien los sube por error aca
+<FilesMatch "\.(sql|md|example|ini|log|sh)$">
+    Require all denied
+</FilesMatch>
