@@ -1,0 +1,24 @@
+# Credenciales / config local
+config.php
+.env
+.env.*
+!.env.example
+
+# Imágenes subidas por el admin
+/uploads/recipes/*
+!/uploads/recipes/.gitkeep
+
+# Dependencias
+/vendor/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
