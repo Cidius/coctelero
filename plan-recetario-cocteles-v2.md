@@ -17,6 +17,26 @@
 
 Todo lo demás de la v1 se mantiene.
 
+### Ajuste durante la implementación (Fase 1)
+
+- Se agregó la columna **`recipes.method_detail`** (VARCHAR 255): guarda la técnica
+  textual completa del recetario (ej. "Batido y doble colado", "Machacado, batido
+  y doble colado") para mostrarla en la ficha. `method` sigue siendo el ENUM
+  cerrado y es lo único que se usa para filtrar. `method_other` se mantiene solo
+  para `method = 'otro'` (ninguna de las 52 lo necesita).
+- Se agregó la tabla **`login_attempts`** para el rate limiting del login (Fase 3).
+- Los **tags de destilado/característica de las 52 recetas se autoderivan** por
+  palabras clave en el generador del seed. Es una primera pasada: el admin los
+  corrige desde el panel en la Fase 3.
+
+### Estado
+
+- **Fase 0 (setup):** hecha.
+- **Fase 1 (datos):** hecha (`schema.sql` + `seed_52_recetas.sql`, 52 recetas /
+  222 ingredientes / 39 tags). Falta correr los scripts contra una base real y
+  verificar.
+- **Fase 2 (front público):** siguiente.
+
 ---
 
 ## 1. Objetivo
