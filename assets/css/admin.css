@@ -1,0 +1,111 @@
+/* Admin - se apoya en las variables de app.css (cargado antes) */
+
+.admin { padding-bottom: 60px; }
+.admin-main { max-width: 780px; }
+
+.admin-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    padding: 12px 0;
+    margin-bottom: 22px;
+}
+.admin-bar .wrap { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.admin-bar .brand { color: var(--text); font-weight: 600; }
+.admin-bar nav { display: flex; align-items: center; gap: 14px; margin-left: auto; font-size: 0.9rem; }
+.admin-bar nav .who { color: var(--muted); }
+
+.page-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.page-head h1 { font-size: 1.3rem; margin: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 0.8rem; }
+
+/* Botones */
+.btn, button.btn {
+    display: inline-block;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    text-decoration: none;
+}
+.btn:hover { border-color: var(--accent); text-decoration: none; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+button.link {
+    background: none; border: none; color: var(--accent);
+    cursor: pointer; font-size: 0.85rem; padding: 0;
+}
+button.link.danger, .link.danger { color: #e0736a; }
+
+/* Alertas */
+.alert { padding: 10px 14px; border-radius: 9px; margin: 0 0 14px; font-size: 0.9rem; }
+.alert.ok { background: #1f3a2a; color: #cdefd7; border: 1px solid #2f6b45; }
+.alert.error { background: #3a1f1f; color: #f0cdcd; border: 1px solid #7a3b3b; }
+
+/* Tabla de listado */
+table.list { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+table.list th {
+    text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line);
+    color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em;
+}
+table.list td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.list td.thumb-cell { width: 56px; }
+table.list td.thumb-cell img { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; display: block; }
+table.list td.thumb-cell .noimg { color: var(--line); }
+table.list td.actions { white-space: nowrap; text-align: right; }
+table.list td.actions form { display: inline; margin-left: 10px; }
+
+/* Login */
+.login-box {
+    max-width: 340px; margin: 8vh auto 0; background: var(--surface);
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 26px;
+}
+.login-box h1 { font-size: 1.15rem; margin: 0 0 16px; }
+.login-box label { display: block; margin-bottom: 12px; font-size: 0.85rem; color: var(--muted); }
+.login-box input {
+    width: 100%; margin-top: 4px; padding: 10px 12px; font-size: 1rem;
+    background: var(--bg); border: 1px solid var(--line); border-radius: 8px; color: var(--text);
+}
+.login-box button {
+    width: 100%; padding: 11px; margin-top: 4px; font-size: 1rem;
+    background: var(--accent); color: var(--accent-ink); border: none; border-radius: 8px;
+    font-weight: 600; cursor: pointer;
+}
+
+/* Formulario de receta */
+.recipe-form { display: flex; flex-direction: column; gap: 15px; }
+.recipe-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+@media (max-width: 560px) { .recipe-form .row { grid-template-columns: 1fr; } }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field > span { font-size: 0.8rem; color: var(--muted); }
+.field input[type="text"], .field input[type="file"], .field select, .field textarea {
+    padding: 9px 11px; font-size: 0.95rem; font-family: inherit;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px; color: var(--text);
+    width: 100%;
+}
+.field textarea { resize: vertical; line-height: 1.5; }
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--accent); }
+label.inline { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--muted); }
+
+.current-image { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.current-image img { width: 90px; height: 68px; object-fit: cover; border-radius: 8px; }
+
+.form-actions { display: flex; gap: 10px; margin-top: 8px; }
+
+/* Sugerencias de tags */
+.field { position: relative; }
+.suggest {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 20;
+    background: var(--surface); border: 1px solid var(--line); border-top: none;
+    border-radius: 0 0 8px 8px; max-height: 220px; overflow-y: auto;
+}
+.suggest button {
+    display: block; width: 100%; text-align: left; padding: 8px 11px;
+    background: none; border: none; color: var(--text); cursor: pointer; font-size: 0.9rem;
+}
+.suggest button:hover { background: var(--surface-2); }

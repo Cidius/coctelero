@@ -106,3 +106,64 @@ function query_tags(array $get): array
     }
     return array_values($out);
 }
+
+/** Convierte un texto a slug (minusculas, sin acentos, separado por guiones). */
+function slugify(string $s): string
+{
+    $s = mb_strtolower(trim($s), 'UTF-8');
+    $s = str_replace('&', ' ', $s);
+    $from = ['á','é','í','ó','ú','ü','ñ','à','è','ì','ò','ù','â','ê','î','ô','û','ç','½','¼','¾'];
+    $to   = ['a','e','i','o','u','u','n','a','e','i','o','u','a','e','i','o','u','c','', '', ''];
+    $s = str_replace($from, $to, $s);
+    $s = preg_replace('/[^a-z0-9]+/', '-', $s) ?? '';
+    return trim($s, '-');
+}
+
+/** Normaliza una unidad de medida a una forma canonica (o null). */
+function normalize_unit(?string $u): ?string
+{
+    if ($u === null || trim($u) === '') {
+        return null;
+    }
+    $u = mb_strtolower(rtrim(trim($u), '.'), 'UTF-8');
+    $map = [
+        'ml' => 'ml', 'cl' => 'cl', 'cc' => 'cc', 'oz' => 'oz',
+        'cda' => 'cda', 'cucharada' => 'cda', 'cucharadas' => 'cda',
+        'cdta' => 'cdta', 'cucharadita' => 'cdta', 'cucharaditas' => 'cdta',
+        'bsp' => 'bsp',
+        'dash' => 'dash', 'dashes' => 'dash',
+        'gota' => 'gota', 'gotas' => 'gota',
+        'hoja' => 'hoja', 'hojas' => 'hoja',
+        'rodaja' => 'rodaja', 'rodajas' => 'rodaja',
+        'lamina' => 'lamina', 'laminas' => 'lamina',
+        'unidad' => 'unidad', 'unidades' => 'unidad',
+        'parte' => 'parte', 'partes' => 'parte',
+    ];
+    return $map[$u] ?? null;
+}
+
+/**
+ * Parsea una linea de ingrediente. raw_text conserva el texto completo;
+ * amount/unit se extraen si la linea arranca con un numero.
+ *
+ * @return array{raw:string, amount:?float, unit:?string}
+ */
+function parse_ingredient_line(string $line): array
+{
+    $raw = trim($line);
+    $amount = null;
+    $unit = null;
+    $s = preg_replace('/(\d),(\d)/', '$1.$2', $raw) ?? $raw;
+    if (preg_match('/^(\d+(?:\.\d+)?)(?:\s*\/\s*\d+)?\s*\.?\s*(\p{L}+)?/u', $s, $m)) {
+        $amount = (float) $m[1];
+        $unit = normalize_unit($m[2] ?? null);
+    }
+    return ['raw' => $raw, 'amount' => $amount, 'unit' => $unit];
+}
+
+/** Redirige y corta la ejecucion. */
+function redirect(string $path): never
+{
+    header('Location: ' . url($path));
+    exit;
+}

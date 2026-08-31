@@ -12,7 +12,7 @@ Plan técnico completo: [`plan-recetario-cocteles-v2.md`](plan-recetario-coctele
 | 0 — Setup | Estructura, PDO, `.htaccess`, config | ✅ |
 | 1 — Datos | `schema.sql` + seed de 52 recetas | ✅ |
 | 2 — Front público | Home, listado, filtros, buscador, detalle | ✅ |
-| 3 — Admin | Login, CRUD, subida de imágenes, tags | pendiente |
+| 3 — Admin | Login, CRUD, papelera, subida de imágenes, tags | ✅ |
 | 4 — Pulido | Responsive fino, SEO, estados vacíos | pendiente |
 
 ## Puesta en marcha (local)
@@ -65,9 +65,24 @@ La raíz del repo **es** el `public_html/` del hosting: se sube todo tal cual.
   fuente/                 recetario original + generador del seed
 ```
 
-En Hostinger sólo hacen falta `index.php`, `receta.php`, `api/`, `assets/`,
-`uploads/`, `.htaccess`, `config.php` y `src/`. `sql/`, `bin/` y los `.md` se
-pueden subir (quedan bloqueados) o directamente omitir.
+En Hostinger sólo hacen falta `index.php`, `receta.php`, `admin/`, `api/`,
+`assets/`, `uploads/`, `.htaccess`, `config.php` y `src/`. `sql/`, `bin/` y los
+`.md` se pueden subir (quedan bloqueados) o directamente omitir.
+
+## Admin
+
+`/admin/login.php` — un solo usuario, creado con `php bin/create-admin.php <user>`.
+
+| Ruta | Qué hace |
+|------|----------|
+| `admin/dashboard.php` | listado editable de recetas activas |
+| `admin/receta-form.php` (`?id=N` para editar) | alta y edición: campos, ingredientes (uno por línea), tags con autocompletado, imagen |
+| `admin/papelera.php` | recetas con soft delete, con opción de restaurar |
+
+Seguridad: sesión con cookie `HttpOnly`/`SameSite`, `session_regenerate_id` al
+loguear, token CSRF en todos los forms, límite de intentos por IP
+(`login_attempts`), imágenes validadas con `getimagesize()` y reescritas a WebP
+con GD (máx 1400 px).
 
 ## API de listado
 

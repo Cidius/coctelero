@@ -35,7 +35,17 @@ Todo lo demás de la v1 se mantiene.
 - **Fase 1 (datos):** hecha (`schema.sql` + `seed_52_recetas.sql`, 52 recetas /
   222 ingredientes / 39 tags). Falta correr los scripts contra una base real y
   verificar.
-- **Fase 2 (front público):** siguiente.
+- **Fase 2 (front público):** hecha. Listado + filtros + buscador (`api/recipes.php`)
+  y ficha de detalle. Sin JS funciona igual (render server-side).
+- **Fase 3 (admin):** hecha. `src/Auth.php` (sesión, CSRF, rate-limit),
+  `src/RecipeAdmin.php` (ABM + sync de ingredientes/tags + slug único),
+  `src/Uploader.php` (validación + resize a WebP con GD). Páginas en `/admin/`:
+  login, dashboard, form alta/edición, papelera (restaurar), delete/restore.
+  `api/tags.php` para el autocompletado de etiquetas.
+- **Estructura:** la raíz del repo pasó a ser el `public_html/` de Hostinger
+  (el FTP no deja escribir fuera de ahí). `src/`, `sql/`, `bin/`, `config.php`
+  quedan bajo la raíz, bloqueados por `.htaccess`.
+- **Fase 4 (pulido / SEO):** siguiente.
 
 ---
 
