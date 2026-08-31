@@ -1,0 +1,33 @@
+# ================================================================
+#  Recetario de Cocteles  -  reglas del sitio (raiz = public_html)
+# ================================================================
+
+AddDefaultCharset UTF-8
+Options -Indexes
+
+# ---- Headers de seguridad ----
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ---- Bloquear carpetas internas (no son parte del sitio publico) ----
+# src/ = codigo PHP, sql/ = esquema y datos, bin/ = scripts CLI
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(src|sql|bin)/ - [F,L]
+</IfModule>
+
+# ---- Bloquear archivos sensibles / no publicos ----
+<FilesMatch "(^config\.php$|\.(example|md|sql|docx|log|ini|sh|dist)$|^\.)">
+    Require all denied
+</FilesMatch>
+
+# Fallback para Apache 2.2
+<IfModule !mod_authz_core.c>
+    <FilesMatch "(^config\.php$|\.(example|md|sql|docx|log|ini|sh|dist)$)">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>

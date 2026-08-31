@@ -32,34 +32,42 @@ mysql -u USUARIO -p NOMBRE_BASE < sql/seed_52_recetas.sql
 php bin/create-admin.php miusuario
 
 # 4. Servidor de desarrollo
-php -S localhost:8000 -t public
+php -S localhost:8000
 ```
 
-Abrir <http://localhost:8000> — debería listar las 52 recetas (placeholder de Fase 0).
+Abrir <http://localhost:8000> — debería listar las 52 recetas.
+
+> El servidor embebido de PHP ignora `.htaccess`, así que en local `src/`, `sql/`
+> y `config.php` quedan accesibles. En Hostinger (Apache/LiteSpeed) el `.htaccess`
+> de la raíz los bloquea.
 
 ## Estructura
 
+La raíz del repo **es** el `public_html/` del hosting: se sube todo tal cual.
+
 ```
-/public         document root (lo único servido por el hosting)
-  index.php     home: listado + buscador + filtros
-  receta.php    detalle (?slug=negroni)
-  api/
-    recipes.php endpoint JSON para el filtrado sin recarga
+/                  raíz del sitio (= public_html)
+  index.php        home: listado + buscador + filtros
+  receta.php       detalle (?slug=negroni)
+  api/recipes.php  endpoint JSON para el filtrado sin recarga
   assets/css, assets/js
-  uploads/recipes  imágenes subidas (no ejecutable, ver .htaccess)
-  .htaccess
-/src
-  Database.php  conexión PDO singleton
-  helpers.php   escape, urls, etiquetas de método
-  Recipe.php    queries de listado / detalle / tags
-/bin
-  create-admin.php
+  uploads/recipes  imágenes subidas (.htaccess bloquea ejecución de PHP)
+  .htaccess        headers de seguridad + bloqueo de src/ sql/ bin/ config.php
+  config.php       credenciales — NO se versiona, bloqueado por .htaccess
+/src               código PHP (bloqueado por URL)
+  Database.php     conexión PDO singleton
+  helpers.php      escape, urls, etiquetas de método
+  Recipe.php       queries de listado / detalle / tags
+/bin/create-admin.php
 /sql
   schema.sql              tablas, índices, ENUM, FULLTEXT
   seed_52_recetas.sql     GENERADO — no editar a mano
   fuente/                 recetario original + generador del seed
-config.php                credenciales — NO se versiona
 ```
+
+En Hostinger sólo hacen falta `index.php`, `receta.php`, `api/`, `assets/`,
+`uploads/`, `.htaccess`, `config.php` y `src/`. `sql/`, `bin/` y los `.md` se
+pueden subir (quedan bloqueados) o directamente omitir.
 
 ## API de listado
 

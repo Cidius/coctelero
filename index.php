@@ -8,8 +8,8 @@ declare(strict_types=1);
  * app.js lo mejora: filtra sin recargar via /api/recipes.php.
  */
 
-require __DIR__ . '/../src/helpers.php';
-require __DIR__ . '/../src/Recipe.php';
+require __DIR__ . '/src/helpers.php';
+require __DIR__ . '/src/Recipe.php';
 
 use App\Recipe;
 

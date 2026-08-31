@@ -5,8 +5,8 @@ declare(strict_types=1);
  * Detalle de una receta: /receta.php?slug=negroni
  */
 
-require __DIR__ . '/../src/helpers.php';
-require __DIR__ . '/../src/Recipe.php';
+require __DIR__ . '/src/helpers.php';
+require __DIR__ . '/src/Recipe.php';
 
 use App\Recipe;
 

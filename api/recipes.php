@@ -15,8 +15,8 @@ declare(strict_types=1);
  *              method_label, garnish, tags:[{name,slug}]} ], meta: {...} }
  */
 
-require __DIR__ . '/../../src/helpers.php';
-require __DIR__ . '/../../src/Recipe.php';
+require __DIR__ . '/../src/helpers.php';
+require __DIR__ . '/../src/Recipe.php';
 
 use App\Recipe;
 

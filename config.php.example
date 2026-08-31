@@ -24,7 +24,7 @@ return [
     'base_url' => '',
 
     // Ruta absoluta a la carpeta de imagenes subidas (servida por el hosting).
-    'uploads_dir' => __DIR__ . '/public/uploads/recipes',
+    'uploads_dir' => __DIR__ . '/uploads/recipes',
     // URL publica de esa carpeta, relativa a base_url.
     'uploads_url' => '/uploads/recipes',
 
