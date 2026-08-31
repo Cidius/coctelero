@@ -11,7 +11,7 @@ Plan técnico completo: [`plan-recetario-cocteles-v2.md`](plan-recetario-coctele
 |------|-------------|--------|
 | 0 — Setup | Estructura, PDO, `.htaccess`, config | ✅ |
 | 1 — Datos | `schema.sql` + seed de 52 recetas | ✅ |
-| 2 — Front público | Home, listado, filtros, buscador, detalle | pendiente |
+| 2 — Front público | Home, listado, filtros, buscador, detalle | ✅ |
 | 3 — Admin | Login, CRUD, subida de imágenes, tags | pendiente |
 | 4 — Pulido | Responsive fino, SEO, estados vacíos | pendiente |
 
@@ -41,19 +41,36 @@ Abrir <http://localhost:8000> — debería listar las 52 recetas (placeholder de
 
 ```
 /public         document root (lo único servido por el hosting)
-  index.php     home / listado (placeholder hasta la Fase 2)
+  index.php     home: listado + buscador + filtros
+  receta.php    detalle (?slug=negroni)
+  api/
+    recipes.php endpoint JSON para el filtrado sin recarga
+  assets/css, assets/js
+  uploads/recipes  imágenes subidas (no ejecutable, ver .htaccess)
   .htaccess
 /src
   Database.php  conexión PDO singleton
+  helpers.php   escape, urls, etiquetas de método
+  Recipe.php    queries de listado / detalle / tags
 /bin
   create-admin.php
 /sql
   schema.sql              tablas, índices, ENUM, FULLTEXT
   seed_52_recetas.sql     GENERADO — no editar a mano
   fuente/                 recetario original + generador del seed
-/uploads/recipes          imágenes subidas (no ejecutable, ver .htaccess)
 config.php                credenciales — NO se versiona
 ```
+
+## API de listado
+
+`GET /api/recipes.php` — parámetros combinables:
+
+| Param | Ejemplo | Nota |
+|-------|---------|------|
+| `q` | `?q=menta` | nombre, descripción e ingredientes |
+| `tag` | `?tag=ron&tag=menta` | repetible o `?tag=ron,menta`; AND entre tags |
+| `method` | `?method=batido` | uno de los valores del ENUM |
+| `page` / `per_page` | `?page=2` | `per_page` máx 60 |
 
 ## Regenerar el seed
 

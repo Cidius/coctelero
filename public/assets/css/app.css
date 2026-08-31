@@ -1,0 +1,240 @@
+/* Recetario de Cocteles - estilos base, mobile-first */
+
+:root {
+    --bg: #14110f;
+    --surface: #1e1a17;
+    --surface-2: #2a2420;
+    --text: #f3ede6;
+    --muted: #b3a89c;
+    --accent: #e0a458;
+    --accent-ink: #14110f;
+    --line: #3a332d;
+    --radius: 14px;
+    --maxw: 960px;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 16px; }
+
+/* Header */
+.site-header {
+    padding: 20px 0 12px;
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(6px);
+    z-index: 10;
+}
+.site-header h1 {
+    margin: 0;
+    font-size: 1.25rem;
+    letter-spacing: 0.02em;
+}
+.site-header h1 a { color: var(--text); }
+.site-header p { margin: 2px 0 0; color: var(--muted); font-size: 0.85rem; }
+
+/* Buscador */
+.search {
+    margin: 16px 0 10px;
+}
+.search input[type="search"] {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 1rem;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    outline: none;
+}
+.search input[type="search"]:focus { border-color: var(--accent); }
+
+/* Filtros */
+.filters { margin-bottom: 14px; }
+.filter-group { margin: 10px 0; }
+.filter-group h2 {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 6px;
+}
+.chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 11px;
+    font-size: 0.85rem;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+    user-select: none;
+    transition: background .12s, border-color .12s;
+}
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+    font-weight: 600;
+}
+.chip .count { color: var(--muted); font-size: 0.78rem; }
+.chip[aria-pressed="true"] .count { color: color-mix(in srgb, var(--accent-ink) 65%, transparent); }
+
+.toolbar {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 6px 0 14px;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+.toolbar button {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* Grilla de recetas */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding-bottom: 40px;
+}
+@media (min-width: 560px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 820px) {
+    .grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: transform .12s, border-color .12s;
+}
+.card:hover { transform: translateY(-2px); border-color: var(--accent); text-decoration: none; }
+.card .thumb {
+    aspect-ratio: 4 / 3;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--line);
+    font-size: 2rem;
+}
+.card .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card .body { padding: 11px 13px 13px; }
+.card h3 { margin: 0 0 3px; font-size: 1rem; color: var(--text); }
+.card .meta { color: var(--muted); font-size: 0.8rem; margin: 0; }
+.card .card-tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
+.card .card-tags span {
+    font-size: 0.72rem;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 2px 7px;
+}
+
+.empty {
+    text-align: center;
+    color: var(--muted);
+    padding: 48px 16px;
+}
+.empty strong { color: var(--text); display: block; margin-bottom: 4px; }
+
+.is-loading { opacity: 0.5; transition: opacity .1s; }
+
+/* Detalle de receta */
+.detail { padding: 20px 0 56px; }
+.detail .back { font-size: 0.88rem; }
+.detail h1 { margin: 12px 0 4px; font-size: 1.6rem; }
+.detail .hero {
+    margin: 14px 0;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface-2);
+    aspect-ratio: 16 / 10;
+}
+.detail .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.detail .specs {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin: 16px 0;
+}
+@media (min-width: 560px) { .detail .specs { grid-template-columns: repeat(2, 1fr); } }
+.detail .specs div { background: var(--surface); padding: 10px 13px; }
+.detail .specs dt {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--muted); margin-bottom: 2px;
+}
+.detail .specs dd { margin: 0; font-size: 0.95rem; }
+
+.detail h2 {
+    font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--accent); margin: 24px 0 8px;
+}
+.ingredients { list-style: none; padding: 0; margin: 0; }
+.ingredients li {
+    padding: 9px 0;
+    border-bottom: 1px solid var(--line);
+    display: flex; gap: 10px;
+}
+.ingredients li .amt { color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 64px; }
+.ingredients li:last-child { border-bottom: none; }
+
+.detail .tag-links { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
+.detail .tag-links a {
+    font-size: 0.82rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px 10px;
+}
+.detail .note {
+    background: var(--surface);
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    border-radius: 6px;
+    color: var(--muted);
+}
+
+.site-footer {
+    border-top: 1px solid var(--line);
+    padding: 20px 0 40px;
+    color: var(--muted);
+    font-size: 0.8rem;
+    text-align: center;
+}

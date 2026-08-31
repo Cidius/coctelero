@@ -21,8 +21,10 @@ return [
     // URL base publica del sitio, sin barra final. Ej: https://cocteles.midominio.com
     'base_url' => 'http://localhost:8000',
 
-    // Ruta absoluta a la carpeta de imagenes subidas.
-    'uploads_dir' => __DIR__ . '/uploads/recipes',
+    // Ruta absoluta a la carpeta de imagenes subidas (servida por el hosting).
+    'uploads_dir' => __DIR__ . '/public/uploads/recipes',
+    // URL publica de esa carpeta, relativa a base_url.
+    'uploads_url' => '/uploads/recipes',
 
     // Entorno: 'dev' muestra errores en pantalla, 'prod' los oculta y loguea.
     'env' => 'dev',

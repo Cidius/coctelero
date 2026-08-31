@@ -5,8 +5,8 @@ config.php
 !.env.example
 
 # Imágenes subidas por el admin
-/uploads/recipes/*
-!/uploads/recipes/.gitkeep
+/public/uploads/recipes/*
+!/public/uploads/recipes/.gitkeep
 
 # Dependencias
 /vendor/
