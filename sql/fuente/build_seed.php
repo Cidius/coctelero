@@ -90,8 +90,9 @@ fwrite(STDERR, count($recipes) . " recetas parseadas\n");
 function slugify(string $s): string
 {
     $s = mb_strtolower(trim($s));
-    $from = ['á','é','í','ó','ú','ü','ñ','à','è','ì','ò','ù','â','ê','î','ô','û','ç','½','¼','¾','&'];
-    $to   = ['a','e','i','o','u','u','n','a','e','i','o','u','a','e','i','o','u','c','' ,'' ,'' ,'y'];
+    $s = str_replace('&', ' ', $s); // "Naked & Famous" -> "naked-famous"
+    $from = ['á','é','í','ó','ú','ü','ñ','à','è','ì','ò','ù','â','ê','î','ô','û','ç','½','¼','¾'];
+    $to   = ['a','e','i','o','u','u','n','a','e','i','o','u','a','e','i','o','u','c','' ,'' ,'' ];
     $s = str_replace($from, $to, $s);
     $s = preg_replace('/[^a-z0-9]+/', '-', $s) ?? '';
     return trim($s, '-');
@@ -167,6 +168,9 @@ function parse_ingredients(string $text): array
 {
     $s = trim(rtrim(trim($text), '.'));
 
+    // Coma decimal -> punto ("22,5 ml" -> "22.5 ml"), ANTES de splitear por coma.
+    $s = preg_replace('/(\d),(\d)/u', '$1.$2', $s) ?? $s;
+
     // Conectores finales -> coma, para poder splitear parejo.
     $s = preg_replace('/\s*\.\s*Se completa con\s+/iu', ', completar con ', $s) ?? $s;
     $s = preg_replace('/\s+y\s+(?:se\s+)?completa(?:r)? con\s+/iu', ', completar con ', $s) ?? $s;
@@ -177,15 +181,18 @@ function parse_ingredients(string $text): array
     $s = preg_replace('/(\d)\s*y\s*¾/u', '$1.75', $s) ?? $s;
     $s = str_replace(['½', '¼', '¾'], ['0.5', '0.25', '0.75'], $s);
 
-    $parts = preg_split('/\s*,\s*/u', $s) ?: [];
-    // El ultimo fragmento suele traer " y " uniendo dos ingredientes.
-    $last = array_pop($parts);
-    if ($last !== null) {
-        if (preg_match('/^(.*\S)\s+y\s+(\S.*)$/u', $last, $mm)) {
-            $parts[] = $mm[1];
-            $parts[] = $mm[2];
-        } else {
-            $parts[] = $last;
+    // Split por coma y, dentro de cada fragmento, por " y " cuando lo que
+    // sigue arranca con un numero (dos ingredientes unidos: "A y 30 ml de B").
+    $splitY = static function (string $f) use (&$splitY): array {
+        if (preg_match('/^(.*?\S)\s+y\s+(\d.*)$/u', $f, $m)) {
+            return array_merge([trim($m[1])], $splitY(trim($m[2])));
+        }
+        return [trim($f)];
+    };
+    $parts = [];
+    foreach (preg_split('/\s*,\s*/u', $s) ?: [] as $frag) {
+        foreach ($splitY($frag) as $p) {
+            $parts[] = $p;
         }
     }
 
