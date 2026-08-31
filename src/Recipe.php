@@ -47,15 +47,26 @@ final class Recipe
         $params = [];
 
         if ($q !== '') {
-            // FULLTEXT sobre name+description, con fallback LIKE a nombre e ingredientes.
-            $where[] = '('
-                . 'MATCH(r.name, r.description) AGAINST (:ft IN BOOLEAN MODE) '
-                . 'OR r.name LIKE :like '
-                . 'OR EXISTS (SELECT 1 FROM recipe_ingredients ri '
-                . '           WHERE ri.recipe_id = r.id AND ri.raw_text LIKE :like)'
-                . ')';
-            $params[':ft']   = self::booleanQuery($q);
-            $params[':like'] = '%' . self::escapeLike($q) . '%';
+            // LIKE sobre nombre, descripcion e ingredientes. Cada termino de la
+            // busqueda debe aparecer en alguno de los tres campos (AND entre
+            // terminos). Placeholders distintos por uso: los prepares nativos
+            // de PDO no permiten reusar un mismo :nombre.
+            $t = 0;
+            foreach (preg_split('/\s+/', $q) ?: [] as $term) {
+                $term = trim($term);
+                if ($term === '') {
+                    continue;
+                }
+                $like = '%' . self::escapeLike($term) . '%';
+                [$a, $b, $c] = [":qa$t", ":qb$t", ":qc$t"];
+                $where[] = "(r.name LIKE $a OR r.description LIKE $b OR EXISTS "
+                    . "(SELECT 1 FROM recipe_ingredients ri "
+                    . "WHERE ri.recipe_id = r.id AND ri.raw_text LIKE $c))";
+                $params[$a] = $like;
+                $params[$b] = $like;
+                $params[$c] = $like;
+                $t++;
+            }
         }
 
         if ($method !== '' && isset(self::METHODS[$method])) {
@@ -235,19 +246,5 @@ final class Recipe
     private static function escapeLike(string $s): string
     {
         return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $s);
-    }
-
-    /** Convierte "gin limon" en "+gin* +limon*" para BOOLEAN MODE. */
-    private static function booleanQuery(string $q): string
-    {
-        $terms = preg_split('/\s+/', trim($q)) ?: [];
-        $out = [];
-        foreach ($terms as $t) {
-            $t = preg_replace('/[+\-><()~*"@]+/', '', $t) ?? '';
-            if (mb_strlen($t) >= 2) {
-                $out[] = '+' . $t . '*';
-            }
-        }
-        return implode(' ', $out);
     }
 }
