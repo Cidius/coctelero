@@ -18,8 +18,10 @@ return [
         'charset' => 'utf8mb4',
     ],
 
-    // URL base publica del sitio, sin barra final. Ej: https://cocteles.midominio.com
-    'base_url' => 'http://localhost:8000',
+    // URL base del sitio, sin barra final. Dejar VACIO para autodetectar el
+    // host del request (cambiar de dominio no requiere tocar esto). Completar
+    // solo para forzar un host/protocolo fijo. Ej: https://cocteles.midominio.com
+    'base_url' => '',
 
     // Ruta absoluta a la carpeta de imagenes subidas (servida por el hosting).
     'uploads_dir' => __DIR__ . '/public/uploads/recipes',

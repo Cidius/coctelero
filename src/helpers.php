@@ -33,11 +33,33 @@ function boot_errors(): void
     }
 }
 
-/** URL absoluta a partir de una ruta relativa. */
+/**
+ * URL del sitio a partir de una ruta relativa.
+ *
+ * Si config['base_url'] esta seteada, se usa como prefijo (util para forzar
+ * https o un host fijo, y para las URLs absolutas del SEO). Si no, se detecta
+ * el host del request: cambiar de dominio no requiere tocar nada.
+ * En CLI sin host, devuelve una ruta relativa a la raiz ("/...").
+ */
 function url(string $path = ''): string
 {
+    $path = '/' . ltrim($path, '/');
+
     $base = rtrim((string) (config()['base_url'] ?? ''), '/');
-    return $base . '/' . ltrim($path, '/');
+    if ($base !== '') {
+        return $base . $path;
+    }
+
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    if ($host === '') {
+        return $path; // CLI / sin request
+    }
+
+    $https = ($_SERVER['HTTPS'] ?? '') === 'on'
+        || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
+        || (int) ($_SERVER['SERVER_PORT'] ?? 0) === 443;
+
+    return ($https ? 'https' : 'http') . '://' . $host . $path;
 }
 
 /** URL publica de la imagen de una receta (o null si no tiene). */
