@@ -21,8 +21,10 @@ if (PHP_SAPI !== 'cli') {
 
 $username = $argv[1] ?? '';
 if ($username === '' || !preg_match('/^[A-Za-z0-9_.-]{3,50}$/', $username)) {
-    fwrite(STDERR, "Uso: php bin/create-admin.php <usuario>\n");
-    fwrite(STDERR, "  (3-50 caracteres: letras, numeros, . _ -)\n");
+    fwrite(STDERR, "Uso: php bin/create-admin.php <usuario> [contrasena]\n");
+    fwrite(STDERR, "  usuario: 3-50 caracteres (letras, numeros, . _ -)\n");
+    fwrite(STDERR, "  contrasena: opcional; si falta se pide por consola.\n");
+    fwrite(STDERR, "  Tambien lee ADMIN_PASSWORD del entorno.\n");
     exit(1);
 }
 
@@ -46,12 +48,21 @@ function prompt_hidden(string $label): string
     return $p;
 }
 
-$pass = prompt_hidden("Contrasena para '$username': ");
-$pass2 = prompt_hidden('Repetir: ');
+// Modo no interactivo (util para el Cron de Hostinger, sin SSH):
+//   php bin/create-admin.php <usuario> <contrasena>
+//   o  ADMIN_PASSWORD='...' php bin/create-admin.php <usuario>
+$envPass = getenv('ADMIN_PASSWORD');
+$argPass = $argv[2] ?? '';
 
-if ($pass !== $pass2) {
-    fwrite(STDERR, "No coinciden.\n");
-    exit(1);
+if ($argPass !== '' || $envPass !== false) {
+    $pass = $argPass !== '' ? $argPass : (string) $envPass;
+} else {
+    $pass = prompt_hidden("Contrasena para '$username': ");
+    $pass2 = prompt_hidden('Repetir: ');
+    if ($pass !== $pass2) {
+        fwrite(STDERR, "No coinciden.\n");
+        exit(1);
+    }
 }
 if (strlen($pass) < 10) {
     fwrite(STDERR, "Minimo 10 caracteres.\n");
