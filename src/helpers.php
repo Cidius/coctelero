@@ -62,6 +62,18 @@ function url(string $path = ''): string
     return ($https ? 'https' : 'http') . '://' . $host . $path;
 }
 
+/**
+ * URL de un asset con ?v=<fecha del archivo> para invalidar la cache del
+ * navegador en cada deploy. $path es relativo a la raiz del sitio.
+ */
+function asset(string $path): string
+{
+    $path = ltrim($path, '/');
+    $file = dirname(__DIR__) . '/' . $path;
+    $v = is_file($file) ? filemtime($file) : false;
+    return url($path) . ($v !== false ? '?v=' . $v : '');
+}
+
 /** URL publica de la imagen de una receta (o null si no tiene). */
 function recipe_image_url(?string $imagePath): ?string
 {

@@ -10,6 +10,7 @@ require __DIR__ . '/src/Recipe.php';
 
 use App\Recipe;
 
+use function App\asset;
 use function App\boot_errors;
 use function App\e;
 use function App\method_label;
@@ -32,7 +33,7 @@ if ($recipe === null) {
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Receta no encontrada</title>
-        <link rel="stylesheet" href="<?= e(url('assets/css/app.css')) ?>">
+        <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
     </head>
     <body>
     <main class="wrap detail">
@@ -70,7 +71,7 @@ $metaDesc = $recipe['name'] . ' — '
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($recipe['name']) ?> · Recetario de Cócteles</title>
     <meta name="description" content="<?= e(mb_substr($metaDesc, 0, 160)) ?>">
-    <link rel="stylesheet" href="<?= e(url('assets/css/app.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
 </head>
 <body>
 <header class="site-header">

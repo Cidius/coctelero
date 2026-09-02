@@ -9,6 +9,7 @@ use App\Auth;
 use App\RecipeAdmin;
 use App\Uploader;
 
+use function App\asset;
 use function App\e;
 use function App\method_label;
 use function App\recipe_image_url;
@@ -291,6 +292,6 @@ admin_header($editing ? 'Editar receta' : 'Nueva receta');
     </div>
 </form>
 
-<script src="<?= e(url('assets/js/admin-form.js')) ?>" defer></script>
+<script src="<?= e(asset('assets/js/admin-form.js')) ?>" defer></script>
 <?php
 admin_footer();

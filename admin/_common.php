@@ -10,6 +10,7 @@ require_once __DIR__ . '/../src/Auth.php';
 
 use App\Auth;
 
+use function App\asset;
 use function App\boot_errors;
 use function App\e;
 use function App\url;
@@ -42,8 +43,8 @@ function admin_header(string $title, bool $chrome = true): void
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <title><?= e($title) ?> · Admin</title>
-    <link rel="stylesheet" href="<?= e(url('assets/css/app.css')) ?>">
-    <link rel="stylesheet" href="<?= e(url('assets/css/admin.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset('assets/css/admin.css')) ?>">
 </head>
 <body class="admin">
 <?php if ($chrome): ?>

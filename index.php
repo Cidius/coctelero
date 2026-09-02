@@ -13,6 +13,7 @@ require __DIR__ . '/src/Recipe.php';
 
 use App\Recipe;
 
+use function App\asset;
 use function App\boot_errors;
 use function App\e;
 use function App\method_label;
@@ -84,7 +85,7 @@ header('Content-Type: text/html; charset=utf-8');
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Recetario de Cócteles</title>
     <meta name="description" content="Buscador de recetas de cócteles: filtrá por destilado, método e ingredientes.">
-    <link rel="stylesheet" href="<?= e(url('assets/css/app.css')) ?>">
+    <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
 </head>
 <body>
 <header class="site-header">
@@ -200,6 +201,6 @@ header('Content-Type: text/html; charset=utf-8');
     <div class="wrap">Recetario del Taller de Coctelería</div>
 </footer>
 
-<script src="<?= e(url('assets/js/app.js')) ?>" defer></script>
+<script src="<?= e(asset('assets/js/app.js')) ?>" defer></script>
 </body>
 </html>

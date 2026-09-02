@@ -94,11 +94,10 @@
     updateFilterCount();
   }
 
-  // --- panel de filtros colapsable en mobile ---
+  // --- panel de filtros colapsable (mobile y desktop) ---
   var filtersEl = document.getElementById('filters');
   var toggleEl = document.getElementById('filters-toggle');
   var fcountEl = document.getElementById('filters-count');
-  var mq = window.matchMedia('(max-width: 700px)');
 
   function activeFilterCount() {
     return state.tags.length + SINGLE.reduce(function (n, k) {
@@ -111,21 +110,13 @@
     fcountEl.textContent = n;
     fcountEl.hidden = n === 0;
   }
-  function applyCollapsible(e) {
-    if (!filtersEl || !toggleEl) return;
-    toggleEl.hidden = !e.matches;
-    if (e.matches) {
-      filtersEl.classList.add('collapsed');
-      toggleEl.setAttribute('aria-expanded', 'false');
-    } else {
-      filtersEl.classList.remove('collapsed');
-      toggleEl.setAttribute('aria-expanded', 'true');
-    }
-  }
   if (toggleEl && filtersEl) {
-    applyCollapsible(mq);
-    if (mq.addEventListener) mq.addEventListener('change', applyCollapsible);
-    else if (mq.addListener) mq.addListener(applyCollapsible);
+    toggleEl.hidden = false; // estaba oculto para el caso sin JS
+    // Arranca cerrado en mobile; abierto en desktop.
+    var startCollapsed = window.matchMedia('(max-width: 700px)').matches;
+    filtersEl.classList.toggle('collapsed', startCollapsed);
+    toggleEl.setAttribute('aria-expanded', startCollapsed ? 'false' : 'true');
+
     toggleEl.addEventListener('click', function () {
       var collapsed = filtersEl.classList.toggle('collapsed');
       toggleEl.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
