@@ -238,8 +238,7 @@ function derive_tags(string $name, string $ingredients): array
         'mezcal'         => ['mezcal'],
         'pisco'          => ['pisco'],
         'brandy'         => ['brandy'],
-        'apricot-brandy' => ['apricot'],
-        'cherry-brandy'  => ['cherry brandy', 'licor marrasquino', 'marrasquino', 'marraschino'],
+        'marrasquino'    => ['marrasquino', 'marraschino'],
         'espumante'      => ['espumante', 'champana', 'champagne', 'prosecco', 'espumoso'],
         'triple-sec'     => ['triple sec', 'grand marnier', 'lemoncello', 'limoncello'],
         'amargo-obrero'  => ['amargo obrero'],
@@ -272,7 +271,7 @@ function derive_tags(string $name, string $ingredients): array
     // Sin destilado detectado + limonada => sin alcohol
     $spirits = ['gin','ron','cachaca','vodka','campari','aperol','fernet','cynar','pineral',
         'hesperidina','hierro-quina','vermut','whisky','tequila','mezcal','pisco','brandy',
-        'apricot-brandy','cherry-brandy','espumante','triple-sec','amargo-obrero','chartreuse',
+        'espumante','triple-sec','amargo-obrero','chartreuse',
         'strega','cassis','malibu','pimms','licor-cafe','licor-crema'];
     if (!array_intersect(array_keys($tags), $spirits) && str_contains($hay, 'limonada')) {
         $tags['sin-alcohol'] = true;
