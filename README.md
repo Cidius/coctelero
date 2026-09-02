@@ -110,3 +110,17 @@ php sql/fuente/build_seed.php
 - **`topics`** existe en el schema pero no se usa en esta etapa (decisión del plan v2).
 - **`method`** es un ENUM cerrado para filtrar; `method_detail` guarda la
   técnica textual completa del recetario para mostrar en la ficha.
+- **Clasificaciones (Clase 6)**, uno por receta y opcionales, todas filtrables:
+  - `recipes.volume` ENUM `short|medium|long`
+  - `recipes.moment` ENUM `aperitivo|digestivo|all_day`
+  - `recipes.family_id` → tabla `families` (Sour, Julep, Collins…), con
+    `typical_volume` para autocompletar el volumen en el admin.
+
+## Migración de una base ya cargada
+
+```bash
+mysql -u USUARIO -p BASE < sql/migracion_01_clasificaciones.sql   # columnas + families
+mysql -u USUARIO -p BASE < sql/clasificar_recetas.sql             # pre-clasifica las 52 (GENERADO)
+```
+
+En una base nueva no hace falta: `schema.sql` + `seed_52_recetas.sql` ya lo traen.

@@ -13,6 +13,17 @@
     sync();
   });
 
+  // --- familia -> autocompleta volumen si está sin clasificar ---
+  var famSel = document.getElementById('family-select');
+  var volSel = document.getElementById('volume-select');
+  if (famSel && volSel) {
+    famSel.addEventListener('change', function () {
+      var opt = famSel.options[famSel.selectedIndex];
+      var typical = opt ? opt.getAttribute('data-volume') : '';
+      if (typical && volSel.value === '') volSel.value = typical;
+    });
+  }
+
   // --- autocompletado de tags ---
   var input = document.getElementById('tags-input');
   var box = document.getElementById('tags-suggest');

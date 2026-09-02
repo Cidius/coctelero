@@ -52,6 +52,9 @@ if (!empty($recipe['method_detail'])) {
 }
 
 $specs = [];
+if (!empty($recipe['family']))    $specs['Familia']     = $recipe['family'];
+if (!empty($recipe['volume']))    $specs['Volumen']     = Recipe::VOLUMES[$recipe['volume']] ?? $recipe['volume'];
+if (!empty($recipe['moment']))    $specs['Momento']     = Recipe::MOMENTS[$recipe['moment']] ?? $recipe['moment'];
 if (!empty($recipe['glassware'])) $specs['Cristalería'] = $recipe['glassware'];
 if (!empty($recipe['ice']))       $specs['Hielo']       = $recipe['ice'];
 $specs['Método'] = $methodTxt;

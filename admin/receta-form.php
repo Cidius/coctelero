@@ -37,12 +37,19 @@ $v = [
     'method'           => $recipe['method'] ?? 'integrado',
     'method_other'     => $recipe['method_other'] ?? '',
     'method_detail'    => $recipe['method_detail'] ?? '',
+    'volume'           => $recipe['volume'] ?? '',
+    'moment'           => $recipe['moment'] ?? '',
+    'family_id'        => (string) ($recipe['family_id'] ?? ''),
     'garnish'          => $recipe['garnish'] ?? '',
     'description'      => $recipe['description'] ?? '',
     'ingredients_text' => $recipe['ingredients_text'] ?? '',
     'tags_text'        => $recipe['tags_text'] ?? '',
 ];
 $errors = [];
+
+$FAMILIES = RecipeAdmin::families();
+$VOLUME_LABELS = ['short' => 'Short · hasta 100 ml', 'medium' => 'Medium · 100–300 ml', 'long' => 'Long · +300 ml'];
+$MOMENT_LABELS = ['aperitivo' => 'Aperitivo', 'digestivo' => 'Digestivo', 'all_day' => 'Para todo el día'];
 
 // Opciones de los <select> con "Otro…". Cualquier valor fuera de la lista
 // se edita como texto libre.
@@ -207,6 +214,41 @@ admin_header($editing ? 'Editar receta' : 'Nueva receta');
         <input type="text" name="method_detail" value="<?= e($v['method_detail']) ?>"
                placeholder="Ej: Batido y doble colado">
     </label>
+
+    <label class="field">
+        <span>Familia <small class="muted">— autocompleta el volumen</small></span>
+        <select name="family_id" id="family-select">
+            <option value="">— sin clasificar —</option>
+            <?php foreach ($FAMILIES as $f): ?>
+                <option value="<?= (int) $f['id'] ?>"
+                        data-volume="<?= e((string) ($f['typical_volume'] ?? '')) ?>"
+                        <?= (string) $v['family_id'] === (string) $f['id'] ? 'selected' : '' ?>>
+                    <?= e($f['name']) ?><?= $f['typical_volume'] ? ' (' . e($f['typical_volume']) . ')' : '' ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </label>
+
+    <div class="row">
+        <label class="field">
+            <span>Volumen</span>
+            <select name="volume" id="volume-select">
+                <option value="">— sin clasificar —</option>
+                <?php foreach ($VOLUME_LABELS as $val => $lbl): ?>
+                    <option value="<?= e($val) ?>" <?= $v['volume'] === $val ? 'selected' : '' ?>><?= e($lbl) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </label>
+        <label class="field">
+            <span>Momento de consumo</span>
+            <select name="moment">
+                <option value="">— sin clasificar —</option>
+                <?php foreach ($MOMENT_LABELS as $val => $lbl): ?>
+                    <option value="<?= e($val) ?>" <?= $v['moment'] === $val ? 'selected' : '' ?>><?= e($lbl) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </label>
+    </div>
 
     <label class="field">
         <span>Ingredientes <small class="muted">— uno por línea</small></span>

@@ -25,6 +25,20 @@ final class Recipe
         'otro'               => 'Otro',
     ];
 
+    /** Clasificacion por volumen (Clase 6). */
+    public const VOLUMES = [
+        'short'  => 'Short · hasta 100 ml',
+        'medium' => 'Medium · 100–300 ml',
+        'long'   => 'Long · +300 ml',
+    ];
+
+    /** Clasificacion por momento de consumo. */
+    public const MOMENTS = [
+        'aperitivo'  => 'Aperitivo',
+        'digestivo'  => 'Digestivo',
+        'all_day'    => 'Para todo el día',
+    ];
+
     /**
      * Busqueda + filtros combinables.
      *
@@ -38,6 +52,9 @@ final class Recipe
         $q       = trim((string) ($p['q'] ?? ''));
         $tags    = array_values(array_unique($p['tags'] ?? []));
         $method  = (string) ($p['method'] ?? '');
+        $volume  = (string) ($p['volume'] ?? '');
+        $moment  = (string) ($p['moment'] ?? '');
+        $family  = (string) ($p['family'] ?? '');
         $page    = max(1, (int) ($p['page'] ?? 1));
         $perPage = (int) ($p['per_page'] ?? self::PER_PAGE_DEFAULT);
         $perPage = max(1, min(self::PER_PAGE_MAX, $perPage));
@@ -74,6 +91,21 @@ final class Recipe
             $params[':method'] = $method;
         }
 
+        if ($volume !== '' && isset(self::VOLUMES[$volume])) {
+            $where[] = 'r.volume = :volume';
+            $params[':volume'] = $volume;
+        }
+
+        if ($moment !== '' && isset(self::MOMENTS[$moment])) {
+            $where[] = 'r.moment = :moment';
+            $params[':moment'] = $moment;
+        }
+
+        if ($family !== '' && preg_match('/^[a-z0-9-]{1,80}$/', $family)) {
+            $where[] = 'r.family_id = (SELECT id FROM families WHERE slug = :family)';
+            $params[':family'] = $family;
+        }
+
         if ($tags !== []) {
             $in = [];
             foreach ($tags as $i => $slug) {
@@ -99,8 +131,10 @@ final class Recipe
         )->fetchColumn();
 
         $sql = "SELECT r.id, r.name, r.slug, r.glassware, r.ice, r.method,
-                       r.method_other, r.method_detail, r.garnish, r.image_path
+                       r.method_other, r.method_detail, r.garnish, r.image_path,
+                       r.volume, r.moment, f.name AS family, f.slug AS family_slug
                 FROM recipes r
+                LEFT JOIN families f ON f.id = r.family_id
                 WHERE $whereSql
                 ORDER BY r.name ASC
                 LIMIT :limit OFFSET :offset";
@@ -135,7 +169,10 @@ final class Recipe
     {
         $pdo = Database::get();
         $stmt = $pdo->prepare(
-            'SELECT * FROM recipes WHERE slug = :slug AND deleted_at IS NULL LIMIT 1'
+            'SELECT r.*, f.name AS family, f.slug AS family_slug
+             FROM recipes r
+             LEFT JOIN families f ON f.id = r.family_id
+             WHERE r.slug = :slug AND r.deleted_at IS NULL LIMIT 1'
         );
         $stmt->execute([':slug' => $slug]);
         $recipe = $stmt->fetch();
@@ -204,6 +241,61 @@ final class Recipe
             }
         }
         return $out;
+    }
+
+    /** Conteo por columna ENUM de recipes (volume / moment). */
+    private static function enumCounts(string $column): array
+    {
+        $col = $column === 'volume' ? 'volume' : 'moment'; // whitelist
+        return array_column(
+            Database::get()->query(
+                "SELECT $col AS v, COUNT(*) AS c FROM recipes
+                 WHERE deleted_at IS NULL AND $col IS NOT NULL GROUP BY $col"
+            )->fetchAll(),
+            'c',
+            'v'
+        );
+    }
+
+    /** @return list<array{value:string, label:string, count:int}> */
+    public static function volumesWithCounts(): array
+    {
+        $counts = self::enumCounts('volume');
+        $out = [];
+        foreach (self::VOLUMES as $value => $label) {
+            $out[] = ['value' => $value, 'label' => $label, 'count' => (int) ($counts[$value] ?? 0)];
+        }
+        return $out;
+    }
+
+    /** @return list<array{value:string, label:string, count:int}> */
+    public static function momentsWithCounts(): array
+    {
+        $counts = self::enumCounts('moment');
+        $out = [];
+        foreach (self::MOMENTS as $value => $label) {
+            $out[] = ['value' => $value, 'label' => $label, 'count' => (int) ($counts[$value] ?? 0)];
+        }
+        return $out;
+    }
+
+    /**
+     * Todas las familias (siempre, aunque tengan 0 recetas), con su conteo.
+     *
+     * @return list<array{name:string, slug:string, count:int}>
+     */
+    public static function familiesWithCounts(): array
+    {
+        $sql = 'SELECT f.name, f.slug,
+                       COUNT(r.id) AS count
+                FROM families f
+                LEFT JOIN recipes r ON r.family_id = f.id AND r.deleted_at IS NULL
+                GROUP BY f.id, f.name, f.slug
+                ORDER BY f.position ASC, f.name ASC';
+        return array_map(
+            static fn($r) => ['name' => $r['name'], 'slug' => $r['slug'], 'count' => (int) $r['count']],
+            Database::get()->query($sql)->fetchAll()
+        );
     }
 
     /* ------------------------------------------------------------------ */

@@ -280,6 +280,66 @@ function derive_tags(string $name, string $ingredients): array
     return array_keys($tags);
 }
 
+/**
+ * Deduce familia (slug) y volumen (short/medium/long) de lo que es evidente.
+ * El momento de consumo NO se deduce: es criterio del bartender.
+ *
+ * @return array{family:?string, volume:?string}
+ */
+function derive_classification(string $name, ?string $glassware): array
+{
+    $n = norm($name);
+    $g = norm((string) $glassware);
+
+    $byName = [
+        'julep'         => 'julep',
+        'smash'         => 'smash',
+        'collins'       => 'collins',
+        'french 75'     => 'fizz',
+        'fizz'          => 'fizz',
+        'sour'          => 'sour',
+        'daiquiri'      => 'sour',
+        'margarita'     => 'sour',
+        'aviation'      => 'sour',
+        'penicillin'    => 'sour',
+        'naked'         => 'sour',
+        'bee'           => 'sour',
+        'negroni'       => 'trio',
+        'mi-to'         => 'duo',
+        'black russian' => 'duo',
+        'limonada'      => 'mocktail',
+        'old fashioned' => 'on-the-rocks',
+    ];
+    $family = null;
+    foreach ($byName as $needle => $fam) {
+        if (str_contains($n, $needle)) {
+            $family = $fam;
+            break;
+        }
+    }
+
+    $familyVolume = [
+        'duo' => 'short', 'trio' => 'short', 'sour' => 'short', 'fizz' => 'short',
+        'collins' => 'long', 'julep' => 'medium', 'smash' => 'short',
+        'on-the-rocks' => 'short', 'mocktail' => 'long',
+    ];
+
+    $volume = null;
+    if (str_contains($n, 'jarra')) {
+        $volume = 'long';
+    } elseif (preg_match('/trago largo|highball|hurricane|jarra|collins/', $g)) {
+        $volume = 'long';
+    } elseif (preg_match('/copon|vino tinto/', $g)) {
+        $volume = 'long';
+    } elseif (preg_match('/old fashioned|vaso corto|coctel|cocktail/', $g)) {
+        $volume = 'short';
+    } elseif ($family !== null && isset($familyVolume[$family])) {
+        $volume = $familyVolume[$family];
+    }
+
+    return ['family' => $family, 'volume' => $volume];
+}
+
 /* ---------- construir filas ---------- */
 
 $seenSlug = [];
@@ -305,15 +365,19 @@ foreach ($recipes as $r) {
     }
 
     $ingText = $r['ingredients'] ?? '';
+    $glassware = clean_field($r['glassware'] ?? null);
+    $class = derive_classification($name, $glassware);
 
     $rows[] = [
         'id'            => $r['num'],
         'name'          => $name,
         'slug'          => $slug,
-        'glassware'     => clean_field($r['glassware'] ?? null),
+        'glassware'     => $glassware,
         'ice'           => clean_field($r['ice'] ?? null),
         'method'        => $methodEnum,
         'method_detail' => $methodDetail,
+        'volume'        => $class['volume'],
+        'family'        => $class['family'],
         'garnish'       => clean_field($garnishRaw),
         'description'   => $description,
         'ingredients'   => parse_ingredients($ingText),
@@ -373,14 +437,21 @@ foreach ($allTags as $slug => $name) {
 $out[] = implode(",\n", $vals) . ';';
 $out[] = '';
 
+/** Subconsulta para family_id a partir del slug de familia (o NULL). */
+function fam(?string $slug): string
+{
+    return $slug === null ? 'NULL' : "(SELECT id FROM families WHERE slug = " . q($slug) . ")";
+}
+
 $out[] = '-- ---------- recipes ----------';
 $out[] = 'INSERT INTO recipes'
-    . ' (id, name, slug, glassware, ice, method, method_other, method_detail, garnish, description)'
+    . ' (id, name, slug, glassware, ice, method, method_other, method_detail,'
+    . ' volume, moment, family_id, garnish, description)'
     . ' VALUES';
 $vals = [];
 foreach ($rows as $r) {
     $vals[] = sprintf(
-        '  (%d, %s, %s, %s, %s, %s, NULL, %s, %s, %s)',
+        '  (%d, %s, %s, %s, %s, %s, NULL, %s, %s, NULL, %s, %s, %s)',
         $r['id'],
         q($r['name']),
         q($r['slug']),
@@ -388,6 +459,8 @@ foreach ($rows as $r) {
         q($r['ice']),
         q($r['method']),
         q($r['method_detail']),
+        q($r['volume']),
+        fam($r['family']),
         q($r['garnish']),
         q($r['description'])
     );
@@ -441,10 +514,44 @@ $out[] = '';
 
 file_put_contents($OUT, implode("\n", $out));
 
+/* ---------- clasificar_recetas.sql (para la base que ya tiene datos) ---------- */
+
+$OUT2 = dirname(__DIR__) . '/clasificar_recetas.sql';
+$c = [];
+$c[] = '-- =====================================================================';
+$c[] = '--  Pre-clasifica las 52 recetas del taller: volumen + familia.';
+$c[] = '--  GENERADO por sql/fuente/build_seed.php - no editar a mano.';
+$c[] = '--  Correr DESPUES de sql/migracion_01_clasificaciones.sql.';
+$c[] = '--  Solo toca filas por slug conocido; es seguro re-correrlo.';
+$c[] = '-- =====================================================================';
+$c[] = '';
+$c[] = 'SET NAMES utf8mb4;';
+$c[] = '';
+$classified = 0;
+foreach ($rows as $r) {
+    $sets = [];
+    if ($r['volume'] !== null) {
+        $sets[] = 'volume = ' . q($r['volume']);
+    }
+    if ($r['family'] !== null) {
+        $sets[] = 'family_id = ' . fam($r['family']);
+    }
+    if ($sets === []) {
+        continue;
+    }
+    $classified++;
+    $c[] = sprintf('UPDATE recipes SET %s WHERE slug = %s;', implode(', ', $sets), q($r['slug']));
+}
+$c[] = '';
+file_put_contents($OUT2, implode("\n", $c));
+
 fwrite(STDERR, sprintf(
-    "OK -> %s\n  %d recetas, %d tags, %d filas de ingredientes\n",
+    "OK -> %s\n  %d recetas, %d tags, %d filas de ingredientes\n" .
+    "OK -> %s\n  %d recetas pre-clasificadas\n",
     $OUT,
     count($rows),
     count($allTags),
-    array_sum(array_map(fn($r) => count($r['ingredients']), $rows))
+    array_sum(array_map(fn($r) => count($r['ingredients']), $rows)),
+    $OUT2,
+    $classified
 ));

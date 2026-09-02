@@ -8,11 +8,15 @@ declare(strict_types=1);
  *   q         texto libre (nombre, descripcion, ingredientes)
  *   tag       slug de tag; repetible o separado por coma. AND entre tags.
  *   method    integrado | refrescado_directo | batido | machacado | frozen | otro
+ *   volume    short | medium | long
+ *   moment    aperitivo | digestivo | all_day
+ *   family    slug de familia (sour, julep, ...)
  *   page      pagina (default 1)
  *   per_page  resultados por pagina (default 24, max 60)
  *
  * Respuesta: { data: [ {name, slug, image_url, glassware, ice, method,
- *              method_label, garnish, tags:[{name,slug}]} ], meta: {...} }
+ *              method_label, volume, moment, family, family_slug, garnish,
+ *              tags:[{name,slug}]} ], meta: {...} }
  */
 
 require __DIR__ . '/../src/helpers.php';
@@ -35,11 +39,17 @@ try {
         'q'        => (string) ($_GET['q'] ?? ''),
         'tags'     => query_tags($_GET),
         'method'   => (string) ($_GET['method'] ?? ''),
+        'volume'   => (string) ($_GET['volume'] ?? ''),
+        'moment'   => (string) ($_GET['moment'] ?? ''),
+        'family'   => (string) ($_GET['family'] ?? ''),
         'page'     => (int) ($_GET['page'] ?? 1),
         'per_page' => (int) ($_GET['per_page'] ?? 24),
     ]);
 
-    $data = array_map(static function (array $r): array {
+    $volLabels = Recipe::VOLUMES;
+    $momLabels = Recipe::MOMENTS;
+
+    $data = array_map(static function (array $r) use ($volLabels, $momLabels): array {
         return [
             'name'         => $r['name'],
             'slug'         => $r['slug'],
@@ -48,6 +58,12 @@ try {
             'ice'          => $r['ice'],
             'method'       => $r['method'],
             'method_label' => method_label($r['method'], $r['method_other'] ?? null),
+            'volume'       => $r['volume'],
+            'volume_label' => $r['volume'] !== null ? ($volLabels[$r['volume']] ?? null) : null,
+            'moment'       => $r['moment'],
+            'moment_label' => $r['moment'] !== null ? ($momLabels[$r['moment']] ?? null) : null,
+            'family'       => $r['family'],
+            'family_slug'  => $r['family_slug'],
             'garnish'      => $r['garnish'],
             'tags'         => $r['tags'] ?? [],
         ];

@@ -24,6 +24,7 @@ DROP TABLE IF EXISTS recipe_topics;
 DROP TABLE IF EXISTS recipe_ingredients;
 DROP TABLE IF EXISTS login_attempts;
 DROP TABLE IF EXISTS recipes;
+DROP TABLE IF EXISTS families;
 DROP TABLE IF EXISTS tags;
 DROP TABLE IF EXISTS topics;
 DROP TABLE IF EXISTS admin_users;
@@ -43,6 +44,21 @@ CREATE TABLE admin_users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
+--  families  -  clasificacion "por caracteristicas" (Sour, Julep, ...).
+--  typical_volume: volumen que suele tener la familia; el admin lo usa
+--  para autocompletar recipes.volume al elegir la familia.
+-- ---------------------------------------------------------------------
+CREATE TABLE families (
+    id             INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name           VARCHAR(60) NOT NULL,
+    slug           VARCHAR(80) NOT NULL,
+    typical_volume ENUM('short','medium','long') DEFAULT NULL,
+    position       SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_families_slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
 --  recipes
 -- ---------------------------------------------------------------------
 CREATE TABLE recipes (
@@ -55,6 +71,10 @@ CREATE TABLE recipes (
                                 NOT NULL DEFAULT 'otro',
     method_other  VARCHAR(160)     DEFAULT NULL,
     method_detail VARCHAR(255)     DEFAULT NULL,
+    -- Clasificaciones (Clase 6): uno por receta, opcionales.
+    volume        ENUM('short','medium','long')          DEFAULT NULL,
+    moment        ENUM('aperitivo','digestivo','all_day') DEFAULT NULL,
+    family_id     INT UNSIGNED                            DEFAULT NULL,
     garnish       VARCHAR(255)     DEFAULT NULL,
     description   TEXT             DEFAULT NULL,
     image_path    VARCHAR(255)     DEFAULT NULL,
@@ -66,9 +86,14 @@ CREATE TABLE recipes (
     UNIQUE KEY uq_recipes_slug (slug),
     KEY idx_recipes_deleted_at (deleted_at),
     KEY idx_recipes_method (method),
+    KEY idx_recipes_volume (volume),
+    KEY idx_recipes_moment (moment),
+    KEY idx_recipes_family (family_id),
     FULLTEXT KEY ft_recipes_name_desc (name, description),
     CONSTRAINT fk_recipes_admin
-        FOREIGN KEY (created_by) REFERENCES admin_users (id) ON DELETE SET NULL
+        FOREIGN KEY (created_by) REFERENCES admin_users (id) ON DELETE SET NULL,
+    CONSTRAINT fk_recipes_family
+        FOREIGN KEY (family_id) REFERENCES families (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
@@ -144,3 +169,25 @@ CREATE TABLE login_attempts (
     PRIMARY KEY (id),
     KEY idx_login_ip_time (ip, attempted_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+--  families: datos base (Clase 6 del taller). Volumen tipico entre ( ).
+-- ---------------------------------------------------------------------
+INSERT INTO families (name, slug, typical_volume, position) VALUES
+    ('Dúo',          'duo',          'short',  10),
+    ('Trío',         'trio',         'short',  20),
+    ('Sour',         'sour',         'short',  30),
+    ('Fizz',         'fizz',         'short',  40),
+    ('Collins',      'collins',      'long',   50),
+    ('Julep',        'julep',        'medium', 60),
+    ('Smash',        'smash',        'short',  70),
+    ('On the Rocks', 'on-the-rocks', 'short',  80),
+    ('Colada',       'colada',       'long',   90),
+    ('Cobbler',      'cobbler',      'short', 100),
+    ('Cooler',       'cooler',       'long',  110),
+    ('Crusta',       'crusta',       'short', 120),
+    ('Cup',          'cup',          'long',  130),
+    ('Flip',         'flip',         'short', 140),
+    ('Sling',        'sling',        'short', 150),
+    ('Highball',     'highball',     'long',  160),
+    ('Mocktail',     'mocktail',     'long',  170);

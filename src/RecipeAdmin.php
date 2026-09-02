@@ -17,6 +17,18 @@ final class RecipeAdmin
     /** Metodos validos del ENUM. */
     public const METHODS = ['integrado', 'refrescado_directo', 'batido', 'machacado', 'frozen', 'otro'];
 
+    /** Valores validos de las clasificaciones (Clase 6). */
+    public const VOLUMES = ['short', 'medium', 'long'];
+    public const MOMENTS = ['aperitivo', 'digestivo', 'all_day'];
+
+    /** Familias para el formulario (con su volumen tipico). */
+    public static function families(): array
+    {
+        return Database::get()
+            ->query('SELECT id, name, slug, typical_volume FROM families ORDER BY position ASC, name ASC')
+            ->fetchAll();
+    }
+
     /**
      * Listado para el dashboard / la papelera.
      *
@@ -87,10 +99,10 @@ final class RecipeAdmin
             $stmt = $pdo->prepare(
                 'INSERT INTO recipes
                     (name, slug, glassware, ice, method, method_other, method_detail,
-                     garnish, description, image_path, created_by)
+                     volume, moment, family_id, garnish, description, image_path, created_by)
                  VALUES
                     (:name, :slug, :glassware, :ice, :method, :method_other, :method_detail,
-                     :garnish, :description, :image_path, :created_by)'
+                     :volume, :moment, :family_id, :garnish, :description, :image_path, :created_by)'
             );
             $stmt->execute(self::baseParams($d) + [
                 ':slug'       => $slug,
@@ -124,6 +136,7 @@ final class RecipeAdmin
             $sql = 'UPDATE recipes SET
                         name = :name, slug = :slug, glassware = :glassware, ice = :ice,
                         method = :method, method_other = :method_other, method_detail = :method_detail,
+                        volume = :volume, moment = :moment, family_id = :family_id,
                         garnish = :garnish, description = :description';
             $params = self::baseParams($d) + [':slug' => $slug, ':id' => $id];
 
@@ -169,6 +182,9 @@ final class RecipeAdmin
     private static function baseParams(array $d): array
     {
         $method = in_array($d['method'] ?? '', self::METHODS, true) ? $d['method'] : 'otro';
+        $volume = in_array($d['volume'] ?? '', self::VOLUMES, true) ? $d['volume'] : null;
+        $moment = in_array($d['moment'] ?? '', self::MOMENTS, true) ? $d['moment'] : null;
+        $familyId = (int) ($d['family_id'] ?? 0);
         return [
             ':name'          => trim((string) $d['name']),
             ':glassware'     => self::nn($d['glassware'] ?? null),
@@ -176,6 +192,9 @@ final class RecipeAdmin
             ':method'        => $method,
             ':method_other'  => $method === 'otro' ? self::nn($d['method_other'] ?? null) : null,
             ':method_detail' => self::nn($d['method_detail'] ?? null),
+            ':volume'        => $volume,
+            ':moment'        => $moment,
+            ':family_id'     => $familyId > 0 ? $familyId : null,
             ':garnish'       => self::nn($d['garnish'] ?? null),
             ':description'    => self::nn($d['description'] ?? null),
         ];

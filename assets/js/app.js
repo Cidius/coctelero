@@ -14,11 +14,13 @@
   var searchEl = app.querySelector('input[type="search"]');
   var form = app.querySelector('form.search');
 
+  // Grupos de un solo valor (chip = radio). El grupo "tag" es multi.
+  var SINGLE = ['method', 'volume', 'moment', 'family'];
+
   // Estado inicial desde la URL.
   var params = new URLSearchParams(location.search);
   var state = {
     q: (params.get('q') || '').trim(),
-    method: params.get('method') || '',
     tags: params.getAll('tag').reduce(function (acc, v) {
       String(v).split(',').forEach(function (s) {
         s = s.trim().toLowerCase();
@@ -27,6 +29,7 @@
       return acc;
     }, [])
   };
+  SINGLE.forEach(function (k) { state[k] = params.get(k) || ''; });
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -35,13 +38,14 @@
   }
 
   function hasFilter() {
-    return state.q !== '' || state.method !== '' || state.tags.length > 0;
+    return state.q !== '' || state.tags.length > 0 ||
+      SINGLE.some(function (k) { return state[k] !== ''; });
   }
 
   function buildQuery() {
     var p = new URLSearchParams();
     if (state.q) p.set('q', state.q);
-    if (state.method) p.set('method', state.method);
+    SINGLE.forEach(function (k) { if (state[k]) p.set(k, state[k]); });
     state.tags.forEach(function (t) { p.append('tag', t); });
     return p;
   }
@@ -50,7 +54,10 @@
     var thumb = r.image_url
       ? '<img src="' + esc(r.image_url) + '" alt="" loading="lazy">'
       : '🍸';
-    var meta = esc(r.method_label + (r.glassware ? ' · ' + r.glassware : ''));
+    var bits = [r.method_label];
+    if (r.family) bits.push(r.family);
+    if (r.glassware) bits.push(r.glassware);
+    var meta = esc(bits.filter(Boolean).join(' · '));
     var tags = (r.tags || []).slice(0, 4).map(function (t) {
       return '<span>' + esc(t.name) + '</span>';
     }).join('');
@@ -67,7 +74,7 @@
     app.querySelectorAll('[data-filter] .chip').forEach(function (chip) {
       var group = chip.closest('[data-filter]').dataset.filter;
       var val = chip.dataset.value;
-      var on = group === 'method' ? state.method === val : state.tags.indexOf(val) !== -1;
+      var on = group === 'tag' ? state.tags.indexOf(val) !== -1 : state[group] === val;
       chip.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
   }
@@ -122,11 +129,11 @@
     chip.addEventListener('click', function () {
       var group = chip.closest('[data-filter]').dataset.filter;
       var val = chip.dataset.value;
-      if (group === 'method') {
-        state.method = state.method === val ? '' : val;
-      } else {
+      if (group === 'tag') {
         var i = state.tags.indexOf(val);
         if (i === -1) state.tags.push(val); else state.tags.splice(i, 1);
+      } else {
+        state[group] = state[group] === val ? '' : val;
       }
       fetchResults();
     });
@@ -134,8 +141,8 @@
 
   resetEl.addEventListener('click', function () {
     state.q = '';
-    state.method = '';
     state.tags = [];
+    SINGLE.forEach(function (k) { state[k] = ''; });
     if (searchEl) searchEl.value = '';
     fetchResults();
   });
