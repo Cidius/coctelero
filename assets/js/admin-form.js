@@ -2,14 +2,16 @@
 (function () {
   'use strict';
 
-  // --- método "otro" ---
-  var sel = document.getElementById('method-select');
-  var otherField = document.getElementById('method-other-field');
-  if (sel && otherField) {
-    var sync = function () { otherField.hidden = sel.value !== 'otro'; };
+  // --- selects con opción "Otro…" que revela un campo de texto ---
+  // <select data-other="id-del-campo" [data-other-value="otro"]>
+  document.querySelectorAll('select[data-other]').forEach(function (sel) {
+    var target = document.getElementById(sel.dataset.other);
+    if (!target) return;
+    var trigger = sel.dataset.otherValue || '__otro__';
+    var sync = function () { target.hidden = sel.value !== trigger; };
     sel.addEventListener('change', sync);
     sync();
-  }
+  });
 
   // --- autocompletado de tags ---
   var input = document.getElementById('tags-input');

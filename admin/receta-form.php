@@ -44,11 +44,35 @@ $v = [
 ];
 $errors = [];
 
+// Opciones de los <select> con "Otro…". Cualquier valor fuera de la lista
+// se edita como texto libre.
+$GLASSWARE_OPTS = [
+    'Vaso trago largo', 'Vaso Old Fashioned', 'Vaso corto estilo Old Fashioned',
+    'Vaso corto', 'Copa Cóctel', 'Copa Hurricane', 'Old Fashioned con hielo',
+];
+$ICE_OPTS = ['Molido', 'En cubos', 'Cubo grande', 'Rolito/cubo'];
+
+/** Resuelve el valor de un select+otro. Devuelve [valueDelSelect, valueDeOtro]. */
+$resolveSelect = static function (string $current, array $opts): array {
+    if ($current === '') {
+        return ['', ''];
+    }
+    return in_array($current, $opts, true) ? [$current, ''] : ['__otro__', $current];
+};
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     Auth::requireCsrf();
 
     foreach (array_keys($v) as $k) {
         $v[$k] = trim((string) ($_POST[$k] ?? ''));
+    }
+
+    // Campos select + "Otro…": el valor real sale del select, o del texto libre.
+    if (($_POST['glassware'] ?? '') === '__otro__') {
+        $v['glassware'] = trim((string) ($_POST['glassware_other'] ?? ''));
+    }
+    if (($_POST['ice'] ?? '') === '__otro__') {
+        $v['ice'] = trim((string) ($_POST['ice_other'] ?? ''));
     }
 
     if ($v['name'] === '') {
@@ -128,28 +152,43 @@ admin_header($editing ? 'Editar receta' : 'Nueva receta');
         <input type="text" name="name" value="<?= e($v['name']) ?>" required autofocus>
     </label>
 
+    <?php
+    [$glassSel, $glassOther] = $resolveSelect($v['glassware'], $GLASSWARE_OPTS);
+    [$iceSel, $iceOther]     = $resolveSelect($v['ice'], $ICE_OPTS);
+    ?>
     <div class="row">
-        <label class="field">
+        <div class="field">
             <span>Cristalería</span>
-            <input type="text" name="glassware" value="<?= e($v['glassware']) ?>" list="glassware-list">
-        </label>
-        <label class="field">
+            <select name="glassware" data-other="glassware-other-field">
+                <option value="">—</option>
+                <?php foreach ($GLASSWARE_OPTS as $opt): ?>
+                    <option value="<?= e($opt) ?>" <?= $glassSel === $opt ? 'selected' : '' ?>><?= e($opt) ?></option>
+                <?php endforeach; ?>
+                <option value="__otro__" <?= $glassSel === '__otro__' ? 'selected' : '' ?>>Otro…</option>
+            </select>
+            <input type="text" name="glassware_other" id="glassware-other-field"
+                   value="<?= e($glassOther) ?>" placeholder="Otra cristalería"
+                   <?= $glassSel === '__otro__' ? '' : 'hidden' ?>>
+        </div>
+        <div class="field">
             <span>Hielo</span>
-            <input type="text" name="ice" value="<?= e($v['ice']) ?>" list="ice-list">
-        </label>
+            <select name="ice" data-other="ice-other-field">
+                <option value="">—</option>
+                <?php foreach ($ICE_OPTS as $opt): ?>
+                    <option value="<?= e($opt) ?>" <?= $iceSel === $opt ? 'selected' : '' ?>><?= e($opt) ?></option>
+                <?php endforeach; ?>
+                <option value="__otro__" <?= $iceSel === '__otro__' ? 'selected' : '' ?>>Otro…</option>
+            </select>
+            <input type="text" name="ice_other" id="ice-other-field"
+                   value="<?= e($iceOther) ?>" placeholder="Otro tipo de hielo"
+                   <?= $iceSel === '__otro__' ? '' : 'hidden' ?>>
+        </div>
     </div>
-    <datalist id="ice-list">
-        <option>Molido</option><option>En cubos</option><option>Cubo grande</option><option>Rolito/cubo</option>
-    </datalist>
-    <datalist id="glassware-list">
-        <option>Vaso trago largo</option><option>Vaso Old Fashioned</option><option>Copa Cóctel</option>
-        <option>Copa Cocktail</option><option>Copa Hurricane</option><option>Vaso corto</option>
-    </datalist>
 
     <div class="row">
         <label class="field">
             <span>Método</span>
-            <select name="method" id="method-select">
+            <select name="method" id="method-select" data-other="method-other-field" data-other-value="otro">
                 <?php foreach (RecipeAdmin::METHODS as $m): ?>
                     <option value="<?= e($m) ?>" <?= $v['method'] === $m ? 'selected' : '' ?>>
                         <?= e(method_label($m)) ?>
