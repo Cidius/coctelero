@@ -104,7 +104,12 @@ header('Content-Type: text/html; charset=utf-8');
         <noscript><button type="submit">Buscar</button></noscript>
     </form>
 
-    <div class="filters">
+    <button type="button" id="filters-toggle" class="filters-toggle"
+            aria-controls="filters" aria-expanded="true" hidden>
+        Filtros <span id="filters-count" class="fcount" hidden></span>
+    </button>
+
+    <div class="filters" id="filters">
         <?php
         $volumesShown = array_filter($volumes, static fn($x) => $x['count'] > 0);
         $momentsShown = array_filter($moments, static fn($x) => $x['count'] > 0);

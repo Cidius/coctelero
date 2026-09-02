@@ -66,6 +66,37 @@ a:hover { text-decoration: underline; }
 
 /* Filtros */
 .filters { margin-bottom: 14px; }
+
+/* Botón para colapsar filtros (solo mobile, lo activa el JS) */
+.filters-toggle {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 11px 14px;
+    margin-bottom: 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+.filters-toggle::after { content: "▾"; float: right; color: var(--muted); }
+.filters-toggle[aria-expanded="true"]::after { content: "▴"; }
+.filters-toggle .fcount {
+    display: inline-block;
+    margin-left: 6px;
+    min-width: 1.2em;
+    padding: 0 6px;
+    text-align: center;
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+.filters.collapsed { display: none; }
 .filter-group { margin: 10px 0; }
 .filter-group h2 {
     font-size: 0.72rem;
