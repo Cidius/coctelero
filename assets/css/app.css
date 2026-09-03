@@ -213,9 +213,17 @@ a:hover { text-decoration: underline; }
     border-radius: var(--radius);
     overflow: hidden;
     background: var(--surface-2);
-    aspect-ratio: 16 / 10;
 }
-.detail .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Imagen completa, sin recortar. max-height evita que una foto vertical
+   ocupe toda la pantalla. */
+.detail .hero img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 70vh;
+    object-fit: contain;
+    margin: 0 auto;
+}
 .detail .specs {
     display: grid;
     grid-template-columns: 1fr;
