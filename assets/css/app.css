@@ -204,7 +204,8 @@ a:hover { text-decoration: underline; }
 .is-loading { opacity: 0.5; transition: opacity .1s; }
 
 /* Detalle de receta */
-.detail { padding: 20px 0 56px; }
+/* padding vertical solo: el horizontal (16px) lo pone .wrap */
+.detail { padding-top: 20px; padding-bottom: 56px; }
 .detail .back { font-size: 0.88rem; }
 .detail h1 { margin: 12px 0 4px; font-size: 1.6rem; }
 .detail .hero {
