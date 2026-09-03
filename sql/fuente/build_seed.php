@@ -119,6 +119,31 @@ function clean_field(?string $s): ?string
     return $s;
 }
 
+/**
+ * Cristaleria a la lista corta: Vaso trago largo / Vaso Old Fashioned /
+ * Copa Coctel / Copa Hurricane. El resto se deja tal cual (= "Otro").
+ */
+function normalize_glassware(?string $s): ?string
+{
+    if ($s === null || $s === '') {
+        return null;
+    }
+    $g = norm($s);
+    if (str_contains($g, 'trago largo') || str_contains($g, 'highball')) {
+        return 'Vaso trago largo';
+    }
+    if (str_contains($g, 'hurricane')) {
+        return 'Copa Hurricane';
+    }
+    if (str_contains($g, 'coctel') || str_contains($g, 'cocktail')) {
+        return 'Copa Cóctel';
+    }
+    if (str_contains($g, 'old fashioned') || str_contains($g, 'vaso corto')) {
+        return 'Vaso Old Fashioned';
+    }
+    return $s; // copon de vino, jarra, etc.
+}
+
 function map_method(string $detail): array
 {
     $d = trim(rtrim(trim($detail), '.'));
@@ -364,7 +389,7 @@ foreach ($recipes as $r) {
     }
 
     $ingText = $r['ingredients'] ?? '';
-    $glassware = clean_field($r['glassware'] ?? null);
+    $glassware = normalize_glassware(clean_field($r['glassware'] ?? null));
     $class = derive_classification($name, $glassware);
 
     $rows[] = [

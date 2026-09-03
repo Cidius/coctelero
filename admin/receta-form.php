@@ -58,8 +58,10 @@ $MOMENT_LABELS = ['aperitivo' => 'Aperitivo', 'digestivo' => 'Digestivo', 'all_d
 // Opciones de los <select> con "Otro…". Cualquier valor fuera de la lista
 // se edita como texto libre.
 $GLASSWARE_OPTS = [
-    'Vaso trago largo', 'Vaso Old Fashioned', 'Vaso corto estilo Old Fashioned',
-    'Vaso corto', 'Copa Cóctel', 'Copa Hurricane', 'Old Fashioned con hielo',
+    'Vaso trago largo',
+    'Vaso Old Fashioned',
+    'Copa Cóctel',
+    'Copa Hurricane',
 ];
 $ICE_OPTS = ['Molido', 'En cubos', 'Cubo grande', 'Rolito/cubo'];
 
