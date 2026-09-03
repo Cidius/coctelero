@@ -82,6 +82,15 @@ final class RecipeAdmin
         $tg->execute([':id' => $id]);
         $r['tags_text'] = implode(', ', array_column($tg->fetchAll(), 'name'));
 
+        $lk = $pdo->prepare(
+            'SELECT label, url FROM recipe_links WHERE recipe_id = :id ORDER BY position ASC, id ASC'
+        );
+        $lk->execute([':id' => $id]);
+        $r['links_text'] = implode("\n", array_map(
+            static fn($l) => $l['label'] . ' | ' . $l['url'],
+            $lk->fetchAll()
+        ));
+
         return $r;
     }
 
@@ -99,10 +108,12 @@ final class RecipeAdmin
             $stmt = $pdo->prepare(
                 'INSERT INTO recipes
                     (name, slug, glassware, ice, method, method_other, method_detail,
-                     volume, moment, family_id, garnish, description, image_path, created_by)
+                     volume, moment, family_id, garnish, description,
+                     author_name, author_url, image_path, created_by)
                  VALUES
                     (:name, :slug, :glassware, :ice, :method, :method_other, :method_detail,
-                     :volume, :moment, :family_id, :garnish, :description, :image_path, :created_by)'
+                     :volume, :moment, :family_id, :garnish, :description,
+                     :author_name, :author_url, :image_path, :created_by)'
             );
             $stmt->execute(self::baseParams($d) + [
                 ':slug'       => $slug,
@@ -113,6 +124,7 @@ final class RecipeAdmin
 
             self::syncIngredients($id, $d['ingredients_text'] ?? '');
             self::syncTags($id, $d['tags_text'] ?? '');
+            self::syncLinks($id, $d['links_text'] ?? '');
 
             $pdo->commit();
             return $id;
@@ -137,7 +149,8 @@ final class RecipeAdmin
                         name = :name, slug = :slug, glassware = :glassware, ice = :ice,
                         method = :method, method_other = :method_other, method_detail = :method_detail,
                         volume = :volume, moment = :moment, family_id = :family_id,
-                        garnish = :garnish, description = :description';
+                        garnish = :garnish, description = :description,
+                        author_name = :author_name, author_url = :author_url';
             $params = self::baseParams($d) + [':slug' => $slug, ':id' => $id];
 
             if (array_key_exists('image_path', $d)) {
@@ -149,6 +162,7 @@ final class RecipeAdmin
 
             self::syncIngredients($id, $d['ingredients_text'] ?? '');
             self::syncTags($id, $d['tags_text'] ?? '');
+            self::syncLinks($id, $d['links_text'] ?? '');
 
             $pdo->commit();
         } catch (\Throwable $e) {
@@ -197,6 +211,8 @@ final class RecipeAdmin
             ':family_id'     => $familyId > 0 ? $familyId : null,
             ':garnish'       => self::nn($d['garnish'] ?? null),
             ':description'    => self::nn($d['description'] ?? null),
+            ':author_name'   => self::nn($d['author_name'] ?? null),
+            ':author_url'    => safe_url($d['author_url'] ?? null),
         ];
     }
 
@@ -261,6 +277,27 @@ final class RecipeAdmin
             }
             $pdo->prepare('INSERT IGNORE INTO recipe_tags (recipe_id, tag_id) VALUES (:r, :t)')
                 ->execute([':r' => $recipeId, ':t' => $tagId]);
+        }
+    }
+
+    /** Reemplaza los enlaces externos de la receta. */
+    public static function syncLinks(int $recipeId, string $text): void
+    {
+        $pdo = Database::get();
+        $pdo->prepare('DELETE FROM recipe_links WHERE recipe_id = :id')->execute([':id' => $recipeId]);
+
+        $stmt = $pdo->prepare(
+            'INSERT INTO recipe_links (recipe_id, label, url, position)
+             VALUES (:rid, :label, :url, :pos)'
+        );
+        $pos = 0;
+        foreach (parse_links_text($text) as $link) {
+            $stmt->execute([
+                ':rid'   => $recipeId,
+                ':label' => $link['label'],
+                ':url'   => $link['url'],
+                ':pos'   => ++$pos,
+            ]);
         }
     }
 

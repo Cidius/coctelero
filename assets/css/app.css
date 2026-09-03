@@ -246,6 +246,25 @@ a:hover { text-decoration: underline; }
 .ingredients li .amt { color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 64px; }
 .ingredients li:last-child { border-bottom: none; }
 
+.detail .author {
+    margin: -2px 0 4px;
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+.detail .author a, .detail .author strong { color: var(--text); font-weight: 600; }
+
+.ext-links { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.ext-links a {
+    display: inline-block;
+    padding: 9px 13px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    color: var(--text);
+}
+.ext-links a:hover { border-color: var(--accent); text-decoration: none; }
+.ext-links .ext { color: var(--muted); font-size: 0.85em; }
+
 .detail .tag-links { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
 .detail .tag-links a {
     font-size: 0.82rem;

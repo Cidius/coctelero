@@ -116,11 +116,18 @@ php sql/fuente/build_seed.php
   - `recipes.family_id` → tabla `families` (Sour, Julep, Collins…), con
     `typical_volume` para autocompletar el volumen en el admin.
 
+- **Autor** (`recipes.author_name` + `author_url`): coctel de autor, nombre
+  y apellido juntos + su red social. Opcional.
+- **Enlaces externos** (`recipe_links`): varios por receta (IBA, Instagram,
+  YouTube…). En el admin se cargan como `Etiqueta | URL`, una por línea.
+
 ## Migración de una base ya cargada
 
 ```bash
-mysql -u USUARIO -p BASE < sql/migracion_01_clasificaciones.sql   # columnas + families
+mysql -u USUARIO -p BASE < sql/migracion_01_clasificaciones.sql   # volumen/momento/familia
 mysql -u USUARIO -p BASE < sql/clasificar_recetas.sql             # pre-clasifica las 52 (GENERADO)
+mysql -u USUARIO -p BASE < sql/migracion_02_tags_brandy.sql       # fusiona tags de brandy
+mysql -u USUARIO -p BASE < sql/migracion_03_autor_enlaces.sql     # autor + recipe_links
 ```
 
 En una base nueva no hace falta: `schema.sql` + `seed_52_recetas.sql` ya lo traen.

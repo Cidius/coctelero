@@ -22,6 +22,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS recipe_tags;
 DROP TABLE IF EXISTS recipe_topics;
 DROP TABLE IF EXISTS recipe_ingredients;
+DROP TABLE IF EXISTS recipe_links;
 DROP TABLE IF EXISTS login_attempts;
 DROP TABLE IF EXISTS recipes;
 DROP TABLE IF EXISTS families;
@@ -77,6 +78,9 @@ CREATE TABLE recipes (
     family_id     INT UNSIGNED                            DEFAULT NULL,
     garnish       VARCHAR(255)     DEFAULT NULL,
     description   TEXT             DEFAULT NULL,
+    -- Autor (coctel de autor): nombre y apellido juntos + su red social.
+    author_name   VARCHAR(120)     DEFAULT NULL,
+    author_url    VARCHAR(255)     DEFAULT NULL,
     image_path    VARCHAR(255)     DEFAULT NULL,
     created_by    INT UNSIGNED     DEFAULT NULL,
     created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -110,6 +114,21 @@ CREATE TABLE recipe_ingredients (
     PRIMARY KEY (id),
     KEY idx_ingredients_recipe (recipe_id),
     CONSTRAINT fk_ingredients_recipe
+        FOREIGN KEY (recipe_id) REFERENCES recipes (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+--  recipe_links  -  enlaces externos por receta (IBA, Instagram, YouTube...)
+-- ---------------------------------------------------------------------
+CREATE TABLE recipe_links (
+    id        INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    recipe_id INT UNSIGNED NOT NULL,
+    label     VARCHAR(80)  NOT NULL,
+    url       VARCHAR(500) NOT NULL,
+    position  SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    KEY idx_recipe_links_recipe (recipe_id),
+    CONSTRAINT fk_recipe_links_recipe
         FOREIGN KEY (recipe_id) REFERENCES recipes (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

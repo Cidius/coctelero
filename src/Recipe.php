@@ -195,6 +195,12 @@ final class Recipe
         $tg->execute([':id' => $recipe['id']]);
         $recipe['tags'] = $tg->fetchAll();
 
+        $lk = $pdo->prepare(
+            'SELECT label, url FROM recipe_links WHERE recipe_id = :id ORDER BY position ASC, id ASC'
+        );
+        $lk->execute([':id' => $recipe['id']]);
+        $recipe['links'] = $lk->fetchAll();
+
         return $recipe;
     }
 

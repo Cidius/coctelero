@@ -179,3 +179,72 @@ function redirect(string $path): never
     header('Location: ' . url($path));
     exit;
 }
+
+/**
+ * Devuelve la URL normalizada si es http/https valida, o null.
+ * Tolera que falte el esquema ("iba-world.com/..." -> "https://...").
+ */
+function safe_url(?string $url): ?string
+{
+    $url = trim((string) $url);
+    if ($url === '') {
+        return null;
+    }
+    if (!preg_match('#^https?://#i', $url)) {
+        $url = 'https://' . $url;
+    }
+    return filter_var($url, FILTER_VALIDATE_URL) ? $url : null;
+}
+
+/** Etiqueta legible a partir del dominio de una URL. */
+function link_label_from_url(string $url): string
+{
+    $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+    $host = preg_replace('/^www\./', '', $host) ?? $host;
+    $known = [
+        'iba-world.com'     => 'IBA',
+        'instagram.com'     => 'Instagram',
+        'youtube.com'       => 'YouTube',
+        'youtu.be'          => 'YouTube',
+        'tiktok.com'        => 'TikTok',
+        'facebook.com'      => 'Facebook',
+        'x.com'             => 'X',
+        'twitter.com'       => 'X',
+        'diffordsguide.com' => "Difford's Guide",
+        'es.wikipedia.org'  => 'Wikipedia',
+        'en.wikipedia.org'  => 'Wikipedia',
+    ];
+    return $known[$host] ?? ($host !== '' ? $host : 'Enlace');
+}
+
+/**
+ * Parsea el textarea de enlaces del admin. Un enlace por linea:
+ *   Etiqueta | https://...      (si falta la etiqueta se deduce del dominio)
+ *
+ * @return list<array{label:string, url:string}>
+ */
+function parse_links_text(string $text): array
+{
+    $out = [];
+    foreach (preg_split('/\r\n|\r|\n/', $text) ?: [] as $line) {
+        $line = trim($line);
+        if ($line === '') {
+            continue;
+        }
+        if (str_contains($line, '|')) {
+            [$label, $rawUrl] = explode('|', $line, 2);
+        } else {
+            [$label, $rawUrl] = ['', $line];
+        }
+        $url = safe_url($rawUrl);
+        if ($url === null) {
+            continue;
+        }
+        $label = trim($label);
+        if ($label === '') {
+            $label = link_label_from_url($url);
+        }
+        $out[] = ['label' => mb_substr($label, 0, 80), 'url' => mb_substr($url, 0, 500)];
+    }
+    return $out;
+}

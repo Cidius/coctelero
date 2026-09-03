@@ -82,6 +82,17 @@ $metaDesc = $recipe['name'] . ' — '
     <p class="back"><a href="<?= e(url('/')) ?>">← Todas las recetas</a></p>
     <h1><?= e($recipe['name']) ?></h1>
 
+    <?php if (!empty($recipe['author_name'])): ?>
+        <p class="author">Cóctel de
+            <?php $au = \App\safe_url($recipe['author_url'] ?? null); ?>
+            <?php if ($au !== null): ?>
+                <a href="<?= e($au) ?>" target="_blank" rel="noopener noreferrer"><?= e($recipe['author_name']) ?></a>
+            <?php else: ?>
+                <strong><?= e($recipe['author_name']) ?></strong>
+            <?php endif; ?>
+        </p>
+    <?php endif; ?>
+
     <?php if ($img !== null): ?>
         <div class="hero"><img src="<?= e($img) ?>" alt="<?= e($recipe['name']) ?>"></div>
     <?php endif; ?>
@@ -102,6 +113,20 @@ $metaDesc = $recipe['name'] . ' — '
     <?php if (!empty($recipe['description'])): ?>
         <h2>Notas</h2>
         <p class="note"><?= e($recipe['description']) ?></p>
+    <?php endif; ?>
+
+    <?php if (!empty($recipe['links'])): ?>
+        <h2>Más información</h2>
+        <ul class="ext-links">
+            <?php foreach ($recipe['links'] as $l): ?>
+                <?php $lu = \App\safe_url($l['url']); ?>
+                <?php if ($lu !== null): ?>
+                    <li><a href="<?= e($lu) ?>" target="_blank" rel="noopener noreferrer">
+                        <?= e($l['label']) ?> <span class="ext">↗</span>
+                    </a></li>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </ul>
     <?php endif; ?>
 
     <?php if (!empty($recipe['tags'])): ?>

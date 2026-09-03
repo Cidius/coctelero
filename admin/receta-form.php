@@ -43,8 +43,11 @@ $v = [
     'family_id'        => (string) ($recipe['family_id'] ?? ''),
     'garnish'          => $recipe['garnish'] ?? '',
     'description'      => $recipe['description'] ?? '',
+    'author_name'      => $recipe['author_name'] ?? '',
+    'author_url'       => $recipe['author_url'] ?? '',
     'ingredients_text' => $recipe['ingredients_text'] ?? '',
     'tags_text'        => $recipe['tags_text'] ?? '',
+    'links_text'       => $recipe['links_text'] ?? '',
 ];
 $errors = [];
 
@@ -265,6 +268,26 @@ admin_header($editing ? 'Editar receta' : 'Nueva receta');
     <label class="field">
         <span>Notas / historia <small class="muted">— opcional</small></span>
         <textarea name="description" rows="3"><?= e($v['description']) ?></textarea>
+    </label>
+
+    <div class="row">
+        <label class="field">
+            <span>Autor <small class="muted">— si es de autor</small></span>
+            <input type="text" name="author_name" value="<?= e($v['author_name']) ?>"
+                   placeholder="Nombre y apellido">
+        </label>
+        <label class="field">
+            <span>Red social del autor <small class="muted">— opcional</small></span>
+            <input type="text" name="author_url" value="<?= e($v['author_url']) ?>"
+                   placeholder="https://instagram.com/...">
+        </label>
+    </div>
+
+    <label class="field">
+        <span>Enlaces externos <small class="muted">— uno por línea: <code>Etiqueta | URL</code></small></span>
+        <textarea name="links_text" rows="3"
+                  placeholder="IBA | https://iba-world.com/cocktails/negroni/&#10;https://youtube.com/watch?v=..."><?= e($v['links_text']) ?></textarea>
+        <small class="muted">Si no ponés etiqueta, se deduce del sitio (IBA, Instagram, YouTube…).</small>
     </label>
 
     <div class="field">
