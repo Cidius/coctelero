@@ -46,6 +46,10 @@ if ($recipe === null) {
     exit;
 }
 
+if (Recipe::registerView((int) $recipe['id'])) {
+    $recipe['views'] = (int) ($recipe['views'] ?? 0) + 1;
+}
+
 $img = recipe_image_url($recipe['image_path'] ?? null);
 $methodTxt = method_label($recipe['method'], $recipe['method_other'] ?? null);
 if (!empty($recipe['method_detail'])) {
@@ -92,6 +96,9 @@ $metaDesc = $recipe['name'] . ' — '
             <?php endif; ?>
         </p>
     <?php endif; ?>
+
+    <?php $views = (int) ($recipe['views'] ?? 0); ?>
+    <p class="views">👁 <?= number_format($views, 0, ',', '.') ?> vista<?= $views === 1 ? '' : 's' ?></p>
 
     <?php if ($img !== null): ?>
         <div class="hero"><img src="<?= e($img) ?>" alt="<?= e($recipe['name']) ?>"></div>

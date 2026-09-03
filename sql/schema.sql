@@ -82,6 +82,7 @@ CREATE TABLE recipes (
     author_name   VARCHAR(120)     DEFAULT NULL,
     author_url    VARCHAR(255)     DEFAULT NULL,
     image_path    VARCHAR(255)     DEFAULT NULL,
+    views         INT UNSIGNED NOT NULL DEFAULT 0,
     created_by    INT UNSIGNED     DEFAULT NULL,
     created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -93,6 +94,7 @@ CREATE TABLE recipes (
     KEY idx_recipes_volume (volume),
     KEY idx_recipes_moment (moment),
     KEY idx_recipes_family (family_id),
+    KEY idx_recipes_views (views),
     FULLTEXT KEY ft_recipes_name_desc (name, description),
     CONSTRAINT fk_recipes_admin
         FOREIGN KEY (created_by) REFERENCES admin_users (id) ON DELETE SET NULL,

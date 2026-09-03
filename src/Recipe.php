@@ -205,6 +205,31 @@ final class Recipe
     }
 
     /**
+     * Suma 1 a la vista de la receta, salvo que este visitante ya la haya
+     * visto hace poco (cookie). Devuelve true si conto.
+     */
+    public static function registerView(int $id): bool
+    {
+        $ck = 'rv' . $id;
+        if (isset($_COOKIE[$ck])) {
+            return false;
+        }
+        Database::get()
+            ->prepare('UPDATE recipes SET views = views + 1 WHERE id = :id')
+            ->execute([':id' => $id]);
+
+        if (!headers_sent()) {
+            setcookie($ck, '1', [
+                'expires'  => time() + 6 * 3600,
+                'path'     => '/',
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]);
+        }
+        return true;
+    }
+
+    /**
      * Tags con al menos una receta activa, con su conteo. Para el panel de filtros.
      *
      * @return list<array{name:string, slug:string, count:int}>

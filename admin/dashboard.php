@@ -30,7 +30,7 @@ admin_header('Recetas');
 
 <table class="list">
     <thead>
-        <tr><th></th><th>Nombre</th><th>Método</th><th>Ingr.</th><th>Tags</th><th>Actualizada</th><th></th></tr>
+        <tr><th></th><th>Nombre</th><th>Método</th><th>Ingr.</th><th>Tags</th><th>Vistas</th><th>Actualizada</th><th></th></tr>
     </thead>
     <tbody>
     <?php foreach ($recipes as $r): ?>
@@ -46,6 +46,7 @@ admin_header('Recetas');
             <td><?= e($r['method']) ?></td>
             <td><?= (int) $r['ingredients'] ?></td>
             <td><?= (int) $r['tags'] ?></td>
+            <td><?= number_format((int) $r['views'], 0, ',', '.') ?></td>
             <td class="muted small"><?= e(substr((string) $r['updated_at'], 0, 16)) ?></td>
             <td class="actions">
                 <a href="<?= e(url('admin/receta-form.php?id=' . (int) $r['id'])) ?>">Editar</a>
@@ -59,7 +60,7 @@ admin_header('Recetas');
         </tr>
     <?php endforeach; ?>
     <?php if ($recipes === []): ?>
-        <tr><td colspan="7" class="muted">No hay recetas todavía.</td></tr>
+        <tr><td colspan="8" class="muted">No hay recetas todavía.</td></tr>
     <?php endif; ?>
     </tbody>
 </table>

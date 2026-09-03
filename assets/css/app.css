@@ -261,6 +261,7 @@ a:hover { text-decoration: underline; }
     font-size: 0.92rem;
 }
 .detail .author a, .detail .author strong { color: var(--text); font-weight: 600; }
+.detail .views { margin: 2px 0 0; color: var(--muted); font-size: 0.82rem; }
 
 .ext-links { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
 .ext-links a {

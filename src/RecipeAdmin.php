@@ -39,7 +39,7 @@ final class RecipeAdmin
         $pdo = Database::get();
         $cond = $trashed ? 'r.deleted_at IS NOT NULL' : 'r.deleted_at IS NULL';
         $order = $trashed ? 'r.deleted_at DESC' : 'r.name ASC';
-        $sql = "SELECT r.id, r.name, r.slug, r.method, r.image_path, r.updated_at, r.deleted_at,
+        $sql = "SELECT r.id, r.name, r.slug, r.method, r.image_path, r.views, r.updated_at, r.deleted_at,
                        (SELECT COUNT(*) FROM recipe_ingredients ri WHERE ri.recipe_id = r.id) AS ingredients,
                        (SELECT COUNT(*) FROM recipe_tags rt WHERE rt.recipe_id = r.id) AS tags
                 FROM recipes r WHERE $cond ORDER BY $order";

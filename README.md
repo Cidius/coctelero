@@ -129,6 +129,7 @@ mysql -u USUARIO -p BASE < sql/clasificar_recetas.sql             # pre-clasific
 mysql -u USUARIO -p BASE < sql/migracion_02_tags_brandy.sql       # fusiona tags de brandy
 mysql -u USUARIO -p BASE < sql/migracion_03_autor_enlaces.sql     # autor + recipe_links
 mysql -u USUARIO -p BASE < sql/migracion_04_cristaleria.sql       # normaliza cristaleria
+mysql -u USUARIO -p BASE < sql/migracion_05_vistas.sql            # contador de vistas
 ```
 
 En una base nueva no hace falta: `schema.sql` + `seed_52_recetas.sql` ya lo traen.
