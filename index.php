@@ -17,6 +17,7 @@ use function App\asset;
 use function App\boot_errors;
 use function App\e;
 use function App\method_label;
+use function App\pwa_head;
 use function App\query_tags;
 use function App\recipe_image_url;
 use function App\url;
@@ -86,6 +87,7 @@ header('Content-Type: text/html; charset=utf-8');
     <title>Recetario de Cócteles</title>
     <meta name="description" content="Buscador de recetas de cócteles: filtrá por destilado, método e ingredientes.">
     <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
+    <?php pwa_head(); ?>
 </head>
 <body>
 <header class="site-header">

@@ -85,6 +85,23 @@ function recipe_image_url(?string $imagePath): ?string
     return url($dir . '/' . ltrim($imagePath, '/'));
 }
 
+/** Etiquetas <head> de la PWA (manifest, iconos, theme-color, service worker). */
+function pwa_head(): void
+{
+    $tags = [
+        '<link rel="manifest" href="' . e(url('manifest.webmanifest')) . '">',
+        '<meta name="theme-color" content="#14110f">',
+        '<link rel="icon" type="image/png" href="' . e(url('assets/icons/favicon-32.png')) . '">',
+        '<link rel="apple-touch-icon" href="' . e(url('assets/icons/apple-touch-icon.png')) . '">',
+        '<meta name="apple-mobile-web-app-capable" content="yes">',
+        '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">',
+        '<meta name="apple-mobile-web-app-title" content="Cócteles">',
+        '<script>if("serviceWorker" in navigator){addEventListener("load",function(){'
+            . 'navigator.serviceWorker.register("' . e(url('sw.js')) . '").catch(function(){})})}</script>',
+    ];
+    echo implode("\n    ", $tags) . "\n";
+}
+
 /** Etiqueta legible del metodo. */
 function method_label(string $method, ?string $methodOther = null): string
 {

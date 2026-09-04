@@ -31,3 +31,14 @@ Options -Indexes
         Deny from all
     </FilesMatch>
 </IfModule>
+
+# ---- PWA ----
+<IfModule mod_mime.c>
+    AddType application/manifest+json .webmanifest
+</IfModule>
+# El service worker no debe cachearse en el navegador (asi toma actualizaciones)
+<FilesMatch "^sw\.js$">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    </IfModule>
+</FilesMatch>

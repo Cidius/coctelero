@@ -14,6 +14,7 @@ use function App\asset;
 use function App\boot_errors;
 use function App\e;
 use function App\method_label;
+use function App\pwa_head;
 use function App\recipe_image_url;
 use function App\url;
 
@@ -34,6 +35,7 @@ if ($recipe === null) {
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Receta no encontrada</title>
         <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
+<?php pwa_head(); ?>
     </head>
     <body>
     <main class="wrap detail">
@@ -76,6 +78,7 @@ $metaDesc = $recipe['name'] . ' — '
     <title><?= e($recipe['name']) ?> · Recetario de Cócteles</title>
     <meta name="description" content="<?= e(mb_substr($metaDesc, 0, 160)) ?>">
     <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
+<?php pwa_head(); ?>
 </head>
 <body>
 <header class="site-header">

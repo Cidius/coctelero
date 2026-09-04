@@ -103,6 +103,19 @@ El seed se genera desde `sql/fuente/recetario.txt`:
 php sql/fuente/build_seed.php
 ```
 
+## PWA
+
+Instalable como app (Add to Home Screen), con cache offline básico.
+
+- `manifest.webmanifest` + iconos en `assets/icons/` (regenerar: `php assets/icons/gen_icons.php`, requiere GD).
+- `sw.js` (service worker, scope `/`): navegaciones network-first con fallback
+  a `offline.html`; `assets/` con stale-while-revalidate; `api/` y `admin/` nunca
+  se cachean. Subir `VERSION` en `sw.js` para invalidar todo.
+- `pwa_head()` en `src/helpers.php` inyecta el `<link rel=manifest>`, theme-color,
+  apple-touch-icon y el registro del SW en `index.php` y `receta.php`.
+- **Requiere HTTPS**: el service worker no se registra sobre `http://`. Activar
+  el SSL de Hostinger para que la instalación funcione.
+
 ## Notas de modelo
 
 - **Soft delete**: las recetas no se borran, se marca `recipes.deleted_at`.
