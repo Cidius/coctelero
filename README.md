@@ -159,3 +159,14 @@ mysql -u USUARIO -p BASE < sql/migracion_05_vistas.sql            # contador de 
 ```
 
 En una base nueva no hace falta: `schema.sql` + `seed_52_recetas.sql` ya lo traen.
+
+### Import de recetas de autor 2026
+
+```bash
+mysql -u USUARIO -p BASE < sql/import_autor_2026.sql   # +29 recetas (GENERADO)
+```
+
+29 cócteles del recetario "de autor e internacionales clásicos 2026" con
+nombre distintivo. Re-ejecutable (no duplica). Regenerar:
+`php sql/import/build_import_autor.php`. Las fichas sin nombre del PDF
+(`*1`…`*8`, `Coctel Nº1/2/3/7/9`, etc.) se cargan por el admin.
