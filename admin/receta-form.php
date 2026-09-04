@@ -62,6 +62,7 @@ $GLASSWARE_OPTS = [
     'Vaso Old Fashioned',
     'Copa Cóctel',
     'Copa Hurricane',
+    'Vaso bombé',
 ];
 $ICE_OPTS = ['Molido', 'En cubos', 'Cubo grande', 'Rolito/cubo'];
 
