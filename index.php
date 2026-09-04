@@ -85,6 +85,7 @@ header('Content-Type: text/html; charset=utf-8');
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google-site-verification" content="yt1D2UP_uXVGbr33PQGmAKK_PmDZ50svdC0iQsV6ih4">
     <title>Recetario de Cócteles</title>
     <meta name="description" content="Buscador de recetas de cócteles: filtrá por destilado, familia, método e ingredientes.">
     <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
