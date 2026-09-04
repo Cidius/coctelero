@@ -261,7 +261,31 @@ a:hover { text-decoration: underline; }
     font-size: 0.92rem;
 }
 .detail .author a, .detail .author strong { color: var(--text); font-weight: 600; }
-.detail .views { margin: 2px 0 0; color: var(--muted); font-size: 0.82rem; }
+
+.detail-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 4px;
+}
+.detail-actions .views { color: var(--muted); font-size: 0.82rem; }
+.share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+}
+.share-btn::before { content: "↗"; color: var(--accent); }
+.share-btn:hover { border-color: var(--accent); }
+.share-btn:disabled { opacity: 0.7; cursor: default; }
 
 .ext-links { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
 .ext-links a {

@@ -100,8 +100,15 @@ $metaDesc = $recipe['name'] . ' — '
         </p>
     <?php endif; ?>
 
-    <?php $views = (int) ($recipe['views'] ?? 0); ?>
-    <p class="views">👁 <?= number_format($views, 0, ',', '.') ?> vista<?= $views === 1 ? '' : 's' ?></p>
+    <div class="detail-actions">
+        <?php $views = (int) ($recipe['views'] ?? 0); ?>
+        <span class="views">👁 <?= number_format($views, 0, ',', '.') ?> vista<?= $views === 1 ? '' : 's' ?></span>
+        <button type="button" id="share-btn" class="share-btn"
+                data-url="<?= e(url('receta.php?slug=' . urlencode($recipe['slug']))) ?>"
+                data-text="<?= e($recipe['name'] . ' — Recetario de Cócteles') ?>">
+            Compartir
+        </button>
+    </div>
 
     <?php if ($img !== null): ?>
         <div class="hero"><img src="<?= e($img) ?>" alt="<?= e($recipe['name']) ?>"></div>
@@ -152,5 +159,27 @@ $metaDesc = $recipe['name'] . ' — '
 <footer class="site-footer">
     <div class="wrap"><a href="<?= e(url('/')) ?>">Recetario del Taller de Coctelería</a></div>
 </footer>
+<script>
+(function () {
+    var btn = document.getElementById('share-btn');
+    if (!btn) return;
+    var url = btn.dataset.url || location.href;
+    var data = { title: document.title, text: btn.dataset.text || document.title, url: url };
+    btn.addEventListener('click', function () {
+        if (navigator.share) {
+            navigator.share(data).catch(function () {});
+        } else if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function () {
+                var prev = btn.textContent;
+                btn.textContent = 'Enlace copiado';
+                btn.disabled = true;
+                setTimeout(function () { btn.textContent = prev; btn.disabled = false; }, 1800);
+            });
+        } else {
+            window.prompt('Copiá el enlace:', url);
+        }
+    });
+})();
+</script>
 </body>
 </html>
