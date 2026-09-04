@@ -157,7 +157,7 @@ $metaDesc = $recipe['name'] . ' — '
 </main>
 
 <footer class="site-footer">
-    <div class="wrap"><a href="<?= e(url('/')) ?>">Recetario del Taller de Coctelería</a></div>
+    <div class="wrap"><a href="<?= e(url('/')) ?>">El machete necesario para cualquier bartender <span class="by">by Cidius</span></a></div>
 </footer>
 <script>
 (function () {
