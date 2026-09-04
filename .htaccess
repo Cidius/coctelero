@@ -12,10 +12,16 @@ Options -Indexes
     Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
-# ---- Bloquear carpetas internas (no son parte del sitio publico) ----
-# src/ = codigo PHP, sql/ = esquema y datos, bin/ = scripts CLI
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
+    # ---- Forzar HTTPS ----
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+    # ---- Bloquear carpetas internas (no son parte del sitio publico) ----
+    # src/ = codigo PHP, sql/ = esquema y datos, bin/ = scripts CLI
     RewriteRule ^(src|sql|bin)/ - [F,L]
 </IfModule>
 
