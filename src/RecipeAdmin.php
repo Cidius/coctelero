@@ -30,20 +30,34 @@ final class RecipeAdmin
     }
 
     /**
-     * Listado para el dashboard / la papelera.
+     * Listado para el dashboard / la papelera. $q busca por nombre o
+     * ingredientes (como el buscador publico).
      *
      * @return list<array<string,mixed>>
      */
-    public static function listAll(bool $trashed = false): array
+    public static function listAll(bool $trashed = false, string $q = ''): array
     {
         $pdo = Database::get();
-        $cond = $trashed ? 'r.deleted_at IS NOT NULL' : 'r.deleted_at IS NULL';
+        $where = [$trashed ? 'r.deleted_at IS NOT NULL' : 'r.deleted_at IS NULL'];
+        $params = [];
+
+        $q = trim($q);
+        if ($q !== '') {
+            $like = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $q) . '%';
+            $where[] = '(r.name LIKE :qa OR EXISTS '
+                . '(SELECT 1 FROM recipe_ingredients ri WHERE ri.recipe_id = r.id AND ri.raw_text LIKE :qb))';
+            $params[':qa'] = $like;
+            $params[':qb'] = $like;
+        }
+
         $order = $trashed ? 'r.deleted_at DESC' : 'r.name ASC';
-        $sql = "SELECT r.id, r.name, r.slug, r.method, r.image_path, r.views, r.updated_at, r.deleted_at,
+        $sql = 'SELECT r.id, r.name, r.slug, r.method, r.image_path, r.views, r.updated_at, r.deleted_at,
                        (SELECT COUNT(*) FROM recipe_ingredients ri WHERE ri.recipe_id = r.id) AS ingredients,
                        (SELECT COUNT(*) FROM recipe_tags rt WHERE rt.recipe_id = r.id) AS tags
-                FROM recipes r WHERE $cond ORDER BY $order";
-        return $pdo->query($sql)->fetchAll();
+                FROM recipes r WHERE ' . implode(' AND ', $where) . " ORDER BY $order";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
     }
 
     /** Cuenta de recetas en la papelera. */
