@@ -205,6 +205,18 @@ final class Recipe
     }
 
     /**
+     * Slugs + updated_at de todas las recetas activas, para el sitemap.
+     *
+     * @return list<array{slug:string, updated_at:string}>
+     */
+    public static function allForSitemap(): array
+    {
+        return Database::get()->query(
+            'SELECT slug, updated_at FROM recipes WHERE deleted_at IS NULL ORDER BY name ASC'
+        )->fetchAll();
+    }
+
+    /**
      * Suma 1 a la vista de la receta, salvo que este visitante ya la haya
      * visto hace poco (cookie). Devuelve true si conto.
      */

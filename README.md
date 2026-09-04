@@ -103,6 +103,19 @@ El seed se genera desde `sql/fuente/recetario.txt`:
 php sql/fuente/build_seed.php
 ```
 
+## SEO
+
+- `seo_head()` en `src/helpers.php`: `<link rel=canonical>` + Open Graph +
+  Twitter Card. En la home canonical apunta a `/` (los `?tag=` no se indexan
+  aparte); en la ficha, a la URL limpia de la receta con su foto.
+- `receta.php` emite JSON-LD `schema.org/Recipe` (nombre, imagen, ingredientes,
+  autor, categoría, keywords) para resultados enriquecidos de Google.
+- `sitemap.php` → servido como `/sitemap.xml` (rewrite en `.htaccess`): home +
+  todas las recetas activas con `lastmod`.
+- `robots.txt`: permite todo salvo `/admin/` y `/api/`, apunta al sitemap.
+- Falta hacer una vez: dar de alta el sitio en Google Search Console y
+  enviar `https://coctelero.online/sitemap.xml`.
+
 ## PWA
 
 Instalable como app (Add to Home Screen), con cache offline básico.

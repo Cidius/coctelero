@@ -85,6 +85,31 @@ function recipe_image_url(?string $imagePath): ?string
     return url($dir . '/' . ltrim($imagePath, '/'));
 }
 
+/**
+ * Etiquetas SEO/social del <head>: canonical + Open Graph + Twitter Card.
+ * $image debe ser URL absoluta (o null -> usa el icono).
+ */
+function seo_head(string $title, string $description, string $canonical, ?string $image = null, string $type = 'website'): void
+{
+    $description = mb_substr(trim(preg_replace('/\s+/', ' ', $description) ?? ''), 0, 200);
+    $img = $image ?? url('assets/icons/icon-512.png');
+    $tags = [
+        '<link rel="canonical" href="' . e($canonical) . '">',
+        '<meta property="og:type" content="' . e($type) . '">',
+        '<meta property="og:site_name" content="Recetario de Cócteles">',
+        '<meta property="og:locale" content="es_AR">',
+        '<meta property="og:title" content="' . e($title) . '">',
+        '<meta property="og:description" content="' . e($description) . '">',
+        '<meta property="og:url" content="' . e($canonical) . '">',
+        '<meta property="og:image" content="' . e($img) . '">',
+        '<meta name="twitter:card" content="summary_large_image">',
+        '<meta name="twitter:title" content="' . e($title) . '">',
+        '<meta name="twitter:description" content="' . e($description) . '">',
+        '<meta name="twitter:image" content="' . e($img) . '">',
+    ];
+    echo implode("\n    ", $tags) . "\n";
+}
+
 /** Etiquetas <head> de la PWA (manifest, iconos, theme-color, service worker). */
 function pwa_head(): void
 {

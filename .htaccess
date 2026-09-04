@@ -23,6 +23,9 @@ Options -Indexes
     # ---- Bloquear carpetas internas (no son parte del sitio publico) ----
     # src/ = codigo PHP, sql/ = esquema y datos, bin/ = scripts CLI
     RewriteRule ^(src|sql|bin)/ - [F,L]
+
+    # ---- Sitemap ----
+    RewriteRule ^sitemap\.xml$ sitemap.php [L]
 </IfModule>
 
 # ---- Bloquear archivos sensibles / no publicos ----

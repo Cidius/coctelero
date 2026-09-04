@@ -16,6 +16,7 @@ use function App\e;
 use function App\method_label;
 use function App\pwa_head;
 use function App\recipe_image_url;
+use function App\seo_head;
 use function App\url;
 
 boot_errors();
@@ -33,6 +34,7 @@ if ($recipe === null) {
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noindex">
         <title>Receta no encontrada</title>
         <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
 <?php pwa_head(); ?>
@@ -69,6 +71,38 @@ if (!empty($recipe['garnish']))   $specs['Decoración']  = $recipe['garnish'];
 
 $metaDesc = $recipe['name'] . ' — '
     . implode(', ', array_map(static fn($i) => $i['raw_text'], array_slice($recipe['ingredients'], 0, 4)));
+
+$canonical = url('receta.php?slug=' . urlencode($recipe['slug']));
+
+// Datos estructurados schema.org/Recipe (resultados enriquecidos de Google).
+$ld = [
+    '@context'         => 'https://schema.org',
+    '@type'            => 'Recipe',
+    'name'             => $recipe['name'],
+    'url'              => $canonical,
+    'recipeIngredient' => array_values(array_map(
+        static fn($i) => $i['raw_text'],
+        $recipe['ingredients']
+    )),
+];
+if ($img !== null) {
+    $ld['image'] = [$img];
+}
+if (!empty($recipe['description'])) {
+    $ld['description'] = $recipe['description'];
+}
+if (!empty($recipe['family'])) {
+    $ld['recipeCategory'] = $recipe['family'];
+}
+if (!empty($recipe['method_detail'])) {
+    $ld['recipeInstructions'] = [['@type' => 'HowToStep', 'text' => $recipe['method_detail']]];
+}
+if (!empty($recipe['author_name'])) {
+    $ld['author'] = ['@type' => 'Person', 'name' => $recipe['author_name']];
+}
+if (!empty($recipe['tags'])) {
+    $ld['keywords'] = implode(', ', array_map(static fn($t) => $t['name'], $recipe['tags']));
+}
 ?>
 <!doctype html>
 <html lang="es">
@@ -78,7 +112,9 @@ $metaDesc = $recipe['name'] . ' — '
     <title><?= e($recipe['name']) ?> · Recetario de Cócteles</title>
     <meta name="description" content="<?= e(mb_substr($metaDesc, 0, 160)) ?>">
     <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
-<?php pwa_head(); ?>
+    <?php seo_head($recipe['name'] . ' · Recetario de Cócteles', $metaDesc, $canonical, $img, 'article'); ?>
+    <?php pwa_head(); ?>
+    <script type="application/ld+json"><?= json_encode($ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) ?></script>
 </head>
 <body>
 <header class="site-header">
