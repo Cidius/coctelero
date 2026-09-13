@@ -8,6 +8,7 @@
 
   var ENDPOINT = app.dataset.endpoint;
   var DETAIL = app.dataset.detail;
+  var SPIRIT_TAGS = (app.dataset.spiritTags || '').split(',').filter(Boolean);
   var grid = document.getElementById('grid');
   var countEl = document.getElementById('result-count');
   var resetEl = document.getElementById('reset');
@@ -54,19 +55,29 @@
     var thumb = r.image_url
       ? '<img src="' + esc(r.image_url) + '" alt="" loading="lazy">'
       : '🍸';
-    var bits = [r.method_label];
+    var bits = [];
     if (r.family) bits.push(r.family);
     if (r.glassware) bits.push(r.glassware);
-    var meta = esc(bits.filter(Boolean).join(' · '));
-    var tags = (r.tags || []).slice(0, 4).map(function (t) {
+    var meta = esc(bits.join(' · '));
+
+    var allTags = r.tags || [];
+    var spiritNames = allTags.filter(function (t) {
+      return SPIRIT_TAGS.indexOf(t.slug) !== -1;
+    }).map(function (t) { return t.name; });
+    var spirits = esc(spiritNames.join(', '));
+    var charTags = allTags.filter(function (t) {
+      return SPIRIT_TAGS.indexOf(t.slug) === -1;
+    }).slice(0, 4).map(function (t) {
       return '<span>' + esc(t.name) + '</span>';
     }).join('');
+
     return '<a class="card" href="' + esc(DETAIL) + '?slug=' + encodeURIComponent(r.slug) + '">' +
       '<div class="thumb">' + thumb + '</div>' +
       '<div class="body">' +
       '<h3>' + esc(r.name) + '</h3>' +
-      '<p class="meta">' + meta + '</p>' +
-      (tags ? '<div class="card-tags">' + tags + '</div>' : '') +
+      (meta ? '<p class="meta">' + meta + '</p>' : '') +
+      (spirits ? '<p class="spirits">' + spirits + '</p>' : '') +
+      (charTags ? '<div class="card-tags">' + charTags + '</div>' : '') +
       '</div></a>';
   }
 

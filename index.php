@@ -16,11 +16,11 @@ use App\Recipe;
 use function App\asset;
 use function App\boot_errors;
 use function App\e;
-use function App\method_label;
 use function App\pwa_head;
 use function App\query_tags;
 use function App\recipe_image_url;
 use function App\seo_head;
+use function App\spirit_tag_slugs;
 use function App\url;
 
 boot_errors();
@@ -59,22 +59,29 @@ function render_card(array $r): string
     $thumb = $img !== null
         ? '<img src="' . e($img) . '" alt="" loading="lazy">'
         : '🍸';
-    $bits = array_filter([
-        method_label($r['method'], $r['method_other'] ?? null),
-        $r['family'] ?? null,
-        $r['glassware'] ?? null,
-    ]);
-    $meta = implode(' · ', $bits);
-    $tags = '';
-    foreach (array_slice($r['tags'] ?? [], 0, 4) as $t) {
-        $tags .= '<span>' . e($t['name']) . '</span>';
+
+    $meta = implode(' · ', array_filter([$r['family'] ?? null, $r['glassware'] ?? null]));
+
+    $spiritSlugs = spirit_tag_slugs();
+    $spiritNames = [];
+    $charTags = '';
+    foreach ($r['tags'] ?? [] as $t) {
+        if (in_array($t['slug'], $spiritSlugs, true)) {
+            $spiritNames[] = $t['name'];
+        }
     }
+    $spirits = implode(', ', $spiritNames);
+    foreach (array_slice(array_filter($r['tags'] ?? [], static fn($t) => !in_array($t['slug'], $spiritSlugs, true)), 0, 4) as $t) {
+        $charTags .= '<span>' . e($t['name']) . '</span>';
+    }
+
     return '<a class="card" href="' . e(url('receta.php?slug=' . urlencode($r['slug']))) . '">'
         . '<div class="thumb">' . $thumb . '</div>'
         . '<div class="body">'
         . '<h3>' . e($r['name']) . '</h3>'
-        . '<p class="meta">' . e($meta) . '</p>'
-        . ($tags !== '' ? '<div class="card-tags">' . $tags . '</div>' : '')
+        . ($meta !== '' ? '<p class="meta">' . e($meta) . '</p>' : '')
+        . ($spirits !== '' ? '<p class="spirits">' . e($spirits) . '</p>' : '')
+        . ($charTags !== '' ? '<div class="card-tags">' . $charTags . '</div>' : '')
         . '</div></a>';
 }
 
@@ -106,7 +113,8 @@ header('Content-Type: text/html; charset=utf-8');
 
 <main class="wrap" id="app"
       data-endpoint="<?= e(url('api/recipes.php')) ?>"
-      data-detail="<?= e(url('receta.php')) ?>">
+      data-detail="<?= e(url('receta.php')) ?>"
+      data-spirit-tags="<?= e(implode(',', spirit_tag_slugs())) ?>">
 
     <form class="search" method="get" action="<?= e(url('/')) ?>" role="search">
         <input type="search" name="q" value="<?= e($q) ?>"

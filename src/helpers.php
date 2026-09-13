@@ -142,6 +142,24 @@ function method_label(string $method, ?string $methodOther = null): string
 }
 
 /**
+ * Slugs de tags que son bebidas alcoholicas (destilados/licores), a
+ * diferencia de los tags de caracteristica (citrico, menta, con-huevo...).
+ * Se usa para mostrar "los ingredientes clave" de una receta en las cards.
+ *
+ * @return list<string>
+ */
+function spirit_tag_slugs(): array
+{
+    return [
+        'gin', 'ron', 'cachaca', 'vodka', 'campari', 'aperol', 'fernet', 'cynar',
+        'pineral', 'hesperidina', 'hierro-quina', 'vermut', 'whisky', 'tequila',
+        'mezcal', 'pisco', 'brandy', 'marrasquino', 'espumante', 'triple-sec',
+        'amargo-obrero', 'chartreuse', 'strega', 'cassis', 'malibu', 'pimms',
+        'licor-cafe', 'licor-crema', 'amaretto',
+    ];
+}
+
+/**
  * Lee parametros de tag de la query string.
  * Acepta ?tag=ron&tag=menta  y  ?tag=ron,menta  y  ?tag[]=ron
  *
