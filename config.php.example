@@ -34,4 +34,25 @@ return [
     // Login: intentos permitidos por IP antes del bloqueo temporal.
     'login_max_attempts' => 5,
     'login_lockout_minutes' => 15,
+
+    // Google Sign-In (OAuth 2.0 / OpenID Connect) para las cuentas de
+    // usuario publicas ("coctelero"). Crear en:
+    //   https://console.cloud.google.com/apis/credentials
+    // Tipo de credencial: "ID de cliente de OAuth" > Aplicacion web.
+    'google' => [
+        'client_id'     => '',
+        'client_secret' => '',
+        // Debe coincidir EXACTO (con protocolo, dominio y mayus/minus) con
+        // un "URI de redireccionamiento autorizado" configurado en Google.
+        'redirect_uri'  => '', // ej: https://coctelero.online/auth/google/callback.php
+    ],
+
+    // Notificacion por mail cuando llega un mensaje de contacto nuevo.
+    // Usa la funcion mail() nativa de PHP (la que da el hosting). Si la
+    // entrega no es confiable, el mensaje igual queda guardado en el panel.
+    'mail' => [
+        'admin_to'   => '',                             // a donde llega el aviso
+        'from_email' => 'no-responder@coctelero.online', // remitente
+        'from_name'  => 'Recetario de Cócteles',
+    ],
 ];

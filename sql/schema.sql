@@ -23,6 +23,9 @@ DROP TABLE IF EXISTS recipe_tags;
 DROP TABLE IF EXISTS recipe_topics;
 DROP TABLE IF EXISTS recipe_ingredients;
 DROP TABLE IF EXISTS recipe_links;
+DROP TABLE IF EXISTS recipe_favorites;
+DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS login_attempts;
 DROP TABLE IF EXISTS recipes;
 DROP TABLE IF EXISTS families;
@@ -189,6 +192,58 @@ CREATE TABLE login_attempts (
     attempted_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     KEY idx_login_ip_time (ip, attempted_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+--  users  -  cuentas publicas (rol "coctelero"). Sin contrasena:
+--  login solo con Google Sign-In.
+-- ---------------------------------------------------------------------
+CREATE TABLE users (
+    id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    google_sub    VARCHAR(64)  NOT NULL,
+    email         VARCHAR(190) NOT NULL,
+    name          VARCHAR(160) NOT NULL,
+    avatar_url    VARCHAR(500)     DEFAULT NULL,
+    created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_login_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_users_google_sub (google_sub)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+--  recipe_favorites  -  like + favorito: misma accion. El COUNT es el
+--  like publico; las filas de un usuario son su lista de favoritos.
+-- ---------------------------------------------------------------------
+CREATE TABLE recipe_favorites (
+    user_id    INT UNSIGNED NOT NULL,
+    recipe_id  INT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, recipe_id),
+    KEY idx_recipe_favorites_recipe (recipe_id),
+    CONSTRAINT fk_favorites_user
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_favorites_recipe
+        FOREIGN KEY (recipe_id) REFERENCES recipes (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+--  messages  -  contacto/feedback al coctelero. Solo usuarios logueados.
+-- ---------------------------------------------------------------------
+CREATE TABLE messages (
+    id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id    INT UNSIGNED     DEFAULT NULL,
+    recipe_id  INT UNSIGNED     DEFAULT NULL,
+    name       VARCHAR(160) NOT NULL,
+    email      VARCHAR(190) NOT NULL,
+    body       TEXT         NOT NULL,
+    created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    read_at    DATETIME         DEFAULT NULL,
+    PRIMARY KEY (id),
+    KEY idx_messages_read (read_at),
+    CONSTRAINT fk_messages_user
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL,
+    CONSTRAINT fk_messages_recipe
+        FOREIGN KEY (recipe_id) REFERENCES recipes (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
