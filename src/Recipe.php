@@ -161,7 +161,22 @@ final class Recipe
     }
 
     /**
-     * Receta completa por slug (con ingredientes y tags). null si no existe.
+     * Lookup liviano (sin ingredientes/tags/links) para favoritos y mensajes.
+     *
+     * @return array{id:int, name:string, slug:string}|null
+     */
+    public static function basicBySlug(string $slug): ?array
+    {
+        $stmt = Database::get()->prepare(
+            'SELECT id, name, slug FROM recipes WHERE slug = :slug AND deleted_at IS NULL LIMIT 1'
+        );
+        $stmt->execute([':slug' => $slug]);
+        $row = $stmt->fetch();
+        return $row === false ? null : $row;
+    }
+
+    /**
+     * Receta completa por slug (con ingredientes, tags y links). null si no existe.
      *
      * @return array<string,mixed>|null
      */

@@ -160,6 +160,42 @@ function spirit_tag_slugs(): array
 }
 
 /**
+ * Card de una receta para el listado (home, favoritos). Nombre / familia
+ * y cristaleria / destilados clave (tags de bebida) / resto de las tags.
+ */
+function render_recipe_card(array $r): string
+{
+    $img = recipe_image_url($r['image_path'] ?? null);
+    $thumb = $img !== null
+        ? '<img src="' . e($img) . '" alt="" loading="lazy">'
+        : '🍸';
+
+    $meta = implode(' · ', array_filter([$r['family'] ?? null, $r['glassware'] ?? null]));
+
+    $spiritSlugs = spirit_tag_slugs();
+    $spiritNames = [];
+    $charTags = '';
+    foreach ($r['tags'] ?? [] as $t) {
+        if (in_array($t['slug'], $spiritSlugs, true)) {
+            $spiritNames[] = $t['name'];
+        }
+    }
+    $spirits = implode(', ', $spiritNames);
+    foreach (array_slice(array_filter($r['tags'] ?? [], static fn($t) => !in_array($t['slug'], $spiritSlugs, true)), 0, 4) as $t) {
+        $charTags .= '<span>' . e($t['name']) . '</span>';
+    }
+
+    return '<a class="card" href="' . e(url('receta.php?slug=' . urlencode($r['slug']))) . '">'
+        . '<div class="thumb">' . $thumb . '</div>'
+        . '<div class="body">'
+        . '<h3>' . e($r['name']) . '</h3>'
+        . ($meta !== '' ? '<p class="meta">' . e($meta) . '</p>' : '')
+        . ($spirits !== '' ? '<p class="spirits">' . e($spirits) . '</p>' : '')
+        . ($charTags !== '' ? '<div class="card-tags">' . $charTags . '</div>' : '')
+        . '</div></a>';
+}
+
+/**
  * Lee parametros de tag de la query string.
  * Acepta ?tag=ron&tag=menta  y  ?tag=ron,menta  y  ?tag[]=ron
  *
