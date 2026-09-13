@@ -194,6 +194,25 @@ a:hover { text-decoration: underline; }
     padding: 2px 7px;
 }
 
+/* Vista lista en mobile y cuando corre instalada como PWA (aunque la
+   pantalla sea grande): filas compactas con miniatura, como en el admin. */
+@media (max-width: 700px), (display-mode: standalone) {
+    .grid { grid-template-columns: 1fr; gap: 8px; }
+    .card { flex-direction: row; align-items: center; }
+    .card:hover { transform: none; }
+    .card .thumb {
+        width: 64px;
+        height: 64px;
+        flex: 0 0 64px;
+        aspect-ratio: auto;
+        font-size: 1.5rem;
+    }
+    .card .body { flex: 1; min-width: 0; padding: 8px 13px; }
+    .card h3 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card .meta { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card .card-tags { display: none; }
+}
+
 .empty {
     text-align: center;
     color: var(--muted);
