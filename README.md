@@ -65,9 +65,10 @@ La raíz del repo **es** el `public_html/` del hosting: se sube todo tal cual.
   fuente/                 recetario original + generador del seed
 ```
 
-En Hostinger sólo hacen falta `index.php`, `receta.php`, `admin/`, `api/`,
-`assets/`, `uploads/`, `.htaccess`, `config.php` y `src/`. `sql/`, `bin/` y los
-`.md` se pueden subir (quedan bloqueados) o directamente omitir.
+En Hostinger sólo hacen falta `index.php`, `receta.php`, `favoritos.php`,
+`contacto.php`, `admin/`, `api/`, `auth/`, `assets/`, `uploads/`, `.htaccess`,
+`config.php` y `src/`. `sql/`, `bin/` y los `.md` se pueden subir (quedan
+bloqueados) o directamente omitir.
 
 ## Admin
 
@@ -102,6 +103,54 @@ El seed se genera desde `sql/fuente/recetario.txt`:
 ```bash
 php sql/fuente/build_seed.php
 ```
+
+## Cuentas de usuario, favoritos y contacto
+
+Rol **coctelero** (visitante logueado, sin permisos de admin): entra solo con
+**Google Sign-In** (sin contraseña propia — nada que recuperar). El admin
+sigue igual que siempre, sin tocar.
+
+- `src/UserAuth.php` — sesión (`coctelero_user`, cookie separada de la del
+  admin), CSRF propio, `headerHtml()` para el menú del header.
+- `src/GoogleAuth.php` — OAuth 2.0 / OpenID Connect sin dependencias. Valida
+  el `id_token` contra el endpoint `tokeninfo` de Google (audiencia, emisor,
+  email verificado) en vez de implementar JWT nosotros.
+- `auth/google/login.php` → redirige a Google · `auth/google/callback.php`
+  → valida y abre sesión · `auth/logout.php`.
+- **Like = favorito** (`src/Favorites.php`, tabla `recipe_favorites`): un tap
+  en el ♡ de la ficha cuenta como like público y guarda la receta en
+  `favoritos.php` del usuario.
+- **Contacto** (`src/Messages.php`, tabla `messages`): `contacto.php`, solo
+  para usuarios logueados, general o atado a una receta
+  (`?recipe=slug`, desde el link "Preguntas o sugerencias" de la ficha).
+  Guarda siempre en la base; si `config['mail']['admin_to']` está seteado
+  intenta además avisar por mail con `mail()` nativo de PHP (best-effort).
+- Admin: `admin/mensajes.php` — bandeja con contador de no leídos en el nav.
+
+### Setup de Google Sign-In (una vez)
+
+1. [console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials)
+   → crear proyecto (o usar uno existente) → **Crear credenciales → ID de
+   cliente de OAuth** → tipo **Aplicación web**.
+2. **Orígenes de JavaScript autorizados:** `https://coctelero.online`
+3. **URI de redireccionamiento autorizados:** `https://coctelero.online/auth/google/callback.php`
+   (tiene que coincidir letra por letra con `config['google']['redirect_uri']`).
+4. Copiar el **Client ID** y el **Client secret** a `config.php`:
+   ```php
+   'google' => [
+       'client_id'     => '...',
+       'client_secret' => '...',
+       'redirect_uri'  => 'https://coctelero.online/auth/google/callback.php',
+   ],
+   'mail' => [
+       'admin_to'   => 'tu-mail@...',
+       'from_email' => 'no-responder@coctelero.online',
+       'from_name'  => 'Recetario de Cócteles',
+   ],
+   ```
+5. Correr `sql/migracion_06_usuarios.sql`.
+
+Requiere la extensión **curl** de PHP (estándar en Hostinger).
 
 ## SEO
 
@@ -156,6 +205,7 @@ mysql -u USUARIO -p BASE < sql/migracion_02_tags_brandy.sql       # fusiona tags
 mysql -u USUARIO -p BASE < sql/migracion_03_autor_enlaces.sql     # autor + recipe_links
 mysql -u USUARIO -p BASE < sql/migracion_04_cristaleria.sql       # normaliza cristaleria
 mysql -u USUARIO -p BASE < sql/migracion_05_vistas.sql            # contador de vistas
+mysql -u USUARIO -p BASE < sql/migracion_06_usuarios.sql          # usuarios, favoritos, mensajes
 ```
 
 En una base nueva no hace falta: `schema.sql` + `seed_52_recetas.sql` ya lo traen.

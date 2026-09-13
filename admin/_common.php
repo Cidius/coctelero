@@ -7,8 +7,10 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../src/helpers.php';
 require_once __DIR__ . '/../src/Auth.php';
+require_once __DIR__ . '/../src/Messages.php';
 
 use App\Auth;
+use App\Messages;
 
 use function App\asset;
 use function App\boot_errors;
@@ -54,6 +56,8 @@ function admin_header(string $title, bool $chrome = true): void
         <nav>
             <a href="<?= e(url('admin/dashboard.php')) ?>">Recetas</a>
             <a href="<?= e(url('admin/papelera.php')) ?>">Papelera</a>
+            <?php $unread = Messages::unreadCount(); ?>
+            <a href="<?= e(url('admin/mensajes.php')) ?>">Mensajes<?= $unread > 0 ? ' <span class="badge">' . $unread . '</span>' : '' ?></a>
             <a href="<?= e(url('/')) ?>" target="_blank" rel="noopener">Ver sitio ↗</a>
             <?php if ($user): ?>
                 <span class="who"><?= e($user['username']) ?></span>

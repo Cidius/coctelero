@@ -7,8 +7,12 @@ declare(strict_types=1);
 
 require __DIR__ . '/src/helpers.php';
 require __DIR__ . '/src/Recipe.php';
+require __DIR__ . '/src/UserAuth.php';
+require __DIR__ . '/src/Favorites.php';
 
+use App\Favorites;
 use App\Recipe;
+use App\UserAuth;
 
 use function App\asset;
 use function App\boot_errors;
@@ -53,6 +57,10 @@ if ($recipe === null) {
 if (Recipe::registerView((int) $recipe['id'])) {
     $recipe['views'] = (int) ($recipe['views'] ?? 0) + 1;
 }
+
+$authUser = UserAuth::user();
+$favCount = Favorites::count((int) $recipe['id']);
+$isFav = $authUser !== null && Favorites::isFavorited($authUser['id'], (int) $recipe['id']);
 
 $img = recipe_image_url($recipe['image_path'] ?? null);
 $methodTxt = method_label($recipe['method'], $recipe['method_other'] ?? null);
@@ -118,7 +126,10 @@ if (!empty($recipe['tags'])) {
 </head>
 <body>
 <header class="site-header">
-    <div class="wrap"><h1><a href="<?= e(url('/')) ?>">Recetario de Cócteles</a></h1></div>
+    <div class="wrap">
+        <h1><a href="<?= e(url('/')) ?>">Recetario de Cócteles</a></h1>
+        <?= UserAuth::headerHtml() ?>
+    </div>
 </header>
 
 <main class="wrap detail">
@@ -139,11 +150,27 @@ if (!empty($recipe['tags'])) {
     <div class="detail-actions">
         <?php $views = (int) ($recipe['views'] ?? 0); ?>
         <span class="views">👁 <?= number_format($views, 0, ',', '.') ?> vista<?= $views === 1 ? '' : 's' ?></span>
-        <button type="button" id="share-btn" class="share-btn"
-                data-url="<?= e(url('receta.php?slug=' . urlencode($recipe['slug']))) ?>"
-                data-text="<?= e($recipe['name'] . ' — Recetario de Cócteles') ?>">
-            Compartir
-        </button>
+        <div class="actions-right">
+            <?php if ($authUser !== null): ?>
+                <button type="button" id="fav-btn" class="fav-btn<?= $isFav ? ' is-fav' : '' ?>"
+                        aria-pressed="<?= $isFav ? 'true' : 'false' ?>"
+                        data-slug="<?= e($recipe['slug']) ?>"
+                        data-endpoint="<?= e(url('api/favorite.php')) ?>"
+                        data-csrf="<?= e(UserAuth::csrfToken()) ?>">
+                    <span class="fav-icon"><?= $isFav ? '♥' : '♡' ?></span>
+                    <span class="fav-count"><?= $favCount ?></span>
+                </button>
+            <?php else: ?>
+                <a class="fav-btn" href="<?= e(url('auth/google/login.php?return_to=' . urlencode($_SERVER['REQUEST_URI'] ?? ('/receta.php?slug=' . $recipe['slug'])))) ?>">
+                    <span class="fav-icon">♡</span> <span class="fav-count"><?= $favCount ?></span>
+                </a>
+            <?php endif; ?>
+            <button type="button" id="share-btn" class="share-btn"
+                    data-url="<?= e(url('receta.php?slug=' . urlencode($recipe['slug']))) ?>"
+                    data-text="<?= e($recipe['name'] . ' — Recetario de Cócteles') ?>">
+                Compartir
+            </button>
+        </div>
     </div>
 
     <?php if ($img !== null): ?>
@@ -190,11 +217,43 @@ if (!empty($recipe['tags'])) {
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
+
+    <p class="ask-line">✉
+        <a href="<?= e(url('contacto.php?recipe=' . urlencode($recipe['slug']))) ?>">
+            Preguntas o sugerencias sobre esta receta
+        </a>
+    </p>
 </main>
 
 <footer class="site-footer">
     <div class="wrap"><a href="<?= e(url('/')) ?>">El machete necesario para cualquier bartender <span class="by">by Cidius</span></a></div>
 </footer>
+<script>
+(function () {
+    var fav = document.getElementById('fav-btn');
+    if (!fav) return; // no logueado: es un <a>, no hace falta JS
+    fav.addEventListener('click', function () {
+        fav.disabled = true;
+        var body = new URLSearchParams();
+        body.set('slug', fav.dataset.slug);
+        body.set('_csrf', fav.dataset.csrf);
+        fetch(fav.dataset.endpoint, {
+            method: 'POST',
+            body: body,
+            headers: { 'Accept': 'application/json' }
+        })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.error) return;
+                fav.classList.toggle('is-fav', data.favorited);
+                fav.setAttribute('aria-pressed', data.favorited ? 'true' : 'false');
+                fav.querySelector('.fav-icon').textContent = data.favorited ? '♥' : '♡';
+                fav.querySelector('.fav-count').textContent = data.count;
+            })
+            .finally(function () { fav.disabled = false; });
+    });
+})();
+</script>
 <script>
 (function () {
     var btn = document.getElementById('share-btn');

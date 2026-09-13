@@ -10,15 +10,17 @@ declare(strict_types=1);
 
 require __DIR__ . '/src/helpers.php';
 require __DIR__ . '/src/Recipe.php';
+require __DIR__ . '/src/UserAuth.php';
 
 use App\Recipe;
+use App\UserAuth;
 
 use function App\asset;
 use function App\boot_errors;
 use function App\e;
 use function App\pwa_head;
 use function App\query_tags;
-use function App\recipe_image_url;
+use function App\render_recipe_card;
 use function App\seo_head;
 use function App\spirit_tag_slugs;
 use function App\url;
@@ -52,38 +54,7 @@ $hasFilter  = $q !== '' || $activeTags !== []
     || ($activeMoment !== '' && isset(Recipe::MOMENTS[$activeMoment]))
     || $activeFamily !== '';
 
-/** Render de una card (compartido conceptualmente con app.js). */
-function render_card(array $r): string
-{
-    $img = recipe_image_url($r['image_path'] ?? null);
-    $thumb = $img !== null
-        ? '<img src="' . e($img) . '" alt="" loading="lazy">'
-        : '🍸';
-
-    $meta = implode(' · ', array_filter([$r['family'] ?? null, $r['glassware'] ?? null]));
-
-    $spiritSlugs = spirit_tag_slugs();
-    $spiritNames = [];
-    $charTags = '';
-    foreach ($r['tags'] ?? [] as $t) {
-        if (in_array($t['slug'], $spiritSlugs, true)) {
-            $spiritNames[] = $t['name'];
-        }
-    }
-    $spirits = implode(', ', $spiritNames);
-    foreach (array_slice(array_filter($r['tags'] ?? [], static fn($t) => !in_array($t['slug'], $spiritSlugs, true)), 0, 4) as $t) {
-        $charTags .= '<span>' . e($t['name']) . '</span>';
-    }
-
-    return '<a class="card" href="' . e(url('receta.php?slug=' . urlencode($r['slug']))) . '">'
-        . '<div class="thumb">' . $thumb . '</div>'
-        . '<div class="body">'
-        . '<h3>' . e($r['name']) . '</h3>'
-        . ($meta !== '' ? '<p class="meta">' . e($meta) . '</p>' : '')
-        . ($spirits !== '' ? '<p class="spirits">' . e($spirits) . '</p>' : '')
-        . ($charTags !== '' ? '<div class="card-tags">' . $charTags . '</div>' : '')
-        . '</div></a>';
-}
+// render_recipe_card() vive en src/helpers.php (compartida con favoritos.php).
 
 header('Content-Type: text/html; charset=utf-8');
 ?>
@@ -108,6 +79,7 @@ header('Content-Type: text/html; charset=utf-8');
     <div class="wrap">
         <h1><a href="<?= e(url('/')) ?>">Recetario de Cócteles</a></h1>
         <p><?= (int) $result['meta']['total'] ?> recetas · buscá por nombre, destilado o ingrediente</p>
+        <?= UserAuth::headerHtml() ?>
     </div>
 </header>
 
@@ -209,7 +181,7 @@ header('Content-Type: text/html; charset=utf-8');
         <?php if ($result['data'] === []): ?>
             <div class="empty"><strong>Sin resultados</strong>Probá con otra búsqueda o quitá filtros.</div>
         <?php else: ?>
-            <?php foreach ($result['data'] as $r) echo render_card($r); ?>
+            <?php foreach ($result['data'] as $r) echo render_recipe_card($r); ?>
         <?php endif; ?>
     </div>
 </main>

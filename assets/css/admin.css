@@ -13,6 +13,18 @@
 .admin-bar .brand { color: var(--text); font-weight: 600; }
 .admin-bar nav { display: flex; align-items: center; gap: 14px; margin-left: auto; font-size: 0.9rem; }
 .admin-bar nav .who { color: var(--muted); }
+.admin-bar nav .badge {
+    display: inline-block;
+    min-width: 1.3em;
+    padding: 0 6px;
+    margin-left: 3px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-align: center;
+}
 
 .page-head {
     display: flex; align-items: center; justify-content: space-between;
@@ -109,3 +121,18 @@ label.inline { display: inline-flex; align-items: center; gap: 6px; font-size: 0
     background: none; border: none; color: var(--text); cursor: pointer; font-size: 0.9rem;
 }
 .suggest button:hover { background: var(--surface-2); }
+
+/* Mensajes */
+.msg-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 10px;
+}
+.msg-card.is-unread { border-color: var(--accent); }
+.msg-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 10px; flex-wrap: wrap; margin-bottom: 6px;
+}
+.msg-body { margin: 0 0 8px; white-space: pre-wrap; }
