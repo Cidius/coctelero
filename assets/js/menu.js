@@ -8,6 +8,13 @@
   var closeBtn = document.getElementById('nav-close');
   if (!toggle || !panel || !backdrop) return;
 
+  // El header tiene backdrop-filter, y eso convierte a cualquier hijo con
+  // "position: fixed" en fijo respecto del header (no de la ventana). Sacamos
+  // el panel y el fondo del <header> para que "fixed" sea relativo a la
+  // pantalla, como corresponde a un sidebar.
+  document.body.appendChild(backdrop);
+  document.body.appendChild(panel);
+
   function open() {
     panel.classList.add('open');
     backdrop.hidden = false;
