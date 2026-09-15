@@ -230,6 +230,13 @@ function query_tags(array $get): array
     return array_values($out);
 }
 
+/** Valida el tamano de pagina elegido contra Recipe::PER_PAGE_OPTIONS (default 10). */
+function sanitize_per_page(mixed $v): int
+{
+    $n = (int) $v;
+    return in_array($n, \App\Recipe::PER_PAGE_OPTIONS, true) ? $n : \App\Recipe::PER_PAGE_OPTIONS[0];
+}
+
 /** Convierte un texto a slug (minusculas, sin acentos, separado por guiones). */
 function slugify(string $s): string
 {

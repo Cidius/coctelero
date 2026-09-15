@@ -295,6 +295,7 @@ a:hover { text-decoration: underline; }
     display: flex;
     align-items: baseline;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: 10px;
     margin: 6px 0 14px;
     color: var(--muted);
@@ -307,6 +308,55 @@ a:hover { text-decoration: underline; }
     font-size: 0.85rem;
     cursor: pointer;
     padding: 0;
+}
+
+.per-page-form { margin-left: auto; }
+.per-page-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+.per-page-label select {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font: inherit;
+}
+
+/* Paginacion */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 28px 0 10px;
+}
+.pagination .page-btn, .pagination .page-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-size: 0.85rem;
+    box-sizing: border-box;
+}
+.pagination .page-btn:hover, .pagination .page-num:hover { border-color: var(--accent); text-decoration: none; }
+.pagination .page-btn.disabled { color: var(--muted); opacity: 0.5; cursor: default; }
+.pagination .page-numbers { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.pagination .page-num.current {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+    font-weight: 600;
 }
 
 /* Grilla de recetas */

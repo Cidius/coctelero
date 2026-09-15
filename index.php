@@ -21,27 +21,31 @@ use function App\e;
 use function App\pwa_head;
 use function App\query_tags;
 use function App\render_recipe_card;
+use function App\sanitize_per_page;
 use function App\seo_head;
 use function App\spirit_tag_slugs;
 use function App\url;
 
 boot_errors();
 
-$activeTags   = query_tags($_GET);
-$activeMethod = (string) ($_GET['method'] ?? '');
-$activeVolume = (string) ($_GET['volume'] ?? '');
-$activeMoment = (string) ($_GET['moment'] ?? '');
-$activeFamily = (string) ($_GET['family'] ?? '');
-$q            = trim((string) ($_GET['q'] ?? ''));
+$activeTags    = query_tags($_GET);
+$activeMethod  = (string) ($_GET['method'] ?? '');
+$activeVolume  = (string) ($_GET['volume'] ?? '');
+$activeMoment  = (string) ($_GET['moment'] ?? '');
+$activeFamily  = (string) ($_GET['family'] ?? '');
+$q             = trim((string) ($_GET['q'] ?? ''));
+$activePage    = max(1, (int) ($_GET['page'] ?? 1));
+$activePerPage = sanitize_per_page($_GET['per_page'] ?? null);
 
 $result  = Recipe::search([
-    'q'      => $q,
-    'tags'   => $activeTags,
-    'method' => $activeMethod,
-    'volume' => $activeVolume,
-    'moment' => $activeMoment,
-    'family' => $activeFamily,
-    'page'   => (int) ($_GET['page'] ?? 1),
+    'q'        => $q,
+    'tags'     => $activeTags,
+    'method'   => $activeMethod,
+    'volume'   => $activeVolume,
+    'moment'   => $activeMoment,
+    'family'   => $activeFamily,
+    'page'     => $activePage,
+    'per_page' => $activePerPage,
 ]);
 $totalActive = Recipe::countActive();
 $allTags    = Recipe::tagsWithCounts();
@@ -56,6 +60,23 @@ $hasFilter  = $q !== '' || $activeTags !== []
     || $activeFamily !== '';
 
 // render_recipe_card() vive en src/helpers.php (compartida con favoritos.php).
+
+// Filtros activos como query params reutilizables para armar los links de
+// paginacion/tamaño de pagina sin perder la busqueda/filtros vigentes.
+$baseQuery = [];
+if ($q !== '') $baseQuery['q'] = $q;
+if ($activeTags !== []) $baseQuery['tag'] = $activeTags;
+if ($activeMethod !== '') $baseQuery['method'] = $activeMethod;
+if ($activeVolume !== '') $baseQuery['volume'] = $activeVolume;
+if ($activeMoment !== '') $baseQuery['moment'] = $activeMoment;
+if ($activeFamily !== '') $baseQuery['family'] = $activeFamily;
+if ($activePerPage !== Recipe::PER_PAGE_OPTIONS[0]) $baseQuery['per_page'] = $activePerPage;
+
+$pageUrl = static function (int $page) use ($baseQuery) {
+    $qs = $baseQuery;
+    if ($page > 1) $qs['page'] = $page;
+    return url('/') . ($qs !== [] ? '?' . http_build_query($qs) : '');
+};
 
 header('Content-Type: text/html; charset=utf-8');
 ?>
@@ -179,6 +200,28 @@ header('Content-Type: text/html; charset=utf-8');
     <div class="toolbar">
         <span id="result-count"><?= (int) $result['meta']['total'] ?> resultado<?= $result['meta']['total'] === 1 ? '' : 's' ?></span>
         <button type="button" id="reset" <?= $hasFilter ? '' : 'hidden' ?>>Limpiar filtros</button>
+        <form method="get" action="<?= e(url('/')) ?>" class="per-page-form" id="per-page-form">
+            <?php foreach ($baseQuery as $k => $v): ?>
+                <?php if ($k === 'per_page') continue; ?>
+                <?php if (is_array($v)): ?>
+                    <?php foreach ($v as $vv): ?>
+                        <input type="hidden" name="tag[]" value="<?= e($vv) ?>">
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <input type="hidden" name="<?= e($k) ?>" value="<?= e((string) $v) ?>">
+                <?php endif; ?>
+            <?php endforeach; ?>
+            <label class="per-page-label">
+                Mostrar
+                <select name="per_page" id="per-page-select">
+                    <?php foreach (Recipe::PER_PAGE_OPTIONS as $opt): ?>
+                        <option value="<?= $opt ?>" <?= $opt === $activePerPage ? 'selected' : '' ?>><?= $opt ?></option>
+                    <?php endforeach; ?>
+                </select>
+                por página
+            </label>
+            <noscript><button type="submit" class="btn">Aplicar</button></noscript>
+        </form>
     </div>
 
     <div class="grid" id="grid">
@@ -188,6 +231,30 @@ header('Content-Type: text/html; charset=utf-8');
             <?php foreach ($result['data'] as $r) echo render_recipe_card($r); ?>
         <?php endif; ?>
     </div>
+
+    <nav class="pagination" id="pagination" aria-label="Paginación">
+        <?php if ((int) $result['meta']['pages'] > 1): ?>
+            <?php if ($activePage > 1): ?>
+                <a class="page-btn" href="<?= e($pageUrl($activePage - 1)) ?>" rel="prev">‹ Anterior</a>
+            <?php else: ?>
+                <span class="page-btn disabled">‹ Anterior</span>
+            <?php endif; ?>
+            <div class="page-numbers">
+                <?php for ($p = 1; $p <= (int) $result['meta']['pages']; $p++): ?>
+                    <?php if ($p === $activePage): ?>
+                        <span class="page-num current" aria-current="page"><?= $p ?></span>
+                    <?php else: ?>
+                        <a class="page-num" href="<?= e($pageUrl($p)) ?>"><?= $p ?></a>
+                    <?php endif; ?>
+                <?php endfor; ?>
+            </div>
+            <?php if ($activePage < (int) $result['meta']['pages']): ?>
+                <a class="page-btn" href="<?= e($pageUrl($activePage + 1)) ?>" rel="next">Siguiente ›</a>
+            <?php else: ?>
+                <span class="page-btn disabled">Siguiente ›</span>
+            <?php endif; ?>
+        <?php endif; ?>
+    </nav>
 </main>
 
 <footer class="site-footer">

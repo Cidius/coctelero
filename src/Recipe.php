@@ -13,8 +13,11 @@ require_once __DIR__ . '/Database.php';
  */
 final class Recipe
 {
-    private const PER_PAGE_DEFAULT = 24;
+    private const PER_PAGE_DEFAULT = 10;
     private const PER_PAGE_MAX = 60;
+
+    /** Tamanos de pagina que el usuario puede elegir en el buscador. */
+    public const PER_PAGE_OPTIONS = [10, 20, 50];
 
     public const METHODS = [
         'integrado'          => 'Integrado',

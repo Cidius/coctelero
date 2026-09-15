@@ -12,7 +12,7 @@ declare(strict_types=1);
  *   moment    aperitivo | digestivo | all_day
  *   family    slug de familia (sour, julep, ...)
  *   page      pagina (default 1)
- *   per_page  resultados por pagina (default 24, max 60)
+ *   per_page  resultados por pagina: 10 (default), 20 o 50
  *
  * Respuesta: { data: [ {name, slug, image_url, glassware, ice, method,
  *              method_label, volume, moment, family, family_slug, garnish,
@@ -28,6 +28,7 @@ use function App\boot_errors;
 use function App\method_label;
 use function App\query_tags;
 use function App\recipe_image_url;
+use function App\sanitize_per_page;
 
 boot_errors();
 
@@ -43,7 +44,7 @@ try {
         'moment'   => (string) ($_GET['moment'] ?? ''),
         'family'   => (string) ($_GET['family'] ?? ''),
         'page'     => (int) ($_GET['page'] ?? 1),
-        'per_page' => (int) ($_GET['per_page'] ?? 24),
+        'per_page' => sanitize_per_page($_GET['per_page'] ?? null),
     ]);
 
     $volLabels = Recipe::VOLUMES;

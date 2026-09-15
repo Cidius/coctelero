@@ -12,8 +12,13 @@
   var grid = document.getElementById('grid');
   var countEl = document.getElementById('result-count');
   var resetEl = document.getElementById('reset');
+  var pageSizeEl = document.getElementById('per-page-select');
+  var pageSizeForm = document.getElementById('per-page-form');
+  var paginationEl = document.getElementById('pagination');
   var searchEl = app.querySelector('input[type="search"]');
   var form = app.querySelector('form.search');
+
+  var PAGE_SIZES = [10, 20, 50];
 
   // Grupos de un solo valor (chip = radio). El grupo "tag" es multi.
   var SINGLE = ['method', 'volume', 'moment', 'family'];
@@ -22,7 +27,12 @@
   var params = new URLSearchParams(location.search);
   var state = {
     q: (params.get('q') || '').trim(),
-    tags: params.getAll('tag').reduce(function (acc, v) {
+    page: Math.max(1, parseInt(params.get('page'), 10) || 1),
+    perPage: PAGE_SIZES.indexOf(parseInt(params.get('per_page'), 10)) !== -1
+      ? parseInt(params.get('per_page'), 10) : PAGE_SIZES[0],
+    // El fallback server-side (index.php) arma "tag[]=..." para que PHP no
+    // pise valores repetidos; contemplamos ambos formatos aca.
+    tags: params.getAll('tag').concat(params.getAll('tag[]')).reduce(function (acc, v) {
       String(v).split(',').forEach(function (s) {
         s = s.trim().toLowerCase();
         if (s && acc.indexOf(s) === -1) acc.push(s);
@@ -48,6 +58,8 @@
     if (state.q) p.set('q', state.q);
     SINGLE.forEach(function (k) { if (state[k]) p.set(k, state[k]); });
     state.tags.forEach(function (t) { p.append('tag', t); });
+    if (state.perPage !== PAGE_SIZES[0]) p.set('per_page', state.perPage);
+    if (state.page > 1) p.set('page', state.page);
     return p;
   }
 
@@ -90,9 +102,48 @@
     });
   }
 
+  // Query string de una pagina puntual, con los filtros vigentes (para los
+  // href de la paginacion; el click real lo maneja JS sin recargar).
+  function pageHref(n) {
+    var p = new URLSearchParams();
+    if (state.q) p.set('q', state.q);
+    SINGLE.forEach(function (k) { if (state[k]) p.set(k, state[k]); });
+    state.tags.forEach(function (t) { p.append('tag', t); });
+    if (state.perPage !== PAGE_SIZES[0]) p.set('per_page', state.perPage);
+    if (n > 1) p.set('page', n);
+    var qs = p.toString();
+    return qs ? '?' + qs : location.pathname;
+  }
+
+  function renderPagination(meta) {
+    if (!paginationEl) return;
+    var page = (meta && meta.page) || 1;
+    var pages = (meta && meta.pages) || 1;
+    if (pages <= 1) {
+      paginationEl.innerHTML = '';
+      return;
+    }
+    var html = '';
+    html += page > 1
+      ? '<a class="page-btn" href="' + esc(pageHref(page - 1)) + '" data-page="' + (page - 1) + '" rel="prev">‹ Anterior</a>'
+      : '<span class="page-btn disabled">‹ Anterior</span>';
+    html += '<div class="page-numbers">';
+    for (var p = 1; p <= pages; p++) {
+      html += p === page
+        ? '<span class="page-num current" aria-current="page">' + p + '</span>'
+        : '<a class="page-num" href="' + esc(pageHref(p)) + '" data-page="' + p + '">' + p + '</a>';
+    }
+    html += '</div>';
+    html += page < pages
+      ? '<a class="page-btn" href="' + esc(pageHref(page + 1)) + '" data-page="' + (page + 1) + '" rel="next">Siguiente ›</a>'
+      : '<span class="page-btn disabled">Siguiente ›</span>';
+    paginationEl.innerHTML = html;
+  }
+
   function render(payload) {
     var data = payload.data || [];
-    var total = payload.meta ? payload.meta.total : data.length;
+    var meta = payload.meta || {};
+    var total = meta.total != null ? meta.total : data.length;
     countEl.textContent = total + ' resultado' + (total === 1 ? '' : 's');
     resetEl.hidden = !hasFilter();
     if (data.length === 0) {
@@ -101,6 +152,7 @@
     } else {
       grid.innerHTML = data.map(cardHTML).join('');
     }
+    renderPagination(meta);
     syncChips();
     updateFilterCount();
   }
@@ -162,6 +214,7 @@
       clearTimeout(t);
       t = setTimeout(function () {
         state.q = searchEl.value.trim();
+        state.page = 1;
         fetchResults();
       }, 250);
     });
@@ -177,6 +230,7 @@
       } else {
         state[group] = state[group] === val ? '' : val;
       }
+      state.page = 1;
       fetchResults();
     });
   });
@@ -184,8 +238,30 @@
   resetEl.addEventListener('click', function () {
     state.q = '';
     state.tags = [];
+    state.page = 1;
     SINGLE.forEach(function (k) { state[k] = ''; });
     if (searchEl) searchEl.value = '';
     fetchResults();
   });
+
+  if (pageSizeForm) pageSizeForm.addEventListener('submit', function (e) { e.preventDefault(); });
+  if (pageSizeEl) {
+    pageSizeEl.addEventListener('change', function () {
+      var v = parseInt(pageSizeEl.value, 10);
+      state.perPage = PAGE_SIZES.indexOf(v) !== -1 ? v : PAGE_SIZES[0];
+      state.page = 1;
+      fetchResults();
+    });
+  }
+
+  if (paginationEl) {
+    paginationEl.addEventListener('click', function (e) {
+      var a = e.target.closest('a[data-page]');
+      if (!a) return;
+      e.preventDefault();
+      state.page = parseInt(a.dataset.page, 10) || 1;
+      fetchResults();
+      grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
 })();
