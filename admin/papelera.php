@@ -34,7 +34,7 @@ admin_header('Papelera');
 
 <p class="muted">Las recetas borradas no aparecen en el sitio. Restaurar las vuelve a publicar.</p>
 
-<table class="list">
+<table class="list list-trash">
     <thead><tr><th>Nombre</th><th>Borrada</th><th></th></tr></thead>
     <tbody>
     <?php foreach ($recipes as $r): ?>

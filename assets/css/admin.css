@@ -89,6 +89,44 @@ table.list td.thumb-cell .noimg { color: var(--line); }
 table.list td.actions { white-space: nowrap; text-align: right; }
 table.list td.actions form { display: inline; margin-left: 10px; }
 
+/* En mobile la tabla no entra: cada fila pasa a ser una tarjeta compacta
+   (miniatura + nombre + acciones), con las columnas secundarias ocultas
+   en vez de forzar scroll horizontal. */
+@media (max-width: 700px) {
+    table.list, table.list tbody, table.list tr, table.list td { display: block; width: 100%; }
+    table.list thead { display: none; }
+    table.list tr {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 8px 10px;
+        margin-bottom: 8px;
+        background: var(--surface);
+    }
+    table.list td { border: none; padding: 0; width: auto; }
+    table.list td.actions { flex: 0 0 auto; display: flex; gap: 10px; }
+    table.list td.actions form { margin-left: 0; }
+
+    table.list-recipes td.thumb-cell { flex: 0 0 auto; }
+    table.list-recipes td.thumb-cell img { width: 44px; height: 44px; }
+    table.list-recipes td:nth-child(2) { flex: 1; min-width: 0; }
+    table.list-recipes td:nth-child(2) a {
+        display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    /* Metodo / Ingredientes / Tags / Vistas / Actualizada: se ocultan en
+       mobile, quedan visibles en la ficha de edicion y en desktop. */
+    table.list-recipes td:nth-child(3),
+    table.list-recipes td:nth-child(4),
+    table.list-recipes td:nth-child(5),
+    table.list-recipes td:nth-child(6),
+    table.list-recipes td:nth-child(7) { display: none; }
+
+    table.list-trash td:nth-child(1) { flex: 1; min-width: 0; }
+    table.list-trash td:nth-child(2) { display: none; }
+}
+
 /* Login */
 .login-box {
     max-width: 340px; margin: 8vh auto 0; background: var(--surface);

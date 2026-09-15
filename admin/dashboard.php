@@ -41,7 +41,7 @@ admin_header('Recetas');
     </p>
 <?php endif; ?>
 
-<table class="list">
+<table class="list list-recipes">
     <thead>
         <tr><th></th><th>Nombre</th><th>Método</th><th>Ingr.</th><th>Tags</th><th>Vistas</th><th>Actualizada</th><th></th></tr>
     </thead>
