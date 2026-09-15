@@ -10,7 +10,8 @@
     margin-bottom: 22px;
 }
 .admin-bar .wrap { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.admin-bar .brand { color: var(--text); font-weight: 600; }
+.admin-bar .brand { display: inline-flex; align-items: center; gap: 8px; color: var(--text); font-weight: 600; }
+.admin-bar .brand-mark { width: 26px; height: 26px; border-radius: 7px; object-fit: cover; flex: 0 0 auto; }
 .admin-bar nav { display: flex; align-items: center; gap: 14px; margin-left: auto; font-size: 0.9rem; }
 .admin-bar nav .who { color: var(--muted); }
 .admin-bar nav .badge {

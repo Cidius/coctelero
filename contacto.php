@@ -71,7 +71,10 @@ header('Content-Type: text/html; charset=utf-8');
 <body>
 <header class="site-header">
     <div class="wrap">
-        <h1><a href="<?= e(url('/')) ?>">Recetario de Cócteles</a></h1>
+        <h1><a class="brand" href="<?= e(url('/')) ?>">
+            <img class="brand-mark" src="<?= e(asset('assets/logo/mark.png')) ?>" alt="">
+            Recetario de Cócteles
+        </a></h1>
         <?= UserAuth::headerHtml() ?>
     </div>
 </header>

@@ -52,7 +52,10 @@ function admin_header(string $title, bool $chrome = true): void
 <?php if ($chrome): ?>
 <header class="admin-bar">
     <div class="wrap">
-        <a class="brand" href="<?= e(url('admin/dashboard.php')) ?>">Recetario · Admin</a>
+        <a class="brand" href="<?= e(url('admin/dashboard.php')) ?>">
+            <img class="brand-mark" src="<?= e(asset('assets/logo/mark.png')) ?>" alt="">
+            Recetario · Admin
+        </a>
         <nav>
             <a href="<?= e(url('admin/dashboard.php')) ?>">Recetas</a>
             <a href="<?= e(url('admin/papelera.php')) ?>">Papelera</a>
