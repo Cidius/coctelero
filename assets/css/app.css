@@ -159,6 +159,10 @@ a:hover { text-decoration: underline; }
 .nav-footer a { display: block; padding: 10px; text-align: center; }
 .nav-footer .btn { display: block; width: 100%; text-align: center; box-sizing: border-box; margin-bottom: 8px; }
 .nav-footer .btn:last-child { margin-bottom: 0; }
+/* [hidden] tiene que ganarle a los "display: block" de arriba, si no el
+   boton de instalar PWA queda visible siempre aunque JS le deje el
+   atributo hidden puesto (p. ej. ya instalada la app). */
+.nav-footer .btn[hidden], .nav-login-cta .btn[hidden] { display: none; }
 
 /* Utilitarios compartidos por las paginas publicas (favoritos, contacto) */
 .muted { color: var(--muted); }
