@@ -59,7 +59,7 @@ final class Messages
         }
 
         $fromEmail = (string) ($cfg['from_email'] ?? 'no-responder@localhost');
-        $fromName  = (string) ($cfg['from_name'] ?? 'Recetario de Cócteles');
+        $fromName  = (string) ($cfg['from_name'] ?? 'El Coctelero Online');
 
         // Defensa contra inyeccion de headers via campos con salto de linea.
         $strip = static fn(string $s): string => str_replace(["\r", "\n"], '', $s);

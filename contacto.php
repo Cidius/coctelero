@@ -63,7 +63,7 @@ header('Content-Type: text/html; charset=utf-8');
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
-    <title>Contacto · Recetario de Cócteles</title>
+    <title>Contacto · El Coctelero Online</title>
     <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
     <?php seo_head('Contacto', 'Escribile al coctelero.', url('contacto.php')); ?>
     <?php pwa_head(); ?>
@@ -73,7 +73,7 @@ header('Content-Type: text/html; charset=utf-8');
     <div class="wrap">
         <h1><a class="brand" href="<?= e(url('/')) ?>">
             <img class="brand-mark" src="<?= e(asset('assets/logo/mark.png')) ?>" alt="">
-            Recetario de Cócteles
+            El Coctelero Online
         </a></h1>
         <?= UserAuth::headerHtml() ?>
     </div>

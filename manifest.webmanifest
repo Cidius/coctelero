@@ -1,7 +1,7 @@
 {
-  "name": "Recetario de Cócteles",
-  "short_name": "Cócteles",
-  "description": "Buscador de recetas de cócteles del Taller de Coctelería.",
+  "name": "El Coctelero Online",
+  "short_name": "El Coctelero",
+  "description": "Buscador de recetas de cócteles: filtrá por destilado, familia, método e ingredientes.",
   "lang": "es",
   "dir": "ltr",
   "id": "/",

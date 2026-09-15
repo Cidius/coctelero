@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 admin_header('Ingresar', chrome: false);
 ?>
 <div class="login-box">
-    <h1>Recetario · Admin</h1>
+    <h1>El Coctelero · Admin</h1>
     <?php if ($error !== null): ?>
         <p class="alert error"><?= e($error) ?></p>
     <?php endif; ?>

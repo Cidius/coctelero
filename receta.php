@@ -117,10 +117,10 @@ if (!empty($recipe['tags'])) {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= e($recipe['name']) ?> · Recetario de Cócteles</title>
+    <title><?= e($recipe['name']) ?> · El Coctelero Online</title>
     <meta name="description" content="<?= e(mb_substr($metaDesc, 0, 160)) ?>">
     <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
-    <?php seo_head($recipe['name'] . ' · Recetario de Cócteles', $metaDesc, $canonical, $img, 'article'); ?>
+    <?php seo_head($recipe['name'] . ' · El Coctelero Online', $metaDesc, $canonical, $img, 'article'); ?>
     <?php pwa_head(); ?>
     <script type="application/ld+json"><?= json_encode($ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) ?></script>
 </head>
@@ -129,7 +129,7 @@ if (!empty($recipe['tags'])) {
     <div class="wrap">
         <h1><a class="brand" href="<?= e(url('/')) ?>">
             <img class="brand-mark" src="<?= e(asset('assets/logo/mark.png')) ?>" alt="">
-            Recetario de Cócteles
+            El Coctelero Online
         </a></h1>
         <?= UserAuth::headerHtml() ?>
     </div>
@@ -170,7 +170,7 @@ if (!empty($recipe['tags'])) {
             <?php endif; ?>
             <button type="button" id="share-btn" class="share-btn"
                     data-url="<?= e(url('receta.php?slug=' . urlencode($recipe['slug']))) ?>"
-                    data-text="<?= e($recipe['name'] . ' — Recetario de Cócteles') ?>">
+                    data-text="<?= e($recipe['name'] . ' — El Coctelero Online') ?>">
                 Compartir
             </button>
         </div>

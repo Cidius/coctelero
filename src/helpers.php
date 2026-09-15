@@ -96,7 +96,7 @@ function seo_head(string $title, string $description, string $canonical, ?string
     $tags = [
         '<link rel="canonical" href="' . e($canonical) . '">',
         '<meta property="og:type" content="' . e($type) . '">',
-        '<meta property="og:site_name" content="Recetario de Cócteles">',
+        '<meta property="og:site_name" content="El Coctelero Online">',
         '<meta property="og:locale" content="es_AR">',
         '<meta property="og:title" content="' . e($title) . '">',
         '<meta property="og:description" content="' . e($description) . '">',

@@ -53,6 +53,6 @@ return [
     'mail' => [
         'admin_to'   => '',                             // a donde llega el aviso
         'from_email' => 'no-responder@coctelero.online', // remitente
-        'from_name'  => 'Recetario de Cócteles',
+        'from_name'  => 'El Coctelero Online',
     ],
 ];
