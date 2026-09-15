@@ -43,6 +43,7 @@ $result  = Recipe::search([
     'family' => $activeFamily,
     'page'   => (int) ($_GET['page'] ?? 1),
 ]);
+$totalActive = Recipe::countActive();
 $allTags    = Recipe::tagsWithCounts();
 $methods    = Recipe::methodsWithCounts();
 $volumes    = Recipe::volumesWithCounts();
@@ -81,7 +82,7 @@ header('Content-Type: text/html; charset=utf-8');
             <img class="brand-mark" src="<?= e(asset('assets/logo/mark.png')) ?>" alt="">
             El Coctelero Online
         </a></h1>
-        <p><?= (int) $result['meta']['total'] ?> recetas · buscá por nombre, destilado o ingrediente</p>
+        <p><?= $totalActive ?> recetas · buscá tu cóctel preferido</p>
         <?= UserAuth::headerHtml() ?>
     </div>
 </header>

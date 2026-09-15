@@ -194,20 +194,31 @@ final class UserAuth
         $return = urlencode(self::sanitizeReturnTo($_SERVER['REQUEST_URI'] ?? '/'));
         $u = self::user();
 
-        $links = [
-            '<a href="' . e(url('/')) . '">Inicio</a>',
-            '<a href="' . e(url('favoritos.php')) . '">Mis favoritos</a>',
-            '<a href="' . e(url('contacto.php')) . '">Contacto</a>',
-        ];
-        if (self::isAdmin()) {
-            $links[] = '<a href="' . e(url('admin/dashboard.php')) . '">Panel admin</a>';
-        }
+        // Boton de instalar PWA: oculto por defecto, menu.js lo muestra solo
+        // cuando el navegador ofrece beforeinstallprompt (o, en iOS, con el
+        // instructivo manual) y nunca si ya se esta usando como app instalada.
+        $installBtn = '<button type="button" id="pwa-install-btn" class="btn nav-install" hidden>'
+            . 'Instalar app</button>';
 
-        $userBlock = '';
-        $footer = '<a class="btn primary" href="' . e(url('auth/google/login.php?return_to=' . $return)) . '">'
-            . 'Iniciar sesión con Google</a>';
+        if ($u === null) {
+            // Deslogueado: solo Inicio + el CTA de login bien arriba y visible,
+            // nada de favoritos/contacto/admin hasta que inicie sesion.
+            $links = ['<a href="' . e(url('/')) . '">Inicio</a>'];
+            $userBlock = '<div class="nav-login-cta">'
+                . '<a class="btn primary nav-login" href="'
+                . e(url('auth/google/login.php?return_to=' . $return)) . '">'
+                . 'Iniciar sesión con Google</a></div>';
+            $footer = $installBtn;
+        } else {
+            $links = [
+                '<a href="' . e(url('/')) . '">Inicio</a>',
+                '<a href="' . e(url('favoritos.php')) . '">Mis favoritos</a>',
+                '<a href="' . e(url('contacto.php')) . '">Contacto</a>',
+            ];
+            if (self::isAdmin()) {
+                $links[] = '<a href="' . e(url('admin/dashboard.php')) . '">Panel admin</a>';
+            }
 
-        if ($u !== null) {
             $initial = mb_strtoupper(mb_substr($u['name'] !== '' ? $u['name'] : '?', 0, 1));
             $avatar = !empty($u['avatar_url'])
                 ? '<img class="user-avatar" src="' . e($u['avatar_url']) . '" alt="">'
@@ -216,7 +227,7 @@ final class UserAuth
                 . '<div class="nav-user-info"><strong>' . e($u['name']) . '</strong>'
                 . '<span class="muted small">' . e($u['email']) . '</span></div>'
                 . '</div>';
-            $footer = '<a href="' . e(url('auth/logout.php?return_to=' . $return)) . '">Salir</a>';
+            $footer = $installBtn . '<a href="' . e(url('auth/logout.php?return_to=' . $return)) . '">Salir</a>';
         }
 
         return '<div class="site-nav">'

@@ -36,4 +36,44 @@
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') close();
   });
+
+  // Sugerencia de instalar como app (PWA). El boton vive en el sidebar,
+  // oculto por defecto (ver UserAuth::headerHtml()); solo puede existir en
+  // el sitio publico, el admin no lo imprime.
+  var installBtn = document.getElementById('pwa-install-btn');
+  if (installBtn) {
+    var isStandalone = window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true; // iOS instalado
+    var isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+    var deferredPrompt = null;
+
+    if (!isStandalone) {
+      if (isIos) {
+        // Safari no tiene beforeinstallprompt: mostramos el boton igual,
+        // con instrucciones manuales al tocarlo.
+        installBtn.hidden = false;
+        installBtn.addEventListener('click', function () {
+          alert('Para instalar la app: tocá el ícono Compartir de Safari y elegí "Agregar a pantalla de inicio".');
+        });
+      } else {
+        window.addEventListener('beforeinstallprompt', function (e) {
+          e.preventDefault();
+          deferredPrompt = e;
+          installBtn.hidden = false;
+        });
+        installBtn.addEventListener('click', function () {
+          if (!deferredPrompt) return;
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.finally(function () {
+            deferredPrompt = null;
+            installBtn.hidden = true;
+          });
+        });
+      }
+    }
+
+    window.addEventListener('appinstalled', function () {
+      installBtn.hidden = true;
+    });
+  }
 })();

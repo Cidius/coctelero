@@ -231,6 +231,12 @@ final class Recipe
         )->fetchAll();
     }
 
+    /** Total de recetas activas, sin importar filtros de busqueda (para el subtitulo del home). */
+    public static function countActive(): int
+    {
+        return (int) Database::get()->query('SELECT COUNT(*) FROM recipes WHERE deleted_at IS NULL')->fetchColumn();
+    }
+
     /**
      * Suma 1 a la vista de la receta, salvo que este visitante ya la haya
      * visto hace poco (cookie). Devuelve true si conto.

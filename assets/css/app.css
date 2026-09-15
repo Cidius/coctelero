@@ -150,9 +150,15 @@ a:hover { text-decoration: underline; }
 .nav-links a { padding: 11px 10px; border-radius: 8px; color: var(--text); font-size: 0.98rem; }
 .nav-links a:hover { background: var(--surface-2); text-decoration: none; }
 
+/* Deslogueado: el CTA de Google queda arriba de todo, bien visible
+   (antes vivia al fondo del sidebar y se perdia). */
+.nav-login-cta { padding: 6px 4px 18px; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+.nav-login-cta .btn { display: block; width: 100%; text-align: center; box-sizing: border-box; }
+
 .nav-footer { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 10px; }
 .nav-footer a { display: block; padding: 10px; text-align: center; }
-.nav-footer .btn { display: block; width: 100%; text-align: center; box-sizing: border-box; }
+.nav-footer .btn { display: block; width: 100%; text-align: center; box-sizing: border-box; margin-bottom: 8px; }
+.nav-footer .btn:last-child { margin-bottom: 0; }
 
 /* Utilitarios compartidos por las paginas publicas (favoritos, contacto) */
 .muted { color: var(--muted); }
