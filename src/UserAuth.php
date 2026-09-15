@@ -141,7 +141,11 @@ final class UserAuth
         return $path;
     }
 
-    /** Menu hamburguesa del header publico (Inicio, favoritos, contacto, admin si corresponde, login/logout). */
+    /**
+     * Menu hamburguesa del header publico: boton + sidebar que se desliza
+     * desde el costado, con la cuenta (foto) arriba, los links en el medio
+     * y salir/entrar abajo.
+     */
     public static function headerHtml(): string
     {
         $return = urlencode(self::sanitizeReturnTo($_SERVER['REQUEST_URI'] ?? '/'));
@@ -156,25 +160,31 @@ final class UserAuth
             $links[] = '<a href="' . e(url('admin/dashboard.php')) . '">Panel admin</a>';
         }
 
-        $account = '';
+        $userBlock = '';
+        $footer = '<a class="btn primary" href="' . e(url('auth/google/login.php?return_to=' . $return)) . '">'
+            . 'Iniciar sesión con Google</a>';
+
         if ($u !== null) {
+            $initial = mb_strtoupper(mb_substr($u['name'] !== '' ? $u['name'] : '?', 0, 1));
             $avatar = !empty($u['avatar_url'])
                 ? '<img class="user-avatar" src="' . e($u['avatar_url']) . '" alt="">'
-                : '';
-            $account = '<div class="nav-user">' . $avatar . '<span>' . e($u['name']) . '</span></div>'
-                . '<a href="' . e(url('auth/logout.php?return_to=' . $return)) . '">Salir</a>';
-        } else {
-            $account = '<a href="' . e(url('auth/google/login.php?return_to=' . $return)) . '">'
-                . 'Iniciar sesión con Google</a>';
+                : '<span class="user-avatar user-avatar-fallback">' . e($initial) . '</span>';
+            $userBlock = '<div class="nav-user">' . $avatar
+                . '<div class="nav-user-info"><strong>' . e($u['name']) . '</strong>'
+                . '<span class="muted small">' . e($u['email']) . '</span></div>'
+                . '</div>';
+            $footer = '<a href="' . e(url('auth/logout.php?return_to=' . $return)) . '">Salir</a>';
         }
 
         return '<div class="site-nav">'
             . '<button type="button" id="nav-toggle" class="nav-toggle" aria-expanded="false" '
-            . 'aria-controls="nav-panel" aria-label="Menú">☰</button>'
-            . '<nav id="nav-panel" class="nav-panel" hidden>'
-            . implode('', $links)
-            . '<hr>'
-            . $account
+            . 'aria-controls="nav-panel" aria-label="Abrir menú">☰</button>'
+            . '<div id="nav-backdrop" class="nav-backdrop" hidden></div>'
+            . '<nav id="nav-panel" class="nav-panel" aria-label="Menú">'
+            . '<button type="button" id="nav-close" class="nav-close" aria-label="Cerrar menú">✕</button>'
+            . $userBlock
+            . '<div class="nav-links">' . implode('', $links) . '</div>'
+            . '<div class="nav-footer">' . $footer . '</div>'
             . '</nav>'
             . '</div>';
     }

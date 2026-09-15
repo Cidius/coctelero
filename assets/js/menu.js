@@ -1,27 +1,31 @@
-/* Menu hamburguesa del header (todas las paginas publicas). */
+/* Menu hamburguesa -> sidebar (todas las paginas publicas). */
 (function () {
   'use strict';
 
   var toggle = document.getElementById('nav-toggle');
   var panel = document.getElementById('nav-panel');
-  if (!toggle || !panel) return;
+  var backdrop = document.getElementById('nav-backdrop');
+  var closeBtn = document.getElementById('nav-close');
+  if (!toggle || !panel || !backdrop) return;
 
-  function close() {
-    panel.hidden = true;
-    toggle.setAttribute('aria-expanded', 'false');
-  }
   function open() {
-    panel.hidden = false;
+    panel.classList.add('open');
+    backdrop.hidden = false;
     toggle.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+  function close() {
+    panel.classList.remove('open');
+    backdrop.hidden = true;
+    toggle.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
   }
 
-  toggle.addEventListener('click', function (e) {
-    e.stopPropagation();
-    if (panel.hidden) open(); else close();
+  toggle.addEventListener('click', function () {
+    if (panel.classList.contains('open')) close(); else open();
   });
-  document.addEventListener('click', function (e) {
-    if (!panel.hidden && e.target !== toggle && !panel.contains(e.target)) close();
-  });
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') close();
   });

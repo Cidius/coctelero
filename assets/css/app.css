@@ -49,7 +49,7 @@ a:hover { text-decoration: underline; }
 .site-header p { margin: 2px 0 0; color: var(--muted); font-size: 0.85rem; }
 .site-header .wrap { position: relative; padding-right: 52px; }
 
-/* Menu hamburguesa (Inicio / favoritos / contacto / admin / login-logout) */
+/* Menu hamburguesa -> sidebar (Inicio / favoritos / contacto / admin / cuenta) */
 .site-nav { position: absolute; top: 14px; right: 16px; }
 .nav-toggle {
     width: 36px;
@@ -66,26 +66,85 @@ a:hover { text-decoration: underline; }
     cursor: pointer;
 }
 .nav-toggle:hover, .nav-toggle[aria-expanded="true"] { border-color: var(--accent); }
+
+.nav-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 40;
+}
+
 .nav-panel {
-    position: absolute;
-    top: 44px;
+    position: fixed;
+    top: 0;
     right: 0;
-    min-width: 200px;
+    bottom: 0;
+    width: min(300px, 86vw);
     display: flex;
     flex-direction: column;
-    gap: 1px;
     background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 8px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    z-index: 20;
+    border-left: 1px solid var(--line);
+    box-shadow: -12px 0 32px rgba(0, 0, 0, 0.45);
+    padding: 18px 16px;
+    z-index: 50;
+    transform: translateX(100%);
+    transition: transform 0.22s ease;
+    overflow-y: auto;
 }
-.nav-panel a { padding: 9px 10px; border-radius: 8px; color: var(--text); font-size: 0.92rem; }
-.nav-panel a:hover { background: var(--surface-2); text-decoration: none; }
-.nav-panel hr { border: none; border-top: 1px solid var(--line); margin: 6px 4px; }
-.nav-user { display: flex; align-items: center; gap: 8px; padding: 6px 10px; color: var(--muted); font-size: 0.85rem; }
-.nav-user .user-avatar { width: 22px; height: 22px; border-radius: 50%; flex: 0 0 auto; }
+.nav-panel.open { transform: translateX(0); }
+
+.nav-close {
+    align-self: flex-end;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 1rem;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+.nav-close:hover { border-color: var(--accent); color: var(--text); }
+
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 4px 18px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 14px;
+}
+.nav-user .user-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+    object-fit: cover;
+}
+.nav-user .user-avatar-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+.nav-user-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.nav-user-info strong { font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-user-info span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.nav-links { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.nav-links a { padding: 11px 10px; border-radius: 8px; color: var(--text); font-size: 0.98rem; }
+.nav-links a:hover { background: var(--surface-2); text-decoration: none; }
+
+.nav-footer { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 10px; }
+.nav-footer a { display: block; padding: 10px; text-align: center; }
+.nav-footer .btn { display: block; width: 100%; text-align: center; box-sizing: border-box; }
 
 /* Utilitarios compartidos por las paginas publicas (favoritos, contacto) */
 .muted { color: var(--muted); }
