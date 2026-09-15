@@ -9,12 +9,10 @@
     padding: 12px 0;
     margin-bottom: 22px;
 }
-.admin-bar .wrap { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.admin-bar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .admin-bar .brand { display: inline-flex; align-items: center; gap: 8px; color: var(--text); font-weight: 600; }
 .admin-bar .brand-mark { width: 26px; height: 26px; border-radius: 7px; object-fit: cover; flex: 0 0 auto; }
-.admin-bar nav { display: flex; align-items: center; gap: 14px; margin-left: auto; font-size: 0.9rem; }
-.admin-bar nav .who { color: var(--muted); }
-.admin-bar nav .badge {
+.admin-bar .badge {
     display: inline-block;
     min-width: 1.3em;
     padding: 0 6px;
@@ -25,6 +23,24 @@
     font-size: 0.72rem;
     font-weight: 700;
     text-align: center;
+}
+
+/* El toggle del sidebar (mismas clases .nav-* que el sitio publico).
+   app.css posiciona .site-nav absolute (pensado para el header publico,
+   que es mas alto); en la barra del admin, que ya es un flex row, alcanza
+   con dejarlo fluir y que justify-content: space-between lo empuje a la
+   derecha. */
+.admin-bar .site-nav { position: static; }
+.admin .nav-toggle { position: relative; }
+.admin .nav-dot {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
 }
 
 .page-head {

@@ -136,6 +136,17 @@ final class UserAuth
     }
 
     /**
+     * Revoca el atajo Google -> panel admin sin tocar la sesion de Google
+     * en si. La usa admin/logout.php: sin esto, "Salir" del panel no
+     * serviria de nada mientras la cuenta de Google siga logueada (la
+     * proxima pagina del admin te volvería a meter solo por el bridge).
+     */
+    public static function clearAdminHint(): void
+    {
+        self::setAdminHint(null);
+    }
+
+    /**
      * Cookie firmada (HMAC) que le permite a Auth::bridgeFromGoogleUser()
      * reconocer sin abrir esta sesion que la cuenta logueada es admin.
      * No guarda datos de sesion, solo "esta cuenta X es admin hasta tal

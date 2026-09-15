@@ -56,17 +56,30 @@ function admin_header(string $title, bool $chrome = true): void
             <img class="brand-mark" src="<?= e(asset('assets/logo/mark.png')) ?>" alt="">
             El Coctelero · Admin
         </a>
-        <nav>
-            <a href="<?= e(url('admin/dashboard.php')) ?>">Recetas</a>
-            <a href="<?= e(url('admin/papelera.php')) ?>">Papelera</a>
-            <?php $unread = Messages::unreadCount(); ?>
-            <a href="<?= e(url('admin/mensajes.php')) ?>">Mensajes<?= $unread > 0 ? ' <span class="badge">' . $unread . '</span>' : '' ?></a>
-            <a href="<?= e(url('/')) ?>" target="_blank" rel="noopener">Ver sitio ↗</a>
-            <?php if ($user): ?>
-                <span class="who"><?= e($user['username']) ?></span>
-                <a href="<?= e(url('admin/logout.php')) ?>">Salir</a>
-            <?php endif; ?>
-        </nav>
+        <?php $unread = Messages::unreadCount(); ?>
+        <div class="site-nav">
+            <button type="button" id="nav-toggle" class="nav-toggle" aria-expanded="false"
+                    aria-controls="nav-panel" aria-label="Abrir menú">☰<?php if ($unread > 0): ?><span class="nav-dot"></span><?php endif; ?></button>
+            <div id="nav-backdrop" class="nav-backdrop" hidden></div>
+            <nav id="nav-panel" class="nav-panel" aria-label="Menú">
+                <button type="button" id="nav-close" class="nav-close" aria-label="Cerrar menú">✕</button>
+                <?php if ($user): ?>
+                    <div class="nav-user">
+                        <span class="user-avatar user-avatar-fallback"><?= e(mb_strtoupper(mb_substr($user['username'], 0, 1))) ?></span>
+                        <div class="nav-user-info"><strong><?= e($user['username']) ?></strong><span class="muted small">Admin</span></div>
+                    </div>
+                <?php endif; ?>
+                <div class="nav-links">
+                    <a href="<?= e(url('admin/dashboard.php')) ?>">Recetas</a>
+                    <a href="<?= e(url('admin/papelera.php')) ?>">Papelera</a>
+                    <a href="<?= e(url('admin/mensajes.php')) ?>">Mensajes<?= $unread > 0 ? ' <span class="badge">' . $unread . '</span>' : '' ?></a>
+                    <a href="<?= e(url('/')) ?>">Ver sitio</a>
+                </div>
+                <?php if ($user): ?>
+                    <div class="nav-footer"><a href="<?= e(url('admin/logout.php')) ?>">Salir</a></div>
+                <?php endif; ?>
+            </nav>
+        </div>
     </div>
 </header>
 <?php endif; ?>
@@ -78,6 +91,7 @@ function admin_footer(): void
 {
     ?>
 </main>
+<script src="<?= e(asset('assets/js/menu.js')) ?>" defer></script>
 </body>
 </html>
     <?php
