@@ -51,33 +51,28 @@ final class Auth
     }
 
     /**
-     * Si no hay sesion de admin pero SI hay una sesion de usuario logueado
-     * con Google (UserAuth) cuyo rol es "admin", abre sesion de admin sin
-     * pedir usuario/contrasena de nuevo. Se une a la unica fila de
-     * admin_users que existe (esta app es de un solo admin).
+     * Si no hay sesion de admin pero el navegador trae la cookie firmada
+     * que UserAuth deja cuando la cuenta de Google logueada es admin, abre
+     * sesion de admin sin pedir usuario/contrasena. Se une a la unica fila
+     * de admin_users que existe (esta app es de un solo admin).
      *
-     * Lee la sesion 'coctelero_user' "a mano" (mismos nombres de clave que
-     * UserAuth) en vez de llamar a esa clase, para no acoplar Auth a
-     * UserAuth; y la cierra de nuevo antes de reabrir la de admin, porque
-     * PHP solo puede tener una sesion activa a la vez por request.
+     * Verifica la firma (HMAC) de la cookie en vez de abrir la sesion de
+     * UserAuth: PHP solo permite una sesion nativa activa por request, y
+     * cerrar/reabrir dos sesiones distintas en el mismo script resulto
+     * poco confiable en la practica.
      */
     public static function bridgeFromGoogleUser(): bool
     {
-        if (!isset($_COOKIE['coctelero_user'])) {
-            return false; // nadie logueado con Google en este navegador
+        $cookie = (string) ($_COOKIE['coctelero_admin_hint'] ?? '');
+        if ($cookie === '' || !str_contains($cookie, '.')) {
+            return false;
         }
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
+        [$payload, $sig] = explode('.', $cookie, 2);
+        if (!hash_equals(hash_hmac('sha256', $payload, admin_hint_secret()), $sig)) {
+            return false;
         }
-        session_name('coctelero_user');
-        session_start();
-        $isGoogleAdmin = isset($_SESSION['user_id']) && ($_SESSION['user_role'] ?? '') === 'admin';
-        session_write_close();
-
-        self::startSession(); // reabre la sesion 'coctelero_admin'
-
-        if (!$isGoogleAdmin) {
+        $exp = (int) (explode(':', $payload)[1] ?? 0);
+        if ($exp < time()) {
             return false;
         }
 
@@ -86,6 +81,7 @@ final class Auth
             return false;
         }
 
+        self::startSession();
         session_regenerate_id(true);
         $_SESSION['admin_id'] = (int) $row['id'];
         $_SESSION['admin_username'] = $row['username'];

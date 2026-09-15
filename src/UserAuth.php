@@ -119,6 +119,8 @@ final class UserAuth
         $_SESSION['user_email']  = $profile['email'];
         $_SESSION['user_avatar'] = $profile['picture'];
         $_SESSION['user_role']   = $role;
+
+        self::setAdminHint($role === 'admin' ? (int) $id : null);
     }
 
     public static function logout(): void
@@ -130,6 +132,36 @@ final class UserAuth
             setcookie(session_name(), '', time() - 42000, $p['path'], $p['domain'], $p['secure'], $p['httponly']);
         }
         session_destroy();
+        self::setAdminHint(null); // revoca tambien el atajo al panel admin
+    }
+
+    /**
+     * Cookie firmada (HMAC) que le permite a Auth::bridgeFromGoogleUser()
+     * reconocer sin abrir esta sesion que la cuenta logueada es admin.
+     * No guarda datos de sesion, solo "esta cuenta X es admin hasta tal
+     * fecha", verificable con la firma. $userId = null la borra.
+     */
+    private static function setAdminHint(?int $userId): void
+    {
+        $https = (($_SERVER['HTTPS'] ?? '') !== '' && ($_SERVER['HTTPS'] ?? '') !== 'off')
+            || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+
+        if ($userId === null) {
+            setcookie('coctelero_admin_hint', '', time() - 3600, '/', '', $https, true);
+            return;
+        }
+
+        $exp = time() + 60 * 60 * 24 * 180;
+        $payload = $userId . ':' . $exp;
+        $sig = hash_hmac('sha256', $payload, admin_hint_secret());
+
+        setcookie('coctelero_admin_hint', $payload . '.' . $sig, [
+            'expires'  => $exp,
+            'path'     => '/',
+            'httponly' => true,
+            'samesite' => 'Lax',
+            'secure'   => $https,
+        ]);
     }
 
     /** Solo rutas propias relativas; nunca un destino externo (open redirect). */

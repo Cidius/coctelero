@@ -148,6 +148,21 @@ function method_label(string $method, ?string $methodOther = null): string
  *
  * @return list<string>
  */
+/**
+ * Clave para firmar la cookie 'coctelero_admin_hint' (atajo Google -> panel
+ * admin, ver UserAuth::loginWithGoogle() y Auth::bridgeFromGoogleUser()).
+ * Reusa el client_secret de Google como material: no hay que agregar ni
+ * gestionar un secreto nuevo.
+ */
+function admin_hint_secret(): string
+{
+    $base = (string) (config()['google']['client_secret'] ?? '');
+    if ($base === '') {
+        $base = 'coctelero-dev-secret-cambiar-en-produccion';
+    }
+    return 'coctelero-admin-hint:' . $base;
+}
+
 function spirit_tag_slugs(): array
 {
     return [
