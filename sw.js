@@ -4,7 +4,7 @@
    - Estaticos (/assets/): stale-while-revalidate.
    - /api/ y /admin/: siempre a la red (no se cachean).
    Subir la version para invalidar todo. */
-const VERSION = 'coctelero-v1';
+const VERSION = 'coctelero-v2';
 // El CSS/JS se cachean solos al primer load online (llevan ?v=<fecha>).
 const SHELL = [
   '/',
