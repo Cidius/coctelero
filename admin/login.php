@@ -8,7 +8,7 @@ use App\Auth;
 use function App\e;
 use function App\url;
 
-if (Auth::check()) {
+if (Auth::check() || Auth::bridgeFromGoogleUser()) {
     header('Location: ' . url('admin/dashboard.php'));
     exit;
 }

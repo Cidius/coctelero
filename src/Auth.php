@@ -41,9 +41,55 @@ final class Auth
 
     public static function requireLogin(): void
     {
-        if (!self::check()) {
-            redirect('admin/login.php');
+        if (self::check()) {
+            return;
         }
+        if (self::bridgeFromGoogleUser()) {
+            return;
+        }
+        redirect('admin/login.php');
+    }
+
+    /**
+     * Si no hay sesion de admin pero SI hay una sesion de usuario logueado
+     * con Google (UserAuth) cuyo rol es "admin", abre sesion de admin sin
+     * pedir usuario/contrasena de nuevo. Se une a la unica fila de
+     * admin_users que existe (esta app es de un solo admin).
+     *
+     * Lee la sesion 'coctelero_user' "a mano" (mismos nombres de clave que
+     * UserAuth) en vez de llamar a esa clase, para no acoplar Auth a
+     * UserAuth; y la cierra de nuevo antes de reabrir la de admin, porque
+     * PHP solo puede tener una sesion activa a la vez por request.
+     */
+    public static function bridgeFromGoogleUser(): bool
+    {
+        if (!isset($_COOKIE['coctelero_user'])) {
+            return false; // nadie logueado con Google en este navegador
+        }
+
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        session_name('coctelero_user');
+        session_start();
+        $isGoogleAdmin = isset($_SESSION['user_id']) && ($_SESSION['user_role'] ?? '') === 'admin';
+        session_write_close();
+
+        self::startSession(); // reabre la sesion 'coctelero_admin'
+
+        if (!$isGoogleAdmin) {
+            return false;
+        }
+
+        $row = Database::get()->query('SELECT id, username FROM admin_users LIMIT 1')->fetch();
+        if ($row === false) {
+            return false;
+        }
+
+        session_regenerate_id(true);
+        $_SESSION['admin_id'] = (int) $row['id'];
+        $_SESSION['admin_username'] = $row['username'];
+        return true;
     }
 
     /** @return array{id:int, username:string}|null */
