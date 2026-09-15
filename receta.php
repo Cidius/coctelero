@@ -276,5 +276,6 @@ if (!empty($recipe['tags'])) {
     });
 })();
 </script>
+<script src="<?= e(asset('assets/js/menu.js')) ?>" defer></script>
 </body>
 </html>

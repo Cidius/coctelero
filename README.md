@@ -126,6 +126,17 @@ sigue igual que siempre, sin tocar.
   Guarda siempre en la base; si `config['mail']['admin_to']` está seteado
   intenta además avisar por mail con `mail()` nativo de PHP (best-effort).
 - Admin: `admin/mensajes.php` — bandeja con contador de no leídos en el nav.
+- **Menú hamburguesa** (`UserAuth::headerHtml()` + `assets/js/menu.js`) en
+  todas las páginas públicas: Inicio, Mis favoritos, Contacto y — si la
+  cuenta tiene `users.role = 'admin'` — un link directo a **Panel admin**.
+  Ese link es solo un atajo de navegación: el panel `/admin` sigue pidiendo
+  su propio login por separado, esto no lo reemplaza.
+  ```sql
+  SELECT id, email, name FROM users;               -- ubicar tu fila
+  UPDATE users SET role = 'admin' WHERE email = '...';
+  ```
+  (`sql/migracion_07_rol_admin.sql`). Si ya tenías la sesión abierta,
+  salí y volvé a entrar para que tome el rol nuevo.
 
 ### Setup de Google Sign-In (una vez)
 

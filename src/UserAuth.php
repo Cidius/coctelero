@@ -38,7 +38,7 @@ final class UserAuth
         return isset($_SESSION['user_id']);
     }
 
-    /** @return array{id:int, name:string, email:string, avatar_url:?string}|null */
+    /** @return array{id:int, name:string, email:string, avatar_url:?string, role:string}|null */
     public static function user(): ?array
     {
         if (!self::check()) {
@@ -49,7 +49,19 @@ final class UserAuth
             'name'       => (string) ($_SESSION['user_name'] ?? ''),
             'email'      => (string) ($_SESSION['user_email'] ?? ''),
             'avatar_url' => $_SESSION['user_avatar'] ?? null,
+            'role'       => (string) ($_SESSION['user_role'] ?? 'coctelero'),
         ];
+    }
+
+    /**
+     * "admin" acá solo controla que el menu del sitio muestre el link al
+     * panel /admin; ESE panel sigue pidiendo su propio login por separado,
+     * esto no reemplaza esa seguridad, es solo un atajo de navegacion.
+     */
+    public static function isAdmin(): bool
+    {
+        $u = self::user();
+        return $u !== null && $u['role'] === 'admin';
     }
 
     /** Corta la pagina y manda a loguearse si no hay sesion. */
@@ -97,11 +109,16 @@ final class UserAuth
             ]);
         }
 
+        $roleStmt = $pdo->prepare('SELECT role FROM users WHERE id = :id');
+        $roleStmt->execute([':id' => $id]);
+        $role = (string) ($roleStmt->fetchColumn() ?: 'coctelero');
+
         session_regenerate_id(true);
         $_SESSION['user_id']     = (int) $id;
         $_SESSION['user_name']   = $profile['name'];
         $_SESSION['user_email']  = $profile['email'];
         $_SESSION['user_avatar'] = $profile['picture'];
+        $_SESSION['user_role']   = $role;
     }
 
     public static function logout(): void
@@ -124,24 +141,42 @@ final class UserAuth
         return $path;
     }
 
-    /** Snippet del menu de usuario para el header publico. */
+    /** Menu hamburguesa del header publico (Inicio, favoritos, contacto, admin si corresponde, login/logout). */
     public static function headerHtml(): string
     {
         $return = urlencode(self::sanitizeReturnTo($_SERVER['REQUEST_URI'] ?? '/'));
         $u = self::user();
 
-        if ($u === null) {
-            return '<a class="user-menu" href="' . e(url('auth/google/login.php?return_to=' . $return)) . '">'
-                . 'Iniciar sesión</a>';
+        $links = [
+            '<a href="' . e(url('/')) . '">Inicio</a>',
+            '<a href="' . e(url('favoritos.php')) . '">Mis favoritos</a>',
+            '<a href="' . e(url('contacto.php')) . '">Contacto</a>',
+        ];
+        if (self::isAdmin()) {
+            $links[] = '<a href="' . e(url('admin/dashboard.php')) . '">Panel admin</a>';
         }
 
-        $avatar = !empty($u['avatar_url'])
-            ? '<img class="user-avatar" src="' . e($u['avatar_url']) . '" alt="">'
-            : '';
-        return '<span class="user-menu">' . $avatar
-            . '<a href="' . e(url('favoritos.php')) . '">' . e($u['name']) . '</a>'
-            . ' · <a href="' . e(url('auth/logout.php?return_to=' . $return)) . '">Salir</a>'
-            . '</span>';
+        $account = '';
+        if ($u !== null) {
+            $avatar = !empty($u['avatar_url'])
+                ? '<img class="user-avatar" src="' . e($u['avatar_url']) . '" alt="">'
+                : '';
+            $account = '<div class="nav-user">' . $avatar . '<span>' . e($u['name']) . '</span></div>'
+                . '<a href="' . e(url('auth/logout.php?return_to=' . $return)) . '">Salir</a>';
+        } else {
+            $account = '<a href="' . e(url('auth/google/login.php?return_to=' . $return)) . '">'
+                . 'Iniciar sesión con Google</a>';
+        }
+
+        return '<div class="site-nav">'
+            . '<button type="button" id="nav-toggle" class="nav-toggle" aria-expanded="false" '
+            . 'aria-controls="nav-panel" aria-label="Menú">☰</button>'
+            . '<nav id="nav-panel" class="nav-panel" hidden>'
+            . implode('', $links)
+            . '<hr>'
+            . $account
+            . '</nav>'
+            . '</div>';
     }
 
     /* ---------------- CSRF (independiente del de Auth/admin) ---------------- */

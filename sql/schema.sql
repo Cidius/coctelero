@@ -203,6 +203,9 @@ CREATE TABLE users (
     google_sub    VARCHAR(64)  NOT NULL,
     email         VARCHAR(190) NOT NULL,
     name          VARCHAR(160) NOT NULL,
+    -- "admin" solo controla que el menu del sitio muestre el link al panel
+    -- /admin; ese panel sigue con su propio login, esto no lo reemplaza.
+    role          ENUM('coctelero','admin') NOT NULL DEFAULT 'coctelero',
     avatar_url    VARCHAR(500)     DEFAULT NULL,
     created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_login_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -190,6 +190,7 @@ header('Content-Type: text/html; charset=utf-8');
     <div class="wrap">El machete necesario para cualquier bartender <span class="by">by Cidius</span></div>
 </footer>
 
+<script src="<?= e(asset('assets/js/menu.js')) ?>" defer></script>
 <script src="<?= e(asset('assets/js/app.js')) ?>" defer></script>
 </body>
 </html>

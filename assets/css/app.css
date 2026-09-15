@@ -47,18 +47,45 @@ a:hover { text-decoration: underline; }
 }
 .site-header h1 a { color: var(--text); }
 .site-header p { margin: 2px 0 0; color: var(--muted); font-size: 0.85rem; }
+.site-header .wrap { position: relative; padding-right: 52px; }
 
-.user-menu {
-    display: inline-flex;
+/* Menu hamburguesa (Inicio / favoritos / contacto / admin / login-logout) */
+.site-nav { position: absolute; top: 14px; right: 16px; }
+.nav-toggle {
+    width: 36px;
+    height: 36px;
+    display: flex;
     align-items: center;
-    gap: 6px;
-    margin-top: 6px;
-    font-size: 0.85rem;
-    color: var(--muted);
+    justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
 }
-.user-menu a { color: var(--muted); }
-.user-menu a:hover { color: var(--accent); }
-.user-avatar { width: 20px; height: 20px; border-radius: 50%; display: block; }
+.nav-toggle:hover, .nav-toggle[aria-expanded="true"] { border-color: var(--accent); }
+.nav-panel {
+    position: absolute;
+    top: 44px;
+    right: 0;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    z-index: 20;
+}
+.nav-panel a { padding: 9px 10px; border-radius: 8px; color: var(--text); font-size: 0.92rem; }
+.nav-panel a:hover { background: var(--surface-2); text-decoration: none; }
+.nav-panel hr { border: none; border-top: 1px solid var(--line); margin: 6px 4px; }
+.nav-user { display: flex; align-items: center; gap: 8px; padding: 6px 10px; color: var(--muted); font-size: 0.85rem; }
+.nav-user .user-avatar { width: 22px; height: 22px; border-radius: 50%; flex: 0 0 auto; }
 
 /* Utilitarios compartidos por las paginas publicas (favoritos, contacto) */
 .muted { color: var(--muted); }
