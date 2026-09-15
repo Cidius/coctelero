@@ -104,7 +104,6 @@ header('Content-Type: text/html; charset=utf-8');
                 <textarea name="body" rows="6" required maxlength="4000"
                           placeholder="Feedback, una receta que probaste, una sugerencia…"><?= e($body) ?></textarea>
             </label>
-            <p class="muted small">Se envía como <?= e($user['name']) ?> (<?= e($user['email']) ?>).</p>
             <button type="submit" class="btn primary">Enviar</button>
         </form>
     <?php endif; ?>

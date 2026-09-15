@@ -66,14 +66,14 @@ a:hover { text-decoration: underline; }
     align-items: center;
     justify-content: center;
     background: var(--surface);
-    border: 1px solid var(--line);
+    border: 1px solid var(--accent);
     border-radius: 8px;
-    color: var(--text);
+    color: var(--accent);
     font-size: 1.1rem;
     line-height: 1;
     cursor: pointer;
 }
-.nav-toggle:hover, .nav-toggle[aria-expanded="true"] { border-color: var(--accent); }
+.nav-toggle:hover, .nav-toggle[aria-expanded="true"] { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
 
 .nav-backdrop {
     position: fixed;
@@ -153,7 +153,16 @@ a:hover { text-decoration: underline; }
 /* Deslogueado: el CTA de Google queda arriba de todo, bien visible
    (antes vivia al fondo del sidebar y se perdia). */
 .nav-login-cta { padding: 6px 4px 18px; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
-.nav-login-cta .btn { display: block; width: 100%; text-align: center; box-sizing: border-box; }
+.nav-login-cta .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+}
+.nav-login-cta .google-icon { width: 18px; height: 18px; flex: 0 0 auto; background: #fff; border-radius: 50%; padding: 2px; box-sizing: border-box; }
 
 .nav-footer { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 10px; }
 .nav-footer a { display: block; padding: 10px; text-align: center; }
