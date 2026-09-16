@@ -30,7 +30,6 @@ boot_errors();
 
 $activeTags    = query_tags($_GET);
 $activeMethod  = (string) ($_GET['method'] ?? '');
-$activeVolume  = (string) ($_GET['volume'] ?? '');
 $activeMoment  = (string) ($_GET['moment'] ?? '');
 $activeFamily  = (string) ($_GET['family'] ?? '');
 $q             = trim((string) ($_GET['q'] ?? ''));
@@ -41,7 +40,6 @@ $result  = Recipe::search([
     'q'        => $q,
     'tags'     => $activeTags,
     'method'   => $activeMethod,
-    'volume'   => $activeVolume,
     'moment'   => $activeMoment,
     'family'   => $activeFamily,
     'page'     => $activePage,
@@ -50,12 +48,10 @@ $result  = Recipe::search([
 $totalActive = Recipe::countActive();
 $allTags    = Recipe::tagsWithCounts();
 $methods    = Recipe::methodsWithCounts();
-$volumes    = Recipe::volumesWithCounts();
 $moments    = Recipe::momentsWithCounts();
 $families   = Recipe::familiesWithCounts();
 $hasFilter  = $q !== '' || $activeTags !== []
     || ($activeMethod !== '' && isset(Recipe::METHODS[$activeMethod]))
-    || ($activeVolume !== '' && isset(Recipe::VOLUMES[$activeVolume]))
     || ($activeMoment !== '' && isset(Recipe::MOMENTS[$activeMoment]))
     || $activeFamily !== '';
 
@@ -67,7 +63,6 @@ $baseQuery = [];
 if ($q !== '') $baseQuery['q'] = $q;
 if ($activeTags !== []) $baseQuery['tag'] = $activeTags;
 if ($activeMethod !== '') $baseQuery['method'] = $activeMethod;
-if ($activeVolume !== '') $baseQuery['volume'] = $activeVolume;
 if ($activeMoment !== '') $baseQuery['moment'] = $activeMoment;
 if ($activeFamily !== '') $baseQuery['family'] = $activeFamily;
 if ($activePerPage !== Recipe::PER_PAGE_OPTIONS[0]) $baseQuery['per_page'] = $activePerPage;
@@ -149,23 +144,8 @@ header('Content-Type: text/html; charset=utf-8');
 
     <div class="filters" id="filters">
         <?php
-        $volumesShown = array_filter($volumes, static fn($x) => $x['count'] > 0);
         $momentsShown = array_filter($moments, static fn($x) => $x['count'] > 0);
         ?>
-
-        <?php if ($volumesShown): ?>
-        <div class="filter-group" data-filter="volume">
-            <h2>Volumen</h2>
-            <div class="chips">
-                <?php foreach ($volumesShown as $x): ?>
-                    <button type="button" class="chip" data-value="<?= e($x['value']) ?>"
-                            aria-pressed="<?= $activeVolume === $x['value'] ? 'true' : 'false' ?>">
-                        <?= e($x['label']) ?> <span class="count"><?= (int) $x['count'] ?></span>
-                    </button>
-                <?php endforeach; ?>
-            </div>
-        </div>
-        <?php endif; ?>
 
         <?php if ($momentsShown): ?>
         <div class="filter-group" data-filter="moment">

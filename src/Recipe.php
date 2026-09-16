@@ -28,13 +28,6 @@ final class Recipe
         'otro'               => 'Otro',
     ];
 
-    /** Clasificacion por volumen (Clase 6). */
-    public const VOLUMES = [
-        'short'  => 'Short · hasta 100 ml',
-        'medium' => 'Medium · 100–300 ml',
-        'long'   => 'Long · +300 ml',
-    ];
-
     /** Clasificacion por momento de consumo. */
     public const MOMENTS = [
         'aperitivo'  => 'Aperitivo',
@@ -55,7 +48,6 @@ final class Recipe
         $q       = trim((string) ($p['q'] ?? ''));
         $tags    = array_values(array_unique($p['tags'] ?? []));
         $method  = (string) ($p['method'] ?? '');
-        $volume  = (string) ($p['volume'] ?? '');
         $moment  = (string) ($p['moment'] ?? '');
         $family  = (string) ($p['family'] ?? '');
         $page    = max(1, (int) ($p['page'] ?? 1));
@@ -94,11 +86,6 @@ final class Recipe
             $params[':method'] = $method;
         }
 
-        if ($volume !== '' && isset(self::VOLUMES[$volume])) {
-            $where[] = 'r.volume = :volume';
-            $params[':volume'] = $volume;
-        }
-
         if ($moment !== '' && isset(self::MOMENTS[$moment])) {
             $where[] = 'r.moment = :moment';
             $params[':moment'] = $moment;
@@ -135,7 +122,7 @@ final class Recipe
 
         $sql = "SELECT r.id, r.name, r.slug, r.glassware, r.ice, r.method,
                        r.method_other, r.method_detail, r.garnish, r.image_path,
-                       r.volume, r.moment, f.name AS family, f.slug AS family_slug
+                       r.moment, f.name AS family, f.slug AS family_slug
                 FROM recipes r
                 LEFT JOIN families f ON f.id = r.family_id
                 WHERE $whereSql
@@ -310,35 +297,17 @@ final class Recipe
         return $out;
     }
 
-    /** Conteo por columna ENUM de recipes (volume / moment). */
-    private static function enumCounts(string $column): array
+    /** @return list<array{value:string, label:string, count:int}> */
+    public static function momentsWithCounts(): array
     {
-        $col = $column === 'volume' ? 'volume' : 'moment'; // whitelist
-        return array_column(
+        $counts = array_column(
             Database::get()->query(
-                "SELECT $col AS v, COUNT(*) AS c FROM recipes
-                 WHERE deleted_at IS NULL AND $col IS NOT NULL GROUP BY $col"
+                "SELECT moment AS v, COUNT(*) AS c FROM recipes
+                 WHERE deleted_at IS NULL AND moment IS NOT NULL GROUP BY moment"
             )->fetchAll(),
             'c',
             'v'
         );
-    }
-
-    /** @return list<array{value:string, label:string, count:int}> */
-    public static function volumesWithCounts(): array
-    {
-        $counts = self::enumCounts('volume');
-        $out = [];
-        foreach (self::VOLUMES as $value => $label) {
-            $out[] = ['value' => $value, 'label' => $label, 'count' => (int) ($counts[$value] ?? 0)];
-        }
-        return $out;
-    }
-
-    /** @return list<array{value:string, label:string, count:int}> */
-    public static function momentsWithCounts(): array
-    {
-        $counts = self::enumCounts('moment');
         $out = [];
         foreach (self::MOMENTS as $value => $label) {
             $out[] = ['value' => $value, 'label' => $label, 'count' => (int) ($counts[$value] ?? 0)];

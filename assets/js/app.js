@@ -21,7 +21,7 @@
   var PAGE_SIZES = [10, 20, 50];
 
   // Grupos de un solo valor (chip = radio). El grupo "tag" es multi.
-  var SINGLE = ['method', 'volume', 'moment', 'family'];
+  var SINGLE = ['method', 'moment', 'family'];
 
   // Estado inicial desde la URL.
   var params = new URLSearchParams(location.search);
