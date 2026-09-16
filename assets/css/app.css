@@ -55,7 +55,10 @@ a:hover { text-decoration: underline; }
     flex: 0 0 auto;
 }
 .site-header p { margin: 2px 0 0; color: var(--muted); font-size: 0.85rem; }
-.site-header .wrap { position: relative; padding-right: 52px; }
+/* min-height fijo: sin esto, en paginas sin el subtitulo (ej. receta.php)
+   el header queda mas bajo y el boton hamburguesa (absolute, top:14px)
+   se pasa del borde inferior, pegandose a la linea divisoria. */
+.site-header .wrap { position: relative; padding-right: 52px; min-height: 50px; }
 
 /* Menu hamburguesa -> sidebar (Inicio / favoritos / contacto / admin / cuenta) */
 .site-nav { position: absolute; top: 14px; right: 16px; }
