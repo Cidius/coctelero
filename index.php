@@ -78,6 +78,29 @@ $pageUrl = static function (int $page) use ($baseQuery) {
     return url('/') . ($qs !== [] ? '?' . http_build_query($qs) : '');
 };
 
+/**
+ * Numeros de pagina a mostrar (primeras 2, ultimas 2 y la actual), con '...'
+ * en los huecos. Para no pasar de una linea en mobile con muchas paginas
+ * (ej. 9 paginas -> "1 2 .. 5 .. 8 9" en vez de listarlas todas).
+ *
+ * @return list<int|string>
+ */
+$pageTokens = static function (int $current, int $total): array {
+    $show = array_unique(array_filter(
+        [1, 2, $total - 1, $total, $current],
+        static fn($p) => $p >= 1 && $p <= $total
+    ));
+    sort($show);
+    $tokens = [];
+    $prev = null;
+    foreach ($show as $p) {
+        if ($prev !== null && $p - $prev > 1) $tokens[] = '...';
+        $tokens[] = $p;
+        $prev = $p;
+    }
+    return $tokens;
+};
+
 header('Content-Type: text/html; charset=utf-8');
 ?>
 <!doctype html>
@@ -233,25 +256,28 @@ header('Content-Type: text/html; charset=utf-8');
     </div>
 
     <nav class="pagination" id="pagination" aria-label="Paginación">
-        <?php if ((int) $result['meta']['pages'] > 1): ?>
+        <?php $totalPages = (int) $result['meta']['pages']; ?>
+        <?php if ($totalPages > 1): ?>
             <?php if ($activePage > 1): ?>
-                <a class="page-btn" href="<?= e($pageUrl($activePage - 1)) ?>" rel="prev">‹ Anterior</a>
+                <a class="page-btn" href="<?= e($pageUrl($activePage - 1)) ?>" rel="prev" aria-label="Anterior">‹</a>
             <?php else: ?>
-                <span class="page-btn disabled">‹ Anterior</span>
+                <span class="page-btn disabled" aria-hidden="true">‹</span>
             <?php endif; ?>
             <div class="page-numbers">
-                <?php for ($p = 1; $p <= (int) $result['meta']['pages']; $p++): ?>
-                    <?php if ($p === $activePage): ?>
-                        <span class="page-num current" aria-current="page"><?= $p ?></span>
+                <?php foreach ($pageTokens($activePage, $totalPages) as $tok): ?>
+                    <?php if ($tok === '...'): ?>
+                        <span class="page-ellipsis">…</span>
+                    <?php elseif ($tok === $activePage): ?>
+                        <span class="page-num current" aria-current="page"><?= $tok ?></span>
                     <?php else: ?>
-                        <a class="page-num" href="<?= e($pageUrl($p)) ?>"><?= $p ?></a>
+                        <a class="page-num" href="<?= e($pageUrl($tok)) ?>"><?= $tok ?></a>
                     <?php endif; ?>
-                <?php endfor; ?>
+                <?php endforeach; ?>
             </div>
-            <?php if ($activePage < (int) $result['meta']['pages']): ?>
-                <a class="page-btn" href="<?= e($pageUrl($activePage + 1)) ?>" rel="next">Siguiente ›</a>
+            <?php if ($activePage < $totalPages): ?>
+                <a class="page-btn" href="<?= e($pageUrl($activePage + 1)) ?>" rel="next" aria-label="Siguiente">›</a>
             <?php else: ?>
-                <span class="page-btn disabled">Siguiente ›</span>
+                <span class="page-btn disabled" aria-hidden="true">›</span>
             <?php endif; ?>
         <?php endif; ?>
     </nav>

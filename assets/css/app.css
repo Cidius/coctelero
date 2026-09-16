@@ -327,22 +327,25 @@ a:hover { text-decoration: underline; }
     font: inherit;
 }
 
-/* Paginacion */
+/* Paginacion: flechas + primeras/ultimas paginas + la actual, con "…" en
+   los huecos (ver $pageTokens en index.php) para que entre en una sola
+   linea incluso en mobile. */
 .pagination {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
+    gap: 6px;
+    flex-wrap: nowrap;
     margin: 28px 0 10px;
 }
 .pagination .page-btn, .pagination .page-num {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 34px;
-    height: 34px;
-    padding: 0 10px;
+    flex: 0 0 auto;
+    min-width: 30px;
+    height: 30px;
+    padding: 0 6px;
     border-radius: 8px;
     border: 1px solid var(--line);
     color: var(--text);
@@ -351,12 +354,21 @@ a:hover { text-decoration: underline; }
 }
 .pagination .page-btn:hover, .pagination .page-num:hover { border-color: var(--accent); text-decoration: none; }
 .pagination .page-btn.disabled { color: var(--muted); opacity: 0.5; cursor: default; }
-.pagination .page-numbers { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.pagination .page-numbers { display: flex; align-items: center; gap: 4px; flex-wrap: nowrap; justify-content: center; }
 .pagination .page-num.current {
     background: var(--accent);
     color: var(--accent-ink);
     border-color: var(--accent);
     font-weight: 600;
+}
+.pagination .page-ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 30px;
+    color: var(--muted);
+    flex: 0 0 auto;
 }
 
 /* Grilla de recetas */

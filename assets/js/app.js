@@ -115,6 +115,24 @@
     return qs ? '?' + qs : location.pathname;
   }
 
+  // Primeras 2, ultimas 2 y la actual, con '...' en los huecos (espejo de
+  // $pageTokens en index.php) para que no se pase de una linea en mobile.
+  function pageTokens(current, pages) {
+    var show = [];
+    [1, 2, pages - 1, pages, current].forEach(function (p) {
+      if (p >= 1 && p <= pages && show.indexOf(p) === -1) show.push(p);
+    });
+    show.sort(function (a, b) { return a - b; });
+    var tokens = [];
+    var prev = null;
+    show.forEach(function (p) {
+      if (prev !== null && p - prev > 1) tokens.push('...');
+      tokens.push(p);
+      prev = p;
+    });
+    return tokens;
+  }
+
   function renderPagination(meta) {
     if (!paginationEl) return;
     var page = (meta && meta.page) || 1;
@@ -125,18 +143,22 @@
     }
     var html = '';
     html += page > 1
-      ? '<a class="page-btn" href="' + esc(pageHref(page - 1)) + '" data-page="' + (page - 1) + '" rel="prev">‹ Anterior</a>'
-      : '<span class="page-btn disabled">‹ Anterior</span>';
+      ? '<a class="page-btn" href="' + esc(pageHref(page - 1)) + '" data-page="' + (page - 1) + '" rel="prev" aria-label="Anterior">‹</a>'
+      : '<span class="page-btn disabled" aria-hidden="true">‹</span>';
     html += '<div class="page-numbers">';
-    for (var p = 1; p <= pages; p++) {
-      html += p === page
-        ? '<span class="page-num current" aria-current="page">' + p + '</span>'
-        : '<a class="page-num" href="' + esc(pageHref(p)) + '" data-page="' + p + '">' + p + '</a>';
-    }
+    pageTokens(page, pages).forEach(function (tok) {
+      if (tok === '...') {
+        html += '<span class="page-ellipsis">…</span>';
+      } else if (tok === page) {
+        html += '<span class="page-num current" aria-current="page">' + tok + '</span>';
+      } else {
+        html += '<a class="page-num" href="' + esc(pageHref(tok)) + '" data-page="' + tok + '">' + tok + '</a>';
+      }
+    });
     html += '</div>';
     html += page < pages
-      ? '<a class="page-btn" href="' + esc(pageHref(page + 1)) + '" data-page="' + (page + 1) + '" rel="next">Siguiente ›</a>'
-      : '<span class="page-btn disabled">Siguiente ›</span>';
+      ? '<a class="page-btn" href="' + esc(pageHref(page + 1)) + '" data-page="' + (page + 1) + '" rel="next" aria-label="Siguiente">›</a>'
+      : '<span class="page-btn disabled" aria-hidden="true">›</span>';
     paginationEl.innerHTML = html;
   }
 
