@@ -54,10 +54,10 @@ a:hover { text-decoration: underline; }
     object-fit: cover;
     flex: 0 0 auto;
 }
-/* min-height fijo: sin esto, en paginas sin el subtitulo (ej. receta.php)
-   el header queda mas bajo y el boton hamburguesa (absolute, top:14px)
-   se pasa del borde inferior, pegandose a la linea divisoria. */
-.site-header .wrap { position: relative; padding-right: 52px; min-height: 50px; }
+/* Flex en vez de .site-nav absolute: asi el titulo queda centrado con
+   el boton hamburguesa sin importar la altura del header. */
+.site-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.site-header .site-nav { position: static; }
 
 /* Menu hamburguesa -> sidebar (Inicio / favoritos / contacto / admin / cuenta) */
 .site-nav { position: absolute; top: 14px; right: 16px; }
