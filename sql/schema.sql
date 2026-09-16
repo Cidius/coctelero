@@ -75,6 +75,7 @@ CREATE TABLE recipes (
                                 NOT NULL DEFAULT 'otro',
     method_other  VARCHAR(160)     DEFAULT NULL,
     method_detail VARCHAR(255)     DEFAULT NULL,
+    steps         TEXT             DEFAULT NULL,
     -- Clasificaciones (Clase 6): uno por receta, opcionales.
     volume        ENUM('short','medium','long')          DEFAULT NULL,
     moment        ENUM('aperitivo','digestivo','all_day') DEFAULT NULL,

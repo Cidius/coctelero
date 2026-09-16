@@ -76,6 +76,11 @@ if (!empty($recipe['ice']))       $specs['Hielo']       = $recipe['ice'];
 $specs['Método'] = $methodTxt;
 if (!empty($recipe['garnish']))   $specs['Decoración']  = $recipe['garnish'];
 
+$stepLines = array_values(array_filter(array_map(
+    'trim',
+    preg_split('/\r\n|\r|\n/', (string) ($recipe['steps'] ?? '')) ?: []
+), static fn($l) => $l !== ''));
+
 $metaDesc = $recipe['name'] . ' — '
     . implode(', ', array_map(static fn($i) => $i['raw_text'], array_slice($recipe['ingredients'], 0, 4)));
 
@@ -101,7 +106,12 @@ if (!empty($recipe['description'])) {
 if (!empty($recipe['family'])) {
     $ld['recipeCategory'] = $recipe['family'];
 }
-if (!empty($recipe['method_detail'])) {
+if ($stepLines !== []) {
+    $ld['recipeInstructions'] = array_map(
+        static fn($step) => ['@type' => 'HowToStep', 'text' => $step],
+        $stepLines
+    );
+} elseif (!empty($recipe['method_detail'])) {
     $ld['recipeInstructions'] = [['@type' => 'HowToStep', 'text' => $recipe['method_detail']]];
 }
 if (!empty($recipe['author_name'])) {
@@ -191,6 +201,15 @@ if (!empty($recipe['tags'])) {
             <li><?= e($i['raw_text']) ?></li>
         <?php endforeach; ?>
     </ul>
+
+    <?php if ($stepLines !== []): ?>
+        <h2>Preparación</h2>
+        <ol class="steps">
+            <?php foreach ($stepLines as $step): ?>
+                <li><?= e($step) ?></li>
+            <?php endforeach; ?>
+        </ol>
+    <?php endif; ?>
 
     <?php if (!empty($recipe['description'])): ?>
         <h2>Notas</h2>

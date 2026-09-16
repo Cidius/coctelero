@@ -38,6 +38,7 @@ $v = [
     'method'           => $recipe['method'] ?? 'integrado',
     'method_other'     => $recipe['method_other'] ?? '',
     'method_detail'    => $recipe['method_detail'] ?? '',
+    'steps'            => $recipe['steps'] ?? '',
     'moment'           => $recipe['moment'] ?? '',
     'family_id'        => (string) ($recipe['family_id'] ?? ''),
     'garnish'          => $recipe['garnish'] ?? '',
@@ -247,6 +248,12 @@ admin_header($editing ? 'Editar receta' : 'Nueva receta');
         <span>Ingredientes <small class="muted">— uno por línea</small></span>
         <textarea name="ingredients_text" rows="7"
                   placeholder="60 ml. de Ron Blanco&#10;30 ml. de Jugo de Limón&#10;10/12 hojas de menta"><?= e($v['ingredients_text']) ?></textarea>
+    </label>
+
+    <label class="field">
+        <span>Método <small class="muted">— paso a paso, uno por línea (opcional)</small></span>
+        <textarea name="steps" rows="6"
+                  placeholder="Enfriar la copa&#10;Batir todos los ingredientes con hielo&#10;Colar doble y servir"><?= e($v['steps']) ?></textarea>
     </label>
 
     <label class="field">

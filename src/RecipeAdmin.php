@@ -121,11 +121,11 @@ final class RecipeAdmin
             $slug = self::uniqueSlug($d['name'], null);
             $stmt = $pdo->prepare(
                 'INSERT INTO recipes
-                    (name, slug, glassware, ice, method, method_other, method_detail,
+                    (name, slug, glassware, ice, method, method_other, method_detail, steps,
                      volume, moment, family_id, garnish, description,
                      author_name, author_url, image_path, created_by)
                  VALUES
-                    (:name, :slug, :glassware, :ice, :method, :method_other, :method_detail,
+                    (:name, :slug, :glassware, :ice, :method, :method_other, :method_detail, :steps,
                      :volume, :moment, :family_id, :garnish, :description,
                      :author_name, :author_url, :image_path, :created_by)'
             );
@@ -162,6 +162,7 @@ final class RecipeAdmin
             $sql = 'UPDATE recipes SET
                         name = :name, slug = :slug, glassware = :glassware, ice = :ice,
                         method = :method, method_other = :method_other, method_detail = :method_detail,
+                        steps = :steps,
                         volume = :volume, moment = :moment, family_id = :family_id,
                         garnish = :garnish, description = :description,
                         author_name = :author_name, author_url = :author_url';
@@ -220,6 +221,7 @@ final class RecipeAdmin
             ':method'        => $method,
             ':method_other'  => $method === 'otro' ? self::nn($d['method_other'] ?? null) : null,
             ':method_detail' => self::nn($d['method_detail'] ?? null),
+            ':steps'         => self::nn($d['steps'] ?? null),
             ':volume'        => $volume,
             ':moment'        => $moment,
             ':family_id'     => $familyId > 0 ? $familyId : null,
