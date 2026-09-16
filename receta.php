@@ -45,7 +45,7 @@ if ($recipe === null) {
     </head>
     <body>
     <main class="wrap detail">
-        <p class="back"><a href="<?= e(url('/')) ?>">← Volver</a></p>
+        <p class="back"><a id="back-link" href="<?= e(url('/')) ?>">← Volver</a></p>
         <div class="empty"><strong>Esa receta no existe</strong>Puede que haya cambiado de nombre.</div>
     </main>
     </body>
@@ -136,7 +136,7 @@ if (!empty($recipe['tags'])) {
 </header>
 
 <main class="wrap detail">
-    <p class="back"><a href="<?= e(url('/')) ?>">← Todas las recetas</a></p>
+    <p class="back"><a id="back-link" href="<?= e(url('/')) ?>">← Todas las recetas</a></p>
     <h1><?= e($recipe['name']) ?></h1>
 
     <?php if (!empty($recipe['author_name'])): ?>

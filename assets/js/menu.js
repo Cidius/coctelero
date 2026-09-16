@@ -1,3 +1,22 @@
+/* receta.php: el link "Volver" apunta a "/" fijo, perdiendo la busqueda,
+   filtros o pagina desde donde se entro. Si venimos de esa misma pagina
+   (referrer del mismo origen), lo redirigimos ahi en vez de al home pelado.
+   Aparte, en su propia IIFE: el 404 de receta.php no tiene sidebar, y el
+   menu de abajo corta temprano si no lo encuentra. */
+(function () {
+  'use strict';
+
+  var back = document.getElementById('back-link');
+  if (!back) return;
+
+  try {
+    var ref = document.referrer ? new URL(document.referrer) : null;
+    if (ref && ref.origin === location.origin && (ref.pathname === '/' || ref.pathname === '/index.php')) {
+      back.href = ref.pathname + ref.search;
+    }
+  } catch (e) { /* referrer invalido o URL no soportado: se queda con "/" */ }
+})();
+
 /* Menu hamburguesa -> sidebar (todas las paginas publicas). */
 (function () {
   'use strict';
