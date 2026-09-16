@@ -121,7 +121,6 @@ header('Content-Type: text/html; charset=utf-8');
             <img class="brand-mark" src="<?= e(asset('assets/logo/mark.png')) ?>" alt="">
             El Coctelero Online
         </a></h1>
-        <p><?= $totalActive ?> recetas · buscá tu cóctel preferido</p>
         <?= UserAuth::headerHtml() ?>
     </div>
 </header>
@@ -130,6 +129,8 @@ header('Content-Type: text/html; charset=utf-8');
       data-endpoint="<?= e(url('api/recipes.php')) ?>"
       data-detail="<?= e(url('receta.php')) ?>"
       data-spirit-tags="<?= e(implode(',', spirit_tag_slugs())) ?>">
+
+    <p class="search-subtitle"><?= $totalActive ?> recetas · buscá tu cóctel preferido</p>
 
     <form class="search" method="get" action="<?= e(url('/')) ?>" role="search">
         <input type="search" name="q" value="<?= e($q) ?>"

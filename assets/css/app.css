@@ -54,7 +54,6 @@ a:hover { text-decoration: underline; }
     object-fit: cover;
     flex: 0 0 auto;
 }
-.site-header p { margin: 2px 0 0; color: var(--muted); font-size: 0.85rem; }
 /* min-height fijo: sin esto, en paginas sin el subtitulo (ej. receta.php)
    el header queda mas bajo y el boton hamburguesa (absolute, top:14px)
    se pasa del borde inferior, pegandose a la linea divisoria. */
@@ -212,9 +211,11 @@ a:hover { text-decoration: underline; }
 .form-field textarea { resize: vertical; }
 .form-field textarea:focus, .form-field input:focus { outline: none; border-color: var(--accent); }
 
+.search-subtitle { margin: 16px 0 0; color: var(--muted); font-size: 0.9rem; }
+
 /* Buscador */
 .search {
-    margin: 16px 0 10px;
+    margin: 8px 0 10px;
 }
 .search input[type="search"] {
     width: 100%;
