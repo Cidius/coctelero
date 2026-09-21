@@ -144,6 +144,7 @@ header('Content-Type: text/html; charset=utf-8');
     <div class="filters" id="filters">
         <?php
         $momentsShown = array_filter($moments, static fn($x) => $x['count'] > 0);
+        $familiesShown = array_filter($families, static fn($x) => $x['count'] > 0);
         ?>
 
         <?php if ($momentsShown): ?>
@@ -160,10 +161,11 @@ header('Content-Type: text/html; charset=utf-8');
         </div>
         <?php endif; ?>
 
+        <?php if ($familiesShown): ?>
         <div class="filter-group" data-filter="family">
             <h2>Familia</h2>
             <div class="chips">
-                <?php foreach ($families as $f): ?>
+                <?php foreach ($familiesShown as $f): ?>
                     <button type="button" class="chip" data-value="<?= e($f['slug']) ?>"
                             aria-pressed="<?= $activeFamily === $f['slug'] ? 'true' : 'false' ?>">
                         <?= e($f['name']) ?> <span class="count"><?= (int) $f['count'] ?></span>
@@ -171,6 +173,7 @@ header('Content-Type: text/html; charset=utf-8');
                 <?php endforeach; ?>
             </div>
         </div>
+        <?php endif; ?>
 
         <?php if ($methods): ?>
         <div class="filter-group" data-filter="method">
