@@ -181,6 +181,36 @@ CREATE TABLE recipe_tags (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
+--  flavor_profiles  -  Dulce / Amargo / Acido / Seco. Multi-select:
+--  una receta puede tener varios a la vez (tabla puente, no ENUM).
+-- ---------------------------------------------------------------------
+CREATE TABLE flavor_profiles (
+    id       INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name     VARCHAR(40) NOT NULL,
+    slug     VARCHAR(60) NOT NULL,
+    position SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_flavor_profiles_slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO flavor_profiles (name, slug, position) VALUES
+    ('Dulce',  'dulce',  10),
+    ('Amargo', 'amargo', 20),
+    ('Ácido',  'acido',  30),
+    ('Seco',   'seco',   40);
+
+CREATE TABLE recipe_flavor_profiles (
+    recipe_id         INT UNSIGNED NOT NULL,
+    flavor_profile_id INT UNSIGNED NOT NULL,
+    PRIMARY KEY (recipe_id, flavor_profile_id),
+    KEY idx_rfp_flavor (flavor_profile_id),
+    CONSTRAINT fk_rfp_recipe
+        FOREIGN KEY (recipe_id) REFERENCES recipes (id) ON DELETE CASCADE,
+    CONSTRAINT fk_rfp_flavor
+        FOREIGN KEY (flavor_profile_id) REFERENCES flavor_profiles (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
 --  topics  -  creadas para no migrar despues, SIN USO en esta etapa.
 -- ---------------------------------------------------------------------
 CREATE TABLE topics (

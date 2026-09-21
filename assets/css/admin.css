@@ -172,6 +172,8 @@ table.list td.actions form { display: inline; margin-left: 10px; }
 .field textarea { resize: vertical; line-height: 1.5; }
 .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--accent); }
 label.inline { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--muted); }
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 9px 2px; }
+.checkbox-group label.inline { color: var(--text); font-size: 0.9rem; }
 
 .current-image { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
 .current-image img { width: 90px; height: 68px; object-fit: cover; border-radius: 8px; }

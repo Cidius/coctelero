@@ -209,7 +209,18 @@ function render_recipe_card(array $r): string
  */
 function query_tags(array $get): array
 {
-    $raw = $get['tag'] ?? [];
+    return query_slug_list($get, 'tag');
+}
+
+/**
+ * Igual que query_tags() pero para cualquier parametro multi-valor de
+ * slugs (ej. ?flavor=dulce&flavor=acido, ?flavor=dulce,acido, ?flavor[]=dulce).
+ *
+ * @return list<string>
+ */
+function query_slug_list(array $get, string $key): array
+{
+    $raw = $get[$key] ?? [];
     $items = is_array($raw) ? $raw : explode(',', (string) $raw);
     $out = [];
     foreach ($items as $it) {

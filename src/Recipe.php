@@ -40,7 +40,7 @@ final class Recipe
     /**
      * Busqueda + filtros combinables.
      *
-     * @param array{q?:string, tags?:list<string>, method?:string, page?:int, per_page?:int} $p
+     * @param array{q?:string, tags?:list<string>, flavors?:list<string>, method?:string, page?:int, per_page?:int} $p
      * @return array{data:list<array<string,mixed>>, meta:array<string,int>}
      */
     public static function search(array $p): array
@@ -49,6 +49,7 @@ final class Recipe
 
         $q       = trim((string) ($p['q'] ?? ''));
         $tags    = array_values(array_unique($p['tags'] ?? []));
+        $flavors = array_values(array_unique($p['flavors'] ?? []));
         $method  = (string) ($p['method'] ?? '');
         $moment  = (string) ($p['moment'] ?? '');
         $family  = (string) ($p['family'] ?? '');
@@ -113,6 +114,22 @@ final class Recipe
                 . ' HAVING COUNT(DISTINCT t.slug) = :tagcount'
                 . ')';
             $params[':tagcount'] = count($tags);
+        }
+
+        if ($flavors !== []) {
+            // OR entre perfiles: alcanza con que tenga alguno de los elegidos
+            // (a diferencia de los tags, que piden todos los seleccionados).
+            $in = [];
+            foreach ($flavors as $i => $slug) {
+                $key = ':flavor' . $i;
+                $in[] = $key;
+                $params[$key] = $slug;
+            }
+            $where[] = 'r.id IN ('
+                . ' SELECT rfp.recipe_id FROM recipe_flavor_profiles rfp'
+                . ' JOIN flavor_profiles fp ON fp.id = rfp.flavor_profile_id'
+                . ' WHERE fp.slug IN (' . implode(', ', $in) . ')'
+                . ')';
         }
 
         $whereSql = implode(' AND ', $where);
@@ -208,6 +225,14 @@ final class Recipe
             $tg->fetchAll()
         );
 
+        $fl = $pdo->prepare(
+            'SELECT fp.name, fp.slug FROM recipe_flavor_profiles rfp
+             JOIN flavor_profiles fp ON fp.id = rfp.flavor_profile_id
+             WHERE rfp.recipe_id = :id ORDER BY fp.position ASC'
+        );
+        $fl->execute([':id' => $recipe['id']]);
+        $recipe['flavor_profiles'] = $fl->fetchAll();
+
         $lk = $pdo->prepare(
             'SELECT label, url FROM recipe_links WHERE recipe_id = :id ORDER BY position ASC, id ASC'
         );
@@ -277,6 +302,26 @@ final class Recipe
         return array_map(
             static fn($r) => ['name' => $r['name'], 'slug' => $r['slug'], 'count' => (int) $r['count']],
             $pdo->query($sql)->fetchAll()
+        );
+    }
+
+    /**
+     * Los 4 perfiles de sabor (Dulce/Amargo/Acido/Seco), siempre todos,
+     * con cuantas recetas activas tiene cada uno.
+     *
+     * @return list<array{name:string, slug:string, count:int}>
+     */
+    public static function flavorProfilesWithCounts(): array
+    {
+        $sql = 'SELECT fp.name, fp.slug, COUNT(r.id) AS count
+                FROM flavor_profiles fp
+                LEFT JOIN recipe_flavor_profiles rfp ON rfp.flavor_profile_id = fp.id
+                LEFT JOIN recipes r ON r.id = rfp.recipe_id AND r.deleted_at IS NULL
+                GROUP BY fp.id, fp.name, fp.slug
+                ORDER BY fp.position ASC';
+        return array_map(
+            static fn($r) => ['name' => $r['name'], 'slug' => $r['slug'], 'count' => (int) $r['count']],
+            Database::get()->query($sql)->fetchAll()
         );
     }
 

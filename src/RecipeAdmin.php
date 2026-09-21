@@ -29,6 +29,31 @@ final class RecipeAdmin
             ->fetchAll();
     }
 
+    /** Los 4 perfiles de sabor, para los checkboxes del formulario. */
+    public static function flavorProfiles(): array
+    {
+        return Database::get()
+            ->query('SELECT id, name, slug FROM flavor_profiles ORDER BY position ASC')
+            ->fetchAll();
+    }
+
+    /** Reemplaza los perfiles de sabor de una receta. @param list<int> $flavorIds */
+    public static function syncFlavorProfiles(int $recipeId, array $flavorIds): void
+    {
+        $pdo = Database::get();
+        $pdo->prepare('DELETE FROM recipe_flavor_profiles WHERE recipe_id = :id')
+            ->execute([':id' => $recipeId]);
+
+        $stmt = $pdo->prepare(
+            'INSERT IGNORE INTO recipe_flavor_profiles (recipe_id, flavor_profile_id) VALUES (:r, :f)'
+        );
+        foreach (array_unique(array_map('intval', $flavorIds)) as $flavorId) {
+            if ($flavorId > 0) {
+                $stmt->execute([':r' => $recipeId, ':f' => $flavorId]);
+            }
+        }
+    }
+
     /**
      * Listado para el dashboard / la papelera. $q busca por nombre o
      * ingredientes (como el buscador publico).
@@ -105,6 +130,10 @@ final class RecipeAdmin
             $lk->fetchAll()
         ));
 
+        $fl = $pdo->prepare('SELECT flavor_profile_id FROM recipe_flavor_profiles WHERE recipe_id = :id');
+        $fl->execute([':id' => $id]);
+        $r['flavor_ids'] = array_map('intval', $fl->fetchAll(PDO::FETCH_COLUMN));
+
         return $r;
     }
 
@@ -139,6 +168,7 @@ final class RecipeAdmin
             self::syncIngredients($id, $d['ingredients_text'] ?? '');
             self::syncTags($id, $d['tags_text'] ?? '');
             self::syncLinks($id, $d['links_text'] ?? '');
+            self::syncFlavorProfiles($id, $d['flavors'] ?? []);
 
             $pdo->commit();
             return $id;
@@ -178,6 +208,7 @@ final class RecipeAdmin
             self::syncIngredients($id, $d['ingredients_text'] ?? '');
             self::syncTags($id, $d['tags_text'] ?? '');
             self::syncLinks($id, $d['links_text'] ?? '');
+            self::syncFlavorProfiles($id, $d['flavors'] ?? []);
 
             $pdo->commit();
         } catch (\Throwable $e) {

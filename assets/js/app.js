@@ -19,8 +19,10 @@
 
   var PAGE_SIZES = [10, 20, 50];
 
-  // Grupos de un solo valor (chip = radio). El grupo "tag" es multi.
+  // Grupos de un solo valor (chip = radio).
   var SINGLE = ['method', 'moment', 'family'];
+  // Grupos multi-valor (chip = toggle): "tag" -> state.tags, "flavor" -> state.flavors.
+  var MULTI = ['tag', 'flavor'];
 
   // Estado inicial desde la URL.
   var params = new URLSearchParams(location.search);
@@ -28,18 +30,20 @@
     q: (params.get('q') || '').trim(),
     page: Math.max(1, parseInt(params.get('page'), 10) || 1),
     perPage: PAGE_SIZES.indexOf(parseInt(params.get('per_page'), 10)) !== -1
-      ? parseInt(params.get('per_page'), 10) : PAGE_SIZES[0],
-    // El fallback server-side (index.php) arma "tag[]=..." para que PHP no
-    // pise valores repetidos; contemplamos ambos formatos aca.
-    tags: params.getAll('tag').concat(params.getAll('tag[]')).reduce(function (acc, v) {
+      ? parseInt(params.get('per_page'), 10) : PAGE_SIZES[0]
+  };
+  SINGLE.forEach(function (k) { state[k] = params.get(k) || ''; });
+  MULTI.forEach(function (key) {
+    // El fallback server-side (index.php) arma "flavor[]=..." para que PHP
+    // no pise valores repetidos; contemplamos ambos formatos aca.
+    state[key + 's'] = params.getAll(key).concat(params.getAll(key + '[]')).reduce(function (acc, v) {
       String(v).split(',').forEach(function (s) {
         s = s.trim().toLowerCase();
         if (s && acc.indexOf(s) === -1) acc.push(s);
       });
       return acc;
-    }, [])
-  };
-  SINGLE.forEach(function (k) { state[k] = params.get(k) || ''; });
+    }, []);
+  });
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -48,7 +52,8 @@
   }
 
   function hasFilter() {
-    return state.q !== '' || state.tags.length > 0 ||
+    return state.q !== '' ||
+      MULTI.some(function (k) { return state[k + 's'].length > 0; }) ||
       SINGLE.some(function (k) { return state[k] !== ''; });
   }
 
@@ -56,7 +61,7 @@
     var p = new URLSearchParams();
     if (state.q) p.set('q', state.q);
     SINGLE.forEach(function (k) { if (state[k]) p.set(k, state[k]); });
-    state.tags.forEach(function (t) { p.append('tag', t); });
+    MULTI.forEach(function (k) { state[k + 's'].forEach(function (v) { p.append(k, v); }); });
     if (state.perPage !== PAGE_SIZES[0]) p.set('per_page', state.perPage);
     if (state.page > 1) p.set('page', state.page);
     return p;
@@ -96,7 +101,9 @@
     app.querySelectorAll('[data-filter] .chip').forEach(function (chip) {
       var group = chip.closest('[data-filter]').dataset.filter;
       var val = chip.dataset.value;
-      var on = group === 'tag' ? state.tags.indexOf(val) !== -1 : state[group] === val;
+      var on = MULTI.indexOf(group) !== -1
+        ? state[group + 's'].indexOf(val) !== -1
+        : state[group] === val;
       chip.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
   }
@@ -107,7 +114,7 @@
     var p = new URLSearchParams();
     if (state.q) p.set('q', state.q);
     SINGLE.forEach(function (k) { if (state[k]) p.set(k, state[k]); });
-    state.tags.forEach(function (t) { p.append('tag', t); });
+    MULTI.forEach(function (k) { state[k + 's'].forEach(function (v) { p.append(k, v); }); });
     if (state.perPage !== PAGE_SIZES[0]) p.set('per_page', state.perPage);
     if (n > 1) p.set('page', n);
     var qs = p.toString();
@@ -184,9 +191,8 @@
   var fcountEl = document.getElementById('filters-count');
 
   function activeFilterCount() {
-    return state.tags.length + SINGLE.reduce(function (n, k) {
-      return n + (state[k] ? 1 : 0);
-    }, 0);
+    return MULTI.reduce(function (n, k) { return n + state[k + 's'].length; }, 0)
+      + SINGLE.reduce(function (n, k) { return n + (state[k] ? 1 : 0); }, 0);
   }
   function updateFilterCount() {
     if (!fcountEl) return;
@@ -245,9 +251,10 @@
     chip.addEventListener('click', function () {
       var group = chip.closest('[data-filter]').dataset.filter;
       var val = chip.dataset.value;
-      if (group === 'tag') {
-        var i = state.tags.indexOf(val);
-        if (i === -1) state.tags.push(val); else state.tags.splice(i, 1);
+      if (MULTI.indexOf(group) !== -1) {
+        var arr = state[group + 's'];
+        var i = arr.indexOf(val);
+        if (i === -1) arr.push(val); else arr.splice(i, 1);
       } else {
         state[group] = state[group] === val ? '' : val;
       }
@@ -258,8 +265,8 @@
 
   resetEl.addEventListener('click', function () {
     state.q = '';
-    state.tags = [];
     state.page = 1;
+    MULTI.forEach(function (k) { state[k + 's'] = []; });
     SINGLE.forEach(function (k) { state[k] = ''; });
     if (searchEl) searchEl.value = '';
     fetchResults();

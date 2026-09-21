@@ -7,6 +7,8 @@ declare(strict_types=1);
  * Parametros (todos opcionales, combinables):
  *   q         texto libre (nombre, descripcion, ingredientes)
  *   tag       slug de tag; repetible o separado por coma. AND entre tags.
+ *   flavor    slug de perfil de sabor (dulce|amargo|acido|seco); repetible
+ *             o separado por coma. OR entre perfiles (alcanza con uno).
  *   method    integrado | directo | batido | machacado | licuado | lanzado | capas | otro
  *   moment    aperitivo | digestivo | all_day
  *   family    slug de familia (sour, julep, ...)
@@ -25,6 +27,7 @@ use App\Recipe;
 
 use function App\boot_errors;
 use function App\method_label;
+use function App\query_slug_list;
 use function App\query_tags;
 use function App\recipe_image_url;
 use function App\sanitize_per_page;
@@ -38,6 +41,7 @@ try {
     $result = Recipe::search([
         'q'        => (string) ($_GET['q'] ?? ''),
         'tags'     => query_tags($_GET),
+        'flavors'  => query_slug_list($_GET, 'flavor'),
         'method'   => (string) ($_GET['method'] ?? ''),
         'moment'   => (string) ($_GET['moment'] ?? ''),
         'family'   => (string) ($_GET['family'] ?? ''),

@@ -71,6 +71,9 @@ if (!empty($recipe['method_detail'])) {
 $specs = [];
 if (!empty($recipe['family']))    $specs['Familia']     = $recipe['family'];
 if (!empty($recipe['moment']))    $specs['Momento']     = Recipe::MOMENTS[$recipe['moment']] ?? $recipe['moment'];
+if (!empty($recipe['flavor_profiles'])) {
+    $specs['Perfil de sabor'] = implode(', ', array_column($recipe['flavor_profiles'], 'name'));
+}
 if (!empty($recipe['glassware'])) $specs['Cristalería'] = $recipe['glassware'];
 if (!empty($recipe['ice']))       $specs['Hielo']       = $recipe['ice'];
 $specs['Método'] = $methodTxt;

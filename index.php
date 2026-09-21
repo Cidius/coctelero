@@ -19,6 +19,7 @@ use function App\asset;
 use function App\boot_errors;
 use function App\e;
 use function App\pwa_head;
+use function App\query_slug_list;
 use function App\query_tags;
 use function App\render_recipe_card;
 use function App\sanitize_per_page;
@@ -28,6 +29,7 @@ use function App\url;
 boot_errors();
 
 $activeTags    = query_tags($_GET);
+$activeFlavors = query_slug_list($_GET, 'flavor');
 $activeMethod  = (string) ($_GET['method'] ?? '');
 $activeMoment  = (string) ($_GET['moment'] ?? '');
 $activeFamily  = (string) ($_GET['family'] ?? '');
@@ -38,6 +40,7 @@ $activePerPage = sanitize_per_page($_GET['per_page'] ?? null);
 $result  = Recipe::search([
     'q'        => $q,
     'tags'     => $activeTags,
+    'flavors'  => $activeFlavors,
     'method'   => $activeMethod,
     'moment'   => $activeMoment,
     'family'   => $activeFamily,
@@ -46,10 +49,11 @@ $result  = Recipe::search([
 ]);
 $totalActive = Recipe::countActive();
 $allTags    = Recipe::tagsWithCounts();
+$flavors    = Recipe::flavorProfilesWithCounts();
 $methods    = Recipe::methodsWithCounts();
 $moments    = Recipe::momentsWithCounts();
 $families   = Recipe::familiesWithCounts();
-$hasFilter  = $q !== '' || $activeTags !== []
+$hasFilter  = $q !== '' || $activeTags !== [] || $activeFlavors !== []
     || ($activeMethod !== '' && isset(Recipe::METHODS[$activeMethod]))
     || ($activeMoment !== '' && isset(Recipe::MOMENTS[$activeMoment]))
     || $activeFamily !== '';
@@ -61,6 +65,7 @@ $hasFilter  = $q !== '' || $activeTags !== []
 $baseQuery = [];
 if ($q !== '') $baseQuery['q'] = $q;
 if ($activeTags !== []) $baseQuery['tag'] = $activeTags;
+if ($activeFlavors !== []) $baseQuery['flavor'] = $activeFlavors;
 if ($activeMethod !== '') $baseQuery['method'] = $activeMethod;
 if ($activeMoment !== '') $baseQuery['moment'] = $activeMoment;
 if ($activeFamily !== '') $baseQuery['family'] = $activeFamily;
@@ -145,7 +150,22 @@ header('Content-Type: text/html; charset=utf-8');
         <?php
         $momentsShown = array_filter($moments, static fn($x) => $x['count'] > 0);
         $familiesShown = array_filter($families, static fn($x) => $x['count'] > 0);
+        $flavorsShown = array_filter($flavors, static fn($x) => $x['count'] > 0);
         ?>
+
+        <?php if ($flavorsShown): ?>
+        <div class="filter-group" data-filter="flavor">
+            <h2>Perfil de sabor</h2>
+            <div class="chips">
+                <?php foreach ($flavorsShown as $x): ?>
+                    <button type="button" class="chip" data-value="<?= e($x['slug']) ?>"
+                            aria-pressed="<?= in_array($x['slug'], $activeFlavors, true) ? 'true' : 'false' ?>">
+                        <?= e($x['name']) ?> <span class="count"><?= (int) $x['count'] ?></span>
+                    </button>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
 
         <?php if ($momentsShown): ?>
         <div class="filter-group" data-filter="moment">
@@ -210,7 +230,7 @@ header('Content-Type: text/html; charset=utf-8');
                 <?php if ($k === 'per_page') continue; ?>
                 <?php if (is_array($v)): ?>
                     <?php foreach ($v as $vv): ?>
-                        <input type="hidden" name="tag[]" value="<?= e($vv) ?>">
+                        <input type="hidden" name="<?= e($k) ?>[]" value="<?= e($vv) ?>">
                     <?php endforeach; ?>
                 <?php else: ?>
                     <input type="hidden" name="<?= e($k) ?>" value="<?= e((string) $v) ?>">

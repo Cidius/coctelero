@@ -51,10 +51,12 @@ $v = [
     'tags_text'        => $recipe['tags_text'] ?? '',
     'links_text'       => $recipe['links_text'] ?? '',
 ];
+$selectedFlavors = $recipe['flavor_ids'] ?? [];
 $errors = [];
 
 $FAMILIES = RecipeAdmin::families();
 $GLASSWARE = Glassware::all();
+$FLAVORS = RecipeAdmin::flavorProfiles();
 $MOMENT_LABELS = ['aperitivo' => 'Aperitivo', 'digestivo' => 'Digestivo', 'all_day' => 'Para todo el día'];
 
 // Opciones del <select> de hielo con "Otro…". Cualquier valor fuera de la
@@ -75,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach (array_keys($v) as $k) {
         $v[$k] = trim((string) ($_POST[$k] ?? ''));
     }
+    $selectedFlavors = array_map('intval', $_POST['flavors'] ?? []);
 
     // Select + "Otro…": el valor real sale del select, o del texto libre.
     if (($_POST['ice'] ?? '') === '__otro__') {
@@ -105,6 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errors) {
         $data = $v;
+        $data['flavors'] = $selectedFlavors;
         $data['created_by'] = Auth::user()['id'] ?? null;
 
         $oldImage = $recipe['image_path'] ?? null;
@@ -235,6 +239,19 @@ admin_header($editing ? 'Editar receta' : 'Nueva receta');
             <?php endforeach; ?>
         </select>
     </label>
+
+    <div class="field">
+        <span>Perfil de sabor <small class="muted">— puede tener más de uno</small></span>
+        <div class="checkbox-group">
+            <?php foreach ($FLAVORS as $fl): ?>
+                <label class="inline">
+                    <input type="checkbox" name="flavors[]" value="<?= (int) $fl['id'] ?>"
+                           <?= in_array((int) $fl['id'], $selectedFlavors, true) ? 'checked' : '' ?>>
+                    <?= e($fl['name']) ?>
+                </label>
+            <?php endforeach; ?>
+        </div>
+    </div>
 
     <label class="field">
         <span>Ingredientes <small class="muted">— uno por línea</small></span>
