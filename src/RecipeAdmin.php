@@ -121,11 +121,11 @@ final class RecipeAdmin
             $slug = self::uniqueSlug($d['name'], null);
             $stmt = $pdo->prepare(
                 'INSERT INTO recipes
-                    (name, slug, glassware, ice, method, method_other, method_detail, steps,
+                    (name, slug, glassware_id, ice, method, method_other, method_detail, steps,
                      volume, moment, family_id, garnish, description,
                      author_name, author_url, image_path, created_by)
                  VALUES
-                    (:name, :slug, :glassware, :ice, :method, :method_other, :method_detail, :steps,
+                    (:name, :slug, :glassware_id, :ice, :method, :method_other, :method_detail, :steps,
                      :volume, :moment, :family_id, :garnish, :description,
                      :author_name, :author_url, :image_path, :created_by)'
             );
@@ -160,7 +160,7 @@ final class RecipeAdmin
         try {
             $slug = self::uniqueSlug($d['name'], $id);
             $sql = 'UPDATE recipes SET
-                        name = :name, slug = :slug, glassware = :glassware, ice = :ice,
+                        name = :name, slug = :slug, glassware_id = :glassware_id, ice = :ice,
                         method = :method, method_other = :method_other, method_detail = :method_detail,
                         steps = :steps,
                         volume = :volume, moment = :moment, family_id = :family_id,
@@ -214,9 +214,10 @@ final class RecipeAdmin
         $volume = in_array($d['volume'] ?? '', self::VOLUMES, true) ? $d['volume'] : null;
         $moment = in_array($d['moment'] ?? '', self::MOMENTS, true) ? $d['moment'] : null;
         $familyId = (int) ($d['family_id'] ?? 0);
+        $glasswareId = (int) ($d['glassware_id'] ?? 0);
         return [
             ':name'          => trim((string) $d['name']),
-            ':glassware'     => self::nn($d['glassware'] ?? null),
+            ':glassware_id'  => $glasswareId > 0 ? $glasswareId : null,
             ':ice'           => self::nn($d['ice'] ?? null),
             ':method'        => $method,
             ':method_other'  => $method === 'otro' ? self::nn($d['method_other'] ?? null) : null,

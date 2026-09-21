@@ -120,11 +120,12 @@ final class Recipe
             $params
         )->fetchColumn();
 
-        $sql = "SELECT r.id, r.name, r.slug, r.glassware, r.ice, r.method,
+        $sql = "SELECT r.id, r.name, r.slug, gw.name AS glassware, r.ice, r.method,
                        r.method_other, r.method_detail, r.garnish, r.image_path,
                        r.moment, f.name AS family, f.slug AS family_slug
                 FROM recipes r
                 LEFT JOIN families f ON f.id = r.family_id
+                LEFT JOIN glassware gw ON gw.id = r.glassware_id
                 WHERE $whereSql
                 ORDER BY r.name ASC
                 LIMIT :limit OFFSET :offset";
@@ -174,9 +175,10 @@ final class Recipe
     {
         $pdo = Database::get();
         $stmt = $pdo->prepare(
-            'SELECT r.*, f.name AS family, f.slug AS family_slug
+            'SELECT r.*, gw.name AS glassware, f.name AS family, f.slug AS family_slug
              FROM recipes r
              LEFT JOIN families f ON f.id = r.family_id
+             LEFT JOIN glassware gw ON gw.id = r.glassware_id
              WHERE r.slug = :slug AND r.deleted_at IS NULL LIMIT 1'
         );
         $stmt->execute([':slug' => $slug]);

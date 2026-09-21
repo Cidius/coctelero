@@ -63,13 +63,24 @@ CREATE TABLE families (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
+--  glassware  -  catalogo de cristaleria, ABM en /admin/cristaleria.php.
+-- ---------------------------------------------------------------------
+CREATE TABLE glassware (
+    id       INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name     VARCHAR(120) NOT NULL,
+    position SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_glassware_name (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
 --  recipes
 -- ---------------------------------------------------------------------
 CREATE TABLE recipes (
     id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
     name          VARCHAR(160) NOT NULL,
     slug          VARCHAR(180) NOT NULL,
-    glassware     VARCHAR(160)     DEFAULT NULL,
+    glassware_id  INT UNSIGNED     DEFAULT NULL,
     ice           VARCHAR(80)      DEFAULT NULL,
     method        ENUM('integrado','refrescado_directo','batido','machacado','frozen','otro')
                                 NOT NULL DEFAULT 'otro',
@@ -103,7 +114,9 @@ CREATE TABLE recipes (
     CONSTRAINT fk_recipes_admin
         FOREIGN KEY (created_by) REFERENCES admin_users (id) ON DELETE SET NULL,
     CONSTRAINT fk_recipes_family
-        FOREIGN KEY (family_id) REFERENCES families (id) ON DELETE SET NULL
+        FOREIGN KEY (family_id) REFERENCES families (id) ON DELETE SET NULL,
+    CONSTRAINT fk_recipes_glassware
+        FOREIGN KEY (glassware_id) REFERENCES glassware (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------

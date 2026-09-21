@@ -54,10 +54,11 @@ final class Favorites
     {
         $pdo = Database::get();
         $stmt = $pdo->prepare(
-            'SELECT r.id, r.name, r.slug, r.glassware, r.image_path, f.name AS family
+            'SELECT r.id, r.name, r.slug, gw.name AS glassware, r.image_path, f.name AS family
              FROM recipe_favorites rf
              JOIN recipes r ON r.id = rf.recipe_id AND r.deleted_at IS NULL
              LEFT JOIN families f ON f.id = r.family_id
+             LEFT JOIN glassware gw ON gw.id = r.glassware_id
              WHERE rf.user_id = :u
              ORDER BY rf.created_at DESC'
         );
@@ -70,14 +71,18 @@ final class Favorites
         $ids = array_column($rows, 'id');
         $ph = implode(', ', array_fill(0, count($ids), '?'));
         $tagStmt = $pdo->prepare(
-            "SELECT rt.recipe_id, t.name, t.slug FROM recipe_tags rt
+            "SELECT rt.recipe_id, t.name, t.slug, t.is_spirit FROM recipe_tags rt
              JOIN tags t ON t.id = rt.tag_id
              WHERE rt.recipe_id IN ($ph) ORDER BY t.name ASC"
         );
         $tagStmt->execute($ids);
         $byRecipe = [];
         foreach ($tagStmt->fetchAll() as $t) {
-            $byRecipe[(int) $t['recipe_id']][] = ['name' => $t['name'], 'slug' => $t['slug']];
+            $byRecipe[(int) $t['recipe_id']][] = [
+                'name'      => $t['name'],
+                'slug'      => $t['slug'],
+                'is_spirit' => (bool) $t['is_spirit'],
+            ];
         }
         foreach ($rows as &$row) {
             $row['tags'] = $byRecipe[(int) $row['id']] ?? [];

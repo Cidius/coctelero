@@ -4,8 +4,10 @@ declare(strict_types=1);
 require __DIR__ . '/_common.php';
 require_once __DIR__ . '/../src/RecipeAdmin.php';
 require_once __DIR__ . '/../src/Uploader.php';
+require_once __DIR__ . '/../src/Glassware.php';
 
 use App\Auth;
+use App\Glassware;
 use App\RecipeAdmin;
 use App\Uploader;
 
@@ -33,7 +35,7 @@ if ($editing && $recipe === null) {
 /** Valores actuales del form (para repoblar tras error). */
 $v = [
     'name'             => $recipe['name'] ?? '',
-    'glassware'        => $recipe['glassware'] ?? '',
+    'glassware_id'     => (string) ($recipe['glassware_id'] ?? ''),
     'ice'              => $recipe['ice'] ?? '',
     'method'           => $recipe['method'] ?? 'integrado',
     'method_other'     => $recipe['method_other'] ?? '',
@@ -52,17 +54,11 @@ $v = [
 $errors = [];
 
 $FAMILIES = RecipeAdmin::families();
+$GLASSWARE = Glassware::all();
 $MOMENT_LABELS = ['aperitivo' => 'Aperitivo', 'digestivo' => 'Digestivo', 'all_day' => 'Para todo el día'];
 
-// Opciones de los <select> con "Otro…". Cualquier valor fuera de la lista
-// se edita como texto libre.
-$GLASSWARE_OPTS = [
-    'Vaso trago largo',
-    'Vaso Old Fashioned',
-    'Copa Cóctel',
-    'Copa Hurricane',
-    'Vaso bombé',
-];
+// Opciones del <select> de hielo con "Otro…". Cualquier valor fuera de la
+// lista se edita como texto libre.
 $ICE_OPTS = ['Molido', 'En cubos', 'Cubo grande', 'Rolito/cubo'];
 
 /** Resuelve el valor de un select+otro. Devuelve [valueDelSelect, valueDeOtro]. */
@@ -80,10 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $v[$k] = trim((string) ($_POST[$k] ?? ''));
     }
 
-    // Campos select + "Otro…": el valor real sale del select, o del texto libre.
-    if (($_POST['glassware'] ?? '') === '__otro__') {
-        $v['glassware'] = trim((string) ($_POST['glassware_other'] ?? ''));
-    }
+    // Select + "Otro…": el valor real sale del select, o del texto libre.
     if (($_POST['ice'] ?? '') === '__otro__') {
         $v['ice'] = trim((string) ($_POST['ice_other'] ?? ''));
     }
@@ -166,22 +159,21 @@ admin_header($editing ? 'Editar receta' : 'Nueva receta');
     </label>
 
     <?php
-    [$glassSel, $glassOther] = $resolveSelect($v['glassware'], $GLASSWARE_OPTS);
-    [$iceSel, $iceOther]     = $resolveSelect($v['ice'], $ICE_OPTS);
+    [$iceSel, $iceOther] = $resolveSelect($v['ice'], $ICE_OPTS);
     ?>
     <div class="row">
         <div class="field">
-            <span>Cristalería</span>
-            <select name="glassware" data-other="glassware-other-field">
-                <option value="">—</option>
-                <?php foreach ($GLASSWARE_OPTS as $opt): ?>
-                    <option value="<?= e($opt) ?>" <?= $glassSel === $opt ? 'selected' : '' ?>><?= e($opt) ?></option>
+            <span>Cristalería
+                <small class="muted"><a href="<?= e(url('admin/cristaleria.php')) ?>">administrar</a></small>
+            </span>
+            <select name="glassware_id">
+                <option value="">— sin clasificar —</option>
+                <?php foreach ($GLASSWARE as $g): ?>
+                    <option value="<?= (int) $g['id'] ?>" <?= $v['glassware_id'] === (string) $g['id'] ? 'selected' : '' ?>>
+                        <?= e($g['name']) ?>
+                    </option>
                 <?php endforeach; ?>
-                <option value="__otro__" <?= $glassSel === '__otro__' ? 'selected' : '' ?>>Otro…</option>
             </select>
-            <input type="text" name="glassware_other" id="glassware-other-field"
-                   value="<?= e($glassOther) ?>" placeholder="Otra cristalería"
-                   <?= $glassSel === '__otro__' ? '' : 'hidden' ?>>
         </div>
         <div class="field">
             <span>Hielo</span>

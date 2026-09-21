@@ -130,7 +130,16 @@ table.list td.actions form { display: inline; margin-left: 10px; }
     table.list-tags td:nth-child(1) { flex: 1; min-width: 0; }
     table.list-tags td:nth-child(2) { flex: 0 0 auto; font-size: 0.8rem; }
     table.list-tags td:nth-child(3) { flex: 0 0 auto; }
+
+    /* Mismo criterio para cristaleria (nombre / usos / editar-borrar). */
+    table.list-glassware td:nth-child(1) { flex: 1; min-width: 0; }
+    table.list-glassware td:nth-child(2) { flex: 0 0 auto; font-size: 0.8rem; }
+    table.list-glassware td:nth-child(3) { flex: 0 0 auto; }
 }
+
+/* Formulario en una linea (agregar / renombrar cristaleria, etc.) */
+.inline-form { display: flex; align-items: flex-end; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+.inline-form .field { flex: 1; min-width: 200px; margin-bottom: 0; }
 
 /* Login */
 .login-box {
