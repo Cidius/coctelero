@@ -15,7 +15,7 @@ require_once __DIR__ . '/helpers.php';
 final class RecipeAdmin
 {
     /** Metodos validos del ENUM. */
-    public const METHODS = ['integrado', 'refrescado_directo', 'batido', 'machacado', 'frozen', 'otro'];
+    public const METHODS = ['integrado', 'directo', 'batido', 'machacado', 'licuado', 'lanzado', 'capas', 'otro'];
 
     /** Valores validos de las clasificaciones (Clase 6). */
     public const VOLUMES = ['short', 'medium', 'long'];

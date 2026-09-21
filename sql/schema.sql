@@ -82,7 +82,7 @@ CREATE TABLE recipes (
     slug          VARCHAR(180) NOT NULL,
     glassware_id  INT UNSIGNED     DEFAULT NULL,
     ice           VARCHAR(80)      DEFAULT NULL,
-    method        ENUM('integrado','refrescado_directo','batido','machacado','frozen','otro')
+    method        ENUM('integrado','directo','batido','machacado','licuado','lanzado','capas','otro')
                                 NOT NULL DEFAULT 'otro',
     method_other  VARCHAR(160)     DEFAULT NULL,
     method_detail VARCHAR(255)     DEFAULT NULL,

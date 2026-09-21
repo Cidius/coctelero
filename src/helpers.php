@@ -131,13 +131,15 @@ function pwa_head(): void
 function method_label(string $method, ?string $methodOther = null): string
 {
     return match ($method) {
-        'integrado'          => 'Integrado',
-        'refrescado_directo' => 'Refrescado / Directo',
-        'batido'             => 'Batido',
-        'machacado'          => 'Machacado',
-        'frozen'             => 'Frozen',
-        'otro'               => $methodOther !== null && $methodOther !== '' ? $methodOther : 'Otro',
-        default              => ucfirst($method),
+        'integrado' => 'Integrado (Stir)',
+        'directo'   => 'Directo (Build)',
+        'batido'    => 'Batido (Shake)',
+        'machacado' => 'Machacado (Smash)',
+        'licuado'   => 'Licuado (Frozen)',
+        'lanzado'   => 'Lanzado (Throwing)',
+        'capas'     => 'Capas (Layering)',
+        'otro'      => $methodOther !== null && $methodOther !== '' ? $methodOther : 'Otro',
+        default     => ucfirst($method),
     };
 }
 

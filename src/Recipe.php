@@ -20,12 +20,14 @@ final class Recipe
     public const PER_PAGE_OPTIONS = [10, 20, 50];
 
     public const METHODS = [
-        'integrado'          => 'Integrado',
-        'refrescado_directo' => 'Refrescado / Directo',
-        'batido'             => 'Batido',
-        'machacado'          => 'Machacado',
-        'frozen'             => 'Frozen',
-        'otro'               => 'Otro',
+        'integrado' => 'Integrado (Stir)',
+        'directo'   => 'Directo (Build)',
+        'batido'    => 'Batido (Shake)',
+        'machacado' => 'Machacado (Smash)',
+        'licuado'   => 'Licuado (Frozen)',
+        'lanzado'   => 'Lanzado (Throwing)',
+        'capas'     => 'Capas (Layering)',
+        'otro'      => 'Otro',
     ];
 
     /** Clasificacion por momento de consumo. */

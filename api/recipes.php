@@ -7,7 +7,7 @@ declare(strict_types=1);
  * Parametros (todos opcionales, combinables):
  *   q         texto libre (nombre, descripcion, ingredientes)
  *   tag       slug de tag; repetible o separado por coma. AND entre tags.
- *   method    integrado | refrescado_directo | batido | machacado | frozen | otro
+ *   method    integrado | directo | batido | machacado | licuado | lanzado | capas | otro
  *   moment    aperitivo | digestivo | all_day
  *   family    slug de familia (sour, julep, ...)
  *   page      pagina (default 1)
