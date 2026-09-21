@@ -201,8 +201,8 @@ function render_recipe_card(array $r): string
         . '<div class="body">'
         . '<h3>' . e($r['name']) . '</h3>'
         . ($meta !== '' ? '<p class="meta">' . e($meta) . '</p>' : '')
-        . ($spirits !== '' ? '<p class="spirits">' . e($spirits) . '</p>' : '')
         . ($momentFlavor !== '' ? '<p class="flavor-profile">' . e($momentFlavor) . '</p>' : '')
+        . ($spirits !== '' ? '<p class="spirits">' . e($spirits) . '</p>' : '')
         . ($charTags !== '' ? '<div class="card-tags">' . $charTags . '</div>' : '')
         . '</div></a>';
 }

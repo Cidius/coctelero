@@ -97,8 +97,8 @@
       '<div class="body">' +
       '<h3>' + esc(r.name) + '</h3>' +
       (meta ? '<p class="meta">' + meta + '</p>' : '') +
-      (spirits ? '<p class="spirits">' + spirits + '</p>' : '') +
       (momentFlavor ? '<p class="flavor-profile">' + momentFlavor + '</p>' : '') +
+      (spirits ? '<p class="spirits">' + spirits + '</p>' : '') +
       (charTags ? '<div class="card-tags">' + charTags + '</div>' : '') +
       '</div></a>';
   }
