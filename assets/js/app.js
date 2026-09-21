@@ -74,7 +74,6 @@
     var bits = [];
     if (r.family) bits.push(r.family);
     if (r.glassware) bits.push(r.glassware);
-    if (r.moment_label) bits.push(r.moment_label);
     var meta = esc(bits.join(' · '));
 
     var allTags = r.tags || [];
@@ -88,8 +87,10 @@
       return '<span>' + esc(t.name) + '</span>';
     }).join('');
 
-    // En orden de predominancia (ya viene ordenado de la API).
-    var flavors = esc((r.flavor_profiles || []).map(function (f) { return f.name; }).join(', '));
+    // En orden de predominancia (ya viene ordenado de la API). Momento y
+    // perfil van en la misma linea para no alargar la card.
+    var flavors = (r.flavor_profiles || []).map(function (f) { return f.name; }).join(', ');
+    var momentFlavor = esc([r.moment_label, flavors].filter(Boolean).join(' · '));
 
     return '<a class="card" href="' + esc(DETAIL) + '?slug=' + encodeURIComponent(r.slug) + '">' +
       '<div class="thumb">' + thumb + '</div>' +
@@ -97,7 +98,7 @@
       '<h3>' + esc(r.name) + '</h3>' +
       (meta ? '<p class="meta">' + meta + '</p>' : '') +
       (spirits ? '<p class="spirits">' + spirits + '</p>' : '') +
-      (flavors ? '<p class="flavor-profile">' + flavors + '</p>' : '') +
+      (momentFlavor ? '<p class="flavor-profile">' + momentFlavor + '</p>' : '') +
       (charTags ? '<div class="card-tags">' + charTags + '</div>' : '') +
       '</div></a>';
   }
