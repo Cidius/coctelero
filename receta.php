@@ -195,6 +195,12 @@ if (!empty($recipe['tags'])) {
         <?php endforeach; ?>
     </dl>
 
+    <?php if (!empty($recipe['family_description'])): ?>
+        <p class="family-desc muted small">
+            <strong><?= e($recipe['family']) ?>:</strong> <?= e($recipe['family_description']) ?>
+        </p>
+    <?php endif; ?>
+
     <h2>Ingredientes</h2>
     <ul class="ingredients">
         <?php foreach ($recipe['ingredients'] as $i): ?>

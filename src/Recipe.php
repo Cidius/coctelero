@@ -177,7 +177,8 @@ final class Recipe
     {
         $pdo = Database::get();
         $stmt = $pdo->prepare(
-            'SELECT r.*, gw.name AS glassware, f.name AS family, f.slug AS family_slug
+            'SELECT r.*, gw.name AS glassware, f.name AS family, f.slug AS family_slug,
+                    f.description AS family_description
              FROM recipes r
              LEFT JOIN families f ON f.id = r.family_id
              LEFT JOIN glassware gw ON gw.id = r.glassware_id

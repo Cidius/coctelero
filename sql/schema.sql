@@ -48,14 +48,17 @@ CREATE TABLE admin_users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
---  families  -  clasificacion "por caracteristicas" (Sour, Julep, ...).
---  typical_volume: volumen que suele tener la familia; el admin lo usa
---  para autocompletar recipes.volume al elegir la familia.
+--  families  -  clasificacion "por caracteristicas" (Sour, Julep, ...),
+--  segun la nomenclatura clasica de la coctelera (Old Fashioned,
+--  Aromaticos, Negroni, Sour, Daisy, Fizz, Collins, Highball, Julep,
+--  Smash, Punch, Cobbler, Flip, Sparkling, Hot drinks, Tiki).
+--  typical_volume: columna historica, ya no se usa en la UI.
 -- ---------------------------------------------------------------------
 CREATE TABLE families (
     id             INT UNSIGNED NOT NULL AUTO_INCREMENT,
     name           VARCHAR(60) NOT NULL,
     slug           VARCHAR(80) NOT NULL,
+    description    TEXT             DEFAULT NULL,
     typical_volume ENUM('short','medium','long') DEFAULT NULL,
     position       SMALLINT UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
@@ -268,23 +271,38 @@ CREATE TABLE messages (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
---  families: datos base (Clase 6 del taller). Volumen tipico entre ( ).
+--  families: nomenclatura clasica de la coctelera, con su descripcion.
 -- ---------------------------------------------------------------------
-INSERT INTO families (name, slug, typical_volume, position) VALUES
-    ('Dúo',          'duo',          'short',  10),
-    ('Trío',         'trio',         'short',  20),
-    ('Sour',         'sour',         'short',  30),
-    ('Fizz',         'fizz',         'short',  40),
-    ('Collins',      'collins',      'long',   50),
-    ('Julep',        'julep',        'medium', 60),
-    ('Smash',        'smash',        'short',  70),
-    ('On the Rocks', 'on-the-rocks', 'short',  80),
-    ('Colada',       'colada',       'long',   90),
-    ('Cobbler',      'cobbler',      'short', 100),
-    ('Cooler',       'cooler',       'long',  110),
-    ('Crusta',       'crusta',       'short', 120),
-    ('Cup',          'cup',          'long',  130),
-    ('Flip',         'flip',         'short', 140),
-    ('Sling',        'sling',        'short', 150),
-    ('Highball',     'highball',     'long',  160),
-    ('Mocktail',     'mocktail',     'long',  170);
+INSERT INTO families (name, slug, description, position) VALUES
+    ('Old Fashioned', 'old-fashioned',
+        'Espirituoso, azúcar y bitters, sin alargador. Base de la coctelería clásica.', 10),
+    ('Aromáticos (Martini/Manhattan)', 'aromaticos',
+        'Base + vermut u otro modificador aromático, se revuelve, no se agita.', 20),
+    ('Negroni', 'negroni',
+        'Variante de los aromáticos con tres partes iguales (espirituoso, vermut, amargo). Algunos autores la separan como familia propia.', 30),
+    ('Sour', 'sour',
+        'Base + cítrico + endulzante, se agita.', 40),
+    ('Daisy', 'daisy',
+        'Un Sour donde el endulzante es un licor en vez de almíbar.', 50),
+    ('Fizz', 'fizz',
+        'Un Sour alargado con soda, se sirve sin hielo.', 60),
+    ('Collins', 'collins',
+        'Como el Fizz pero servido con hielo, en vaso alto.', 70),
+    ('Highball', 'highball',
+        'Espirituoso + alargador simple (soda, tónica, gaseosa), sin proceso de agitado.', 80),
+    ('Julep', 'julep',
+        'Hierbas machacadas + espirituoso + azúcar, sobre hielo picado.', 90),
+    ('Smash', 'smash',
+        'Como el Julep pero con fruta fresca machacada además de hierbas.', 100),
+    ('Punch', 'punch',
+        'Mezcla en volumen para compartir, históricamente con cinco elementos (fuerte, débil, agrio, dulce, especia).', 110),
+    ('Cobbler', 'cobbler',
+        'Fruta + azúcar + vino o licor sobre hielo picado, con pajita corta.', 120),
+    ('Flip', 'flip',
+        'Espirituoso + huevo entero + azúcar, sin lácteos.', 130),
+    ('Sparkling', 'sparkling',
+        'Armado con vino espumante como componente principal.', 140),
+    ('Hot drinks', 'hot-drinks',
+        'Servidos calientes (café, agua caliente, manteca derretida como base).', 150),
+    ('Tiki', 'tiki',
+        'Múltiples rones + jugos frescos + jarabes especiados (orgeat, falernum).', 160);

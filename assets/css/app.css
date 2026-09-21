@@ -489,6 +489,8 @@ a:hover { text-decoration: underline; }
 }
 .detail .specs dd { margin: 0; font-size: 0.95rem; }
 
+.detail .family-desc { margin: -6px 0 16px; line-height: 1.5; }
+
 .detail h2 {
     font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em;
     color: var(--accent); margin: 24px 0 8px;
