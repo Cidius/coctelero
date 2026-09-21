@@ -439,7 +439,11 @@ a:hover { text-decoration: underline; }
     .card .body { flex: 1; min-width: 0; padding: 8px 13px; }
     .card h3 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .card .meta, .card .spirits, .card .flavor-profile { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card .card-tags { display: none; }
+    /* Ultima linea de la card: los tags no ellipsan bien (son pills, no
+       texto), asi que en vez de wrappear -y agrandar la fila sin limite-
+       se recortan sin dar la vuelta. */
+    .card .card-tags { margin-top: 4px; flex-wrap: nowrap; overflow: hidden; }
+    .card .card-tags span { flex: 0 0 auto; }
 }
 
 .empty {
