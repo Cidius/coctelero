@@ -202,6 +202,8 @@ INSERT INTO flavor_profiles (name, slug, position) VALUES
 CREATE TABLE recipe_flavor_profiles (
     recipe_id         INT UNSIGNED NOT NULL,
     flavor_profile_id INT UNSIGNED NOT NULL,
+    -- Orden de predominancia dentro de la receta (1 = el mas marcado).
+    position          SMALLINT UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (recipe_id, flavor_profile_id),
     KEY idx_rfp_flavor (flavor_profile_id),
     CONSTRAINT fk_rfp_recipe

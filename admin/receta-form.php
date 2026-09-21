@@ -77,7 +77,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach (array_keys($v) as $k) {
         $v[$k] = trim((string) ($_POST[$k] ?? ''));
     }
-    $selectedFlavors = array_map('intval', $_POST['flavors'] ?? []);
+
+    // Perfil de sabor: cada <select> manda su propio orden (0 = sin
+    // marcar); se ordena por ese numero para armar la lista final.
+    $ranked = [];
+    foreach ($_POST['flavor_pos'] ?? [] as $flavorId => $rank) {
+        $rank = (int) $rank;
+        if ($rank > 0) {
+            $ranked[(int) $flavorId] = $rank;
+        }
+    }
+    asort($ranked);
+    $selectedFlavors = array_keys($ranked);
 
     // Select + "Otro…": el valor real sale del select, o del texto libre.
     if (($_POST['ice'] ?? '') === '__otro__') {
@@ -241,13 +252,21 @@ admin_header($editing ? 'Editar receta' : 'Nueva receta');
     </label>
 
     <div class="field">
-        <span>Perfil de sabor <small class="muted">— puede tener más de uno</small></span>
-        <div class="checkbox-group">
+        <span>Perfil de sabor
+            <small class="muted">— opcional; marcá el orden de predominancia (1° = el que más se siente)</small>
+        </span>
+        <?php $flavorRank = array_flip($selectedFlavors); ?>
+        <div class="flavor-order-group">
             <?php foreach ($FLAVORS as $fl): ?>
-                <label class="inline">
-                    <input type="checkbox" name="flavors[]" value="<?= (int) $fl['id'] ?>"
-                           <?= in_array((int) $fl['id'], $selectedFlavors, true) ? 'checked' : '' ?>>
+                <?php $curRank = isset($flavorRank[(int) $fl['id']]) ? $flavorRank[(int) $fl['id']] + 1 : 0; ?>
+                <label class="inline flavor-order-item">
                     <?= e($fl['name']) ?>
+                    <select name="flavor_pos[<?= (int) $fl['id'] ?>]">
+                        <option value="0" <?= $curRank === 0 ? 'selected' : '' ?>>—</option>
+                        <?php for ($n = 1; $n <= count($FLAVORS); $n++): ?>
+                            <option value="<?= $n ?>" <?= $curRank === $n ? 'selected' : '' ?>><?= $n ?>°</option>
+                        <?php endfor; ?>
+                    </select>
                 </label>
             <?php endforeach; ?>
         </div>

@@ -29,7 +29,7 @@ final class RecipeAdmin
             ->fetchAll();
     }
 
-    /** Los 4 perfiles de sabor, para los checkboxes del formulario. */
+    /** Los 4 perfiles de sabor, para el formulario. */
     public static function flavorProfiles(): array
     {
         return Database::get()
@@ -37,7 +37,12 @@ final class RecipeAdmin
             ->fetchAll();
     }
 
-    /** Reemplaza los perfiles de sabor de una receta. @param list<int> $flavorIds */
+    /**
+     * Reemplaza los perfiles de sabor de una receta. El ORDEN de
+     * $flavorIds es la predominancia (el primero es el mas marcado).
+     *
+     * @param list<int> $flavorIds
+     */
     public static function syncFlavorProfiles(int $recipeId, array $flavorIds): void
     {
         $pdo = Database::get();
@@ -45,11 +50,13 @@ final class RecipeAdmin
             ->execute([':id' => $recipeId]);
 
         $stmt = $pdo->prepare(
-            'INSERT IGNORE INTO recipe_flavor_profiles (recipe_id, flavor_profile_id) VALUES (:r, :f)'
+            'INSERT IGNORE INTO recipe_flavor_profiles (recipe_id, flavor_profile_id, position) VALUES (:r, :f, :p)'
         );
+        $pos = 0;
         foreach (array_unique(array_map('intval', $flavorIds)) as $flavorId) {
             if ($flavorId > 0) {
-                $stmt->execute([':r' => $recipeId, ':f' => $flavorId]);
+                $pos++;
+                $stmt->execute([':r' => $recipeId, ':f' => $flavorId, ':p' => $pos]);
             }
         }
     }
@@ -130,7 +137,9 @@ final class RecipeAdmin
             $lk->fetchAll()
         ));
 
-        $fl = $pdo->prepare('SELECT flavor_profile_id FROM recipe_flavor_profiles WHERE recipe_id = :id');
+        $fl = $pdo->prepare(
+            'SELECT flavor_profile_id FROM recipe_flavor_profiles WHERE recipe_id = :id ORDER BY position ASC'
+        );
         $fl->execute([':id' => $id]);
         $r['flavor_ids'] = array_map('intval', $fl->fetchAll(PDO::FETCH_COLUMN));
 

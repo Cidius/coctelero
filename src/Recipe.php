@@ -228,7 +228,7 @@ final class Recipe
         $fl = $pdo->prepare(
             'SELECT fp.name, fp.slug FROM recipe_flavor_profiles rfp
              JOIN flavor_profiles fp ON fp.id = rfp.flavor_profile_id
-             WHERE rfp.recipe_id = :id ORDER BY fp.position ASC'
+             WHERE rfp.recipe_id = :id ORDER BY rfp.position ASC'
         );
         $fl->execute([':id' => $recipe['id']]);
         $recipe['flavor_profiles'] = $fl->fetchAll();
