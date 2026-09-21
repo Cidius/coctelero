@@ -142,9 +142,13 @@ CREATE TABLE recipe_links (
 --  tags  -  libres, los crea el admin al cargar. slug normalizado.
 -- ---------------------------------------------------------------------
 CREATE TABLE tags (
-    id    INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    name  VARCHAR(60) NOT NULL,
-    slug  VARCHAR(80) NOT NULL,
+    id        INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name      VARCHAR(60) NOT NULL,
+    slug      VARCHAR(80) NOT NULL,
+    -- Tildado desde /admin/tags.php. Controla si el tag aparece en la
+    -- linea de bebidas de cada card (destilados/licores), la unica
+    -- etiqueta visible en el listado compacto de mobile.
+    is_spirit TINYINT(1) NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
     UNIQUE KEY uq_tags_slug (slug)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

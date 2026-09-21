@@ -23,7 +23,6 @@ use function App\query_tags;
 use function App\render_recipe_card;
 use function App\sanitize_per_page;
 use function App\seo_head;
-use function App\spirit_tag_slugs;
 use function App\url;
 
 boot_errors();
@@ -127,8 +126,7 @@ header('Content-Type: text/html; charset=utf-8');
 
 <main class="wrap" id="app"
       data-endpoint="<?= e(url('api/recipes.php')) ?>"
-      data-detail="<?= e(url('receta.php')) ?>"
-      data-spirit-tags="<?= e(implode(',', spirit_tag_slugs())) ?>">
+      data-detail="<?= e(url('receta.php')) ?>">
 
     <p class="search-subtitle"><?= $totalActive ?> recetas · buscá tu cóctel preferido</p>
 

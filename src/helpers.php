@@ -163,20 +163,10 @@ function admin_hint_secret(): string
     return 'coctelero-admin-hint:' . $base;
 }
 
-function spirit_tag_slugs(): array
-{
-    return [
-        'gin', 'ron', 'cachaca', 'vodka', 'campari', 'aperol', 'fernet', 'cynar',
-        'pineral', 'hesperidina', 'hierro-quina', 'vermut', 'whisky', 'tequila',
-        'mezcal', 'pisco', 'brandy', 'marrasquino', 'espumante', 'triple-sec',
-        'amargo-obrero', 'chartreuse', 'strega', 'cassis', 'malibu', 'pimms',
-        'licor-cafe', 'licor-crema', 'amaretto',
-    ];
-}
-
 /**
  * Card de una receta para el listado (home, favoritos). Nombre / familia
- * y cristaleria / destilados clave (tags de bebida) / resto de las tags.
+ * y cristaleria / destilados clave (tags de bebida, tags.is_spirit) /
+ * resto de las tags.
  */
 function render_recipe_card(array $r): string
 {
@@ -187,16 +177,15 @@ function render_recipe_card(array $r): string
 
     $meta = implode(' · ', array_filter([$r['family'] ?? null, $r['glassware'] ?? null]));
 
-    $spiritSlugs = spirit_tag_slugs();
     $spiritNames = [];
     $charTags = '';
     foreach ($r['tags'] ?? [] as $t) {
-        if (in_array($t['slug'], $spiritSlugs, true)) {
+        if (!empty($t['is_spirit'])) {
             $spiritNames[] = $t['name'];
         }
     }
     $spirits = implode(', ', $spiritNames);
-    foreach (array_slice(array_filter($r['tags'] ?? [], static fn($t) => !in_array($t['slug'], $spiritSlugs, true)), 0, 4) as $t) {
+    foreach (array_slice(array_filter($r['tags'] ?? [], static fn($t) => empty($t['is_spirit'])), 0, 4) as $t) {
         $charTags .= '<span>' . e($t['name']) . '</span>';
     }
 

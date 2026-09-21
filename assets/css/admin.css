@@ -125,6 +125,11 @@ table.list td.actions form { display: inline; margin-left: 10px; }
 
     table.list-trash td:nth-child(1) { flex: 1; min-width: 0; }
     table.list-trash td:nth-child(2) { display: none; }
+
+    /* Nombre / usos / tilde: las 3 columnas importan, ninguna se oculta. */
+    table.list-tags td:nth-child(1) { flex: 1; min-width: 0; }
+    table.list-tags td:nth-child(2) { flex: 0 0 auto; font-size: 0.8rem; }
+    table.list-tags td:nth-child(3) { flex: 0 0 auto; }
 }
 
 /* Login */

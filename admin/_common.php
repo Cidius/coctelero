@@ -71,6 +71,7 @@ function admin_header(string $title, bool $chrome = true): void
                 <?php endif; ?>
                 <div class="nav-links">
                     <a href="<?= e(url('admin/dashboard.php')) ?>">Recetas</a>
+                    <a href="<?= e(url('admin/tags.php')) ?>">Tags</a>
                     <a href="<?= e(url('admin/papelera.php')) ?>">Papelera</a>
                     <a href="<?= e(url('admin/mensajes.php')) ?>">Mensajes<?= $unread > 0 ? ' <span class="badge">' . $unread . '</span>' : '' ?></a>
                     <a href="<?= e(url('/')) ?>">Ver sitio</a>

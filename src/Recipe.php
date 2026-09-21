@@ -193,12 +193,15 @@ final class Recipe
         $recipe['ingredients'] = $ing->fetchAll();
 
         $tg = $pdo->prepare(
-            'SELECT t.name, t.slug FROM recipe_tags rt
+            'SELECT t.name, t.slug, t.is_spirit FROM recipe_tags rt
              JOIN tags t ON t.id = rt.tag_id
              WHERE rt.recipe_id = :id ORDER BY t.name ASC'
         );
         $tg->execute([':id' => $recipe['id']]);
-        $recipe['tags'] = $tg->fetchAll();
+        $recipe['tags'] = array_map(
+            static fn($t) => ['name' => $t['name'], 'slug' => $t['slug'], 'is_spirit' => (bool) $t['is_spirit']],
+            $tg->fetchAll()
+        );
 
         $lk = $pdo->prepare(
             'SELECT label, url FROM recipe_links WHERE recipe_id = :id ORDER BY position ASC, id ASC'
@@ -345,7 +348,7 @@ final class Recipe
         $ids = array_column($rows, 'id');
         $ph = implode(', ', array_fill(0, count($ids), '?'));
         $stmt = $pdo->prepare(
-            "SELECT rt.recipe_id, t.name, t.slug
+            "SELECT rt.recipe_id, t.name, t.slug, t.is_spirit
              FROM recipe_tags rt JOIN tags t ON t.id = rt.tag_id
              WHERE rt.recipe_id IN ($ph)
              ORDER BY t.name ASC"
@@ -354,7 +357,11 @@ final class Recipe
 
         $byRecipe = [];
         foreach ($stmt->fetchAll() as $r) {
-            $byRecipe[(int) $r['recipe_id']][] = ['name' => $r['name'], 'slug' => $r['slug']];
+            $byRecipe[(int) $r['recipe_id']][] = [
+                'name'      => $r['name'],
+                'slug'      => $r['slug'],
+                'is_spirit' => (bool) $r['is_spirit'],
+            ];
         }
         foreach ($rows as &$row) {
             $row['tags'] = $byRecipe[(int) $row['id']] ?? [];

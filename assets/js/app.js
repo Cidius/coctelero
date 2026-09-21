@@ -8,7 +8,6 @@
 
   var ENDPOINT = app.dataset.endpoint;
   var DETAIL = app.dataset.detail;
-  var SPIRIT_TAGS = (app.dataset.spiritTags || '').split(',').filter(Boolean);
   var grid = document.getElementById('grid');
   var countEl = document.getElementById('result-count');
   var resetEl = document.getElementById('reset');
@@ -74,11 +73,11 @@
 
     var allTags = r.tags || [];
     var spiritNames = allTags.filter(function (t) {
-      return SPIRIT_TAGS.indexOf(t.slug) !== -1;
+      return !!t.is_spirit;
     }).map(function (t) { return t.name; });
     var spirits = esc(spiritNames.join(', '));
     var charTags = allTags.filter(function (t) {
-      return SPIRIT_TAGS.indexOf(t.slug) === -1;
+      return !t.is_spirit;
     }).slice(0, 4).map(function (t) {
       return '<span>' + esc(t.name) + '</span>';
     }).join('');

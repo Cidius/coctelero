@@ -343,6 +343,30 @@ final class RecipeAdmin
         }
     }
 
+    /**
+     * Todos los tags con su cantidad de usos, para /admin/tags.php.
+     *
+     * @return list<array{id:int, name:string, slug:string, is_spirit:int, uses:int}>
+     */
+    public static function allTagsWithUsage(): array
+    {
+        return Database::get()->query(
+            'SELECT t.id, t.name, t.slug, t.is_spirit, COUNT(rt.recipe_id) AS uses
+             FROM tags t
+             LEFT JOIN recipe_tags rt ON rt.tag_id = t.id
+             GROUP BY t.id, t.name, t.slug, t.is_spirit
+             ORDER BY t.name ASC'
+        )->fetchAll();
+    }
+
+    /** Marca/desmarca un tag como destilado/licor (linea de bebidas de la card). */
+    public static function setTagSpirit(int $tagId, bool $isSpirit): void
+    {
+        Database::get()
+            ->prepare('UPDATE tags SET is_spirit = :v WHERE id = :id')
+            ->execute([':v' => $isSpirit ? 1 : 0, ':id' => $tagId]);
+    }
+
     /** Sugerencias de tags para autocompletar (por prefijo, o los mas usados). */
     public static function tagSuggestions(string $q, int $limit = 10): array
     {
