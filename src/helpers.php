@@ -177,7 +177,8 @@ function render_recipe_card(array $r): string
         ? '<img src="' . e($img) . '" alt="" loading="lazy">'
         : '🍸';
 
-    $meta = implode(' · ', array_filter([$r['family'] ?? null, $r['glassware'] ?? null]));
+    $momentLabel = !empty($r['moment']) ? (\App\Recipe::MOMENTS[$r['moment']] ?? null) : null;
+    $meta = implode(' · ', array_filter([$r['family'] ?? null, $r['glassware'] ?? null, $momentLabel]));
 
     $spiritNames = [];
     $charTags = '';
@@ -191,12 +192,16 @@ function render_recipe_card(array $r): string
         $charTags .= '<span>' . e($t['name']) . '</span>';
     }
 
+    // En orden de predominancia (ya viene ordenado de la consulta).
+    $flavors = implode(', ', array_column($r['flavor_profiles'] ?? [], 'name'));
+
     return '<a class="card" href="' . e(url('receta.php?slug=' . urlencode($r['slug']))) . '">'
         . '<div class="thumb">' . $thumb . '</div>'
         . '<div class="body">'
         . '<h3>' . e($r['name']) . '</h3>'
         . ($meta !== '' ? '<p class="meta">' . e($meta) . '</p>' : '')
         . ($spirits !== '' ? '<p class="spirits">' . e($spirits) . '</p>' : '')
+        . ($flavors !== '' ? '<p class="flavor-profile">' . e($flavors) . '</p>' : '')
         . ($charTags !== '' ? '<div class="card-tags">' . $charTags . '</div>' : '')
         . '</div></a>';
 }

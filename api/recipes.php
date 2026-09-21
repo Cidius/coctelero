@@ -16,8 +16,10 @@ declare(strict_types=1);
  *   per_page  resultados por pagina: 10 (default), 20 o 50
  *
  * Respuesta: { data: [ {name, slug, image_url, glassware, ice, method,
- *              method_label, moment, family, family_slug, garnish,
- *              tags:[{name,slug}]} ], meta: {...} }
+ *              method_label, moment, moment_label, family, family_slug,
+ *              garnish, tags:[{name,slug,is_spirit}],
+ *              flavor_profiles:[{name,slug}] (en orden de predominancia)}
+ *              ], meta: {...} }
  */
 
 require __DIR__ . '/../src/helpers.php';
@@ -66,6 +68,7 @@ try {
             'family_slug'  => $r['family_slug'],
             'garnish'      => $r['garnish'],
             'tags'         => $r['tags'] ?? [],
+            'flavor_profiles' => $r['flavor_profiles'] ?? [],
         ];
     }, $result['data']);
 

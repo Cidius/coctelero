@@ -413,6 +413,7 @@ a:hover { text-decoration: underline; }
 .card h3 { margin: 0 0 3px; font-size: 1rem; color: var(--text); }
 .card .meta { color: var(--muted); font-size: 0.8rem; margin: 0; }
 .card .spirits { color: var(--accent); font-size: 0.8rem; margin: 2px 0 0; }
+.card .flavor-profile { color: var(--muted); font-size: 0.78rem; font-style: italic; margin: 2px 0 0; }
 .card .card-tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
 .card .card-tags span {
     font-size: 0.72rem;
@@ -437,7 +438,7 @@ a:hover { text-decoration: underline; }
     }
     .card .body { flex: 1; min-width: 0; padding: 8px 13px; }
     .card h3 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card .meta, .card .spirits { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card .meta, .card .spirits, .card .flavor-profile { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .card .card-tags { display: none; }
 }
 

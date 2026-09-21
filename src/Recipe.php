@@ -158,6 +158,7 @@ final class Recipe
         $rows = $stmt->fetchAll();
 
         self::attachTags($pdo, $rows);
+        self::attachFlavors($pdo, $rows);
 
         return [
             'data' => $rows,
@@ -415,6 +416,32 @@ final class Recipe
         }
         foreach ($rows as &$row) {
             $row['tags'] = $byRecipe[(int) $row['id']] ?? [];
+        }
+        unset($row);
+    }
+
+    /** @param list<array<string,mixed>> $rows */
+    private static function attachFlavors(PDO $pdo, array &$rows): void
+    {
+        if ($rows === []) {
+            return;
+        }
+        $ids = array_column($rows, 'id');
+        $ph = implode(', ', array_fill(0, count($ids), '?'));
+        $stmt = $pdo->prepare(
+            "SELECT rfp.recipe_id, fp.name, fp.slug
+             FROM recipe_flavor_profiles rfp JOIN flavor_profiles fp ON fp.id = rfp.flavor_profile_id
+             WHERE rfp.recipe_id IN ($ph)
+             ORDER BY rfp.position ASC"
+        );
+        $stmt->execute($ids);
+
+        $byRecipe = [];
+        foreach ($stmt->fetchAll() as $r) {
+            $byRecipe[(int) $r['recipe_id']][] = ['name' => $r['name'], 'slug' => $r['slug']];
+        }
+        foreach ($rows as &$row) {
+            $row['flavor_profiles'] = $byRecipe[(int) $row['id']] ?? [];
         }
         unset($row);
     }
