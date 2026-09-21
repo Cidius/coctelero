@@ -408,6 +408,65 @@ final class RecipeAdmin
             ->execute([':v' => $isSpirit ? 1 : 0, ':id' => $tagId]);
     }
 
+    /** @throws \InvalidArgumentException nombre vacio o duplicado */
+    public static function createTag(string $name): void
+    {
+        $name = trim($name);
+        if ($name === '') {
+            throw new \InvalidArgumentException('El nombre no puede estar vacío.');
+        }
+        $slug = slugify($name);
+        if ($slug === '') {
+            throw new \InvalidArgumentException('Ese nombre no genera un identificador válido.');
+        }
+        try {
+            Database::get()
+                ->prepare('INSERT INTO tags (name, slug) VALUES (:n, :s)')
+                ->execute([':n' => mb_substr($name, 0, 60), ':s' => $slug]);
+        } catch (\PDOException $e) {
+            if ((int) $e->getCode() === 23000) {
+                throw new \InvalidArgumentException('Ya existe un tag con ese nombre.');
+            }
+            throw $e;
+        }
+    }
+
+    /** @throws \InvalidArgumentException nombre vacio o duplicado */
+    public static function renameTag(int $id, string $name): void
+    {
+        $name = trim($name);
+        if ($name === '') {
+            throw new \InvalidArgumentException('El nombre no puede estar vacío.');
+        }
+        $slug = slugify($name);
+        if ($slug === '') {
+            throw new \InvalidArgumentException('Ese nombre no genera un identificador válido.');
+        }
+        try {
+            Database::get()
+                ->prepare('UPDATE tags SET name = :n, slug = :s WHERE id = :id')
+                ->execute([':n' => mb_substr($name, 0, 60), ':s' => $slug, ':id' => $id]);
+        } catch (\PDOException $e) {
+            if ((int) $e->getCode() === 23000) {
+                throw new \InvalidArgumentException('Ya existe un tag con ese nombre.');
+            }
+            throw $e;
+        }
+    }
+
+    /** No borra si hay recetas usandolo. Devuelve false en ese caso. */
+    public static function deleteTag(int $id): bool
+    {
+        $pdo = Database::get();
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM recipe_tags WHERE tag_id = :id');
+        $stmt->execute([':id' => $id]);
+        if ((int) $stmt->fetchColumn() > 0) {
+            return false;
+        }
+        $pdo->prepare('DELETE FROM tags WHERE id = :id')->execute([':id' => $id]);
+        return true;
+    }
+
     /** Sugerencias de tags para autocompletar (por prefijo, o los mas usados). */
     public static function tagSuggestions(string $q, int $limit = 10): array
     {
