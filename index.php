@@ -263,7 +263,8 @@ header('Content-Type: text/html; charset=utf-8');
 </main>
 
 <footer class="site-footer">
-    <div class="wrap">El machete necesario para cualquier bartender <span class="by">by Cidius</span></div>
+    <div class="wrap">El machete necesario para cualquier bartender <span class="by">by Cidius</span>
+        · <a href="<?= e(url('privacidad.php')) ?>">Privacidad</a></div>
 </footer>
 
 <script src="<?= e(asset('assets/js/menu.js')) ?>" defer></script>
