@@ -299,7 +299,7 @@ final class Recipe
                 JOIN recipe_tags rt ON rt.tag_id = t.id
                 JOIN recipes r ON r.id = rt.recipe_id AND r.deleted_at IS NULL
                 GROUP BY t.id, t.name, t.slug
-                ORDER BY count DESC, t.name ASC';
+                ORDER BY t.name ASC';
         return array_map(
             static fn($r) => ['name' => $r['name'], 'slug' => $r['slug'], 'count' => (int) $r['count']],
             $pdo->query($sql)->fetchAll()
